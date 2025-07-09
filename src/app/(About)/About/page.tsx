@@ -4,7 +4,7 @@ import { H2 } from '@/components/Headings'
 import { Style } from '@/constant'
 import { Metadata } from 'next'
 import Image from 'next/image'
-import React from 'react'
+import React from 'react' 
 import { CiCircleCheck } from 'react-icons/ci'
 
 export const metadata: Metadata = {
