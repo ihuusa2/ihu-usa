@@ -12,8 +12,8 @@ interface ConditionalLayoutProps {
 const ConditionalLayout: React.FC<ConditionalLayoutProps> = ({ children }) => {
   const pathname = usePathname()
   
-  // Simple check for admin routes
-  if (pathname?.startsWith('/admin')) {
+  // If pathname is undefined/null (like in not-found pages) or starts with /admin, don't show header/footer
+  if (!pathname || pathname.toLowerCase().startsWith('/admin')) {
     return children
   }
   

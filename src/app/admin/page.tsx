@@ -24,12 +24,40 @@ import {
 } from 'react-icons/fa'
 
 const Admin = async () => {
-  const totalCourseReg = await countCourseRegForm()
-  const totalStaffs = await countUsers({ role: UserRole.Staff })
-  const totalUsers = await countUsers({ role: UserRole.User })
-  const totalCourses = await countCourses()
-  const totalEvents = await countEvents()
-  const totalDonationAmounts = await totalDonationAmount()
+  let totalCourseReg = 0;
+  let totalStaffs = 0;
+  let totalUsers = 0;
+  let totalCourses = 0;
+  let totalEvents = 0;
+  let totalDonationAmounts = 0;
+
+  try {
+    console.log('Fetching course registrations...');
+    totalCourseReg = await countCourseRegForm();
+    console.log('Course registrations:', totalCourseReg);
+
+    console.log('Fetching staff count...');
+    totalStaffs = await countUsers({ role: UserRole.Staff });
+    console.log('Staff count:', totalStaffs);
+
+    console.log('Fetching user count...');
+    totalUsers = await countUsers({ role: UserRole.User });
+    console.log('User count:', totalUsers);
+
+    console.log('Fetching course count...');
+    totalCourses = await countCourses();
+    console.log('Course count:', totalCourses);
+
+    console.log('Fetching event count...');
+    totalEvents = await countEvents();
+    console.log('Event count:', totalEvents);
+
+    console.log('Fetching donation amount...');
+    totalDonationAmounts = await totalDonationAmount();
+    console.log('Donation amount:', totalDonationAmounts);
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+  }
 
   const managementCards = [
     {

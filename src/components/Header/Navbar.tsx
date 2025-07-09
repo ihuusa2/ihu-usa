@@ -34,7 +34,7 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
     const [touchEnd, setTouchEnd] = useState<number | null>(null);
     
     // Determine which menu to show
-    const currentMenu = pathname.startsWith('/admin') ? AdminMenu : menu;
+    const currentMenu = pathname.toLowerCase().startsWith('/admin') ? AdminMenu : menu;
     
     // Debug log to check if component is rendering
     console.log('Navbar rendering with menu:', currentMenu?.map(item => item.title));
