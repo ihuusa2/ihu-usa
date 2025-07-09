@@ -173,7 +173,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user }) => {
 
                         {isAdmin && (
                             <Link
-                                href="/Admin"
+                                href="/admin"
                                 onClick={() => setIsOpen(false)}
                                 className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-700 rounded-lg hover:bg-red-50 transition-colors duration-200"
                             >
