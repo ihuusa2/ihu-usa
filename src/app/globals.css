@@ -161,6 +161,11 @@ body {
   scroll-behavior: smooth;
 }
 
+/* Add padding to body to account for fixed header */
+body {
+  padding-top: 0; /* Will be dynamically calculated based on header height */
+}
+
 /* ===== ENHANCED RESPONSIVE BREAKPOINTS ===== */
 /* Mobile First Approach with Modern Design Patterns */
 

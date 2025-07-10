@@ -14,7 +14,7 @@ const CourseCard = async ({ item, className = '', isHighlighted = false }: Props
         <div className={`group relative flex flex-col bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 hover:border-orange-400 ${className} ${isHighlighted ? 'ring-2 ring-orange-500 ring-opacity-50' : ''}`}>
             {/* Featured Badge */}
             {isHighlighted && (
-                <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                <div className="absolute top-3 left-3 z-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                     ⭐ FEATURED
                 </div>
             )}

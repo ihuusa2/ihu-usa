@@ -285,9 +285,9 @@ export const Header = () => {
         },
     ];
 
-    return (
-        <header className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-10">
-                        {/* Top Contact Bar */}
+        return (
+        <header className="bg-white shadow-lg border-b border-gray-100 fixed top-0 left-0 right-0 z-[99999]">
+            {/* Top Contact Bar */}
             <TopContactBar 
                 site={site || { logo: '', phone: '', email: '', social: {} }}
                 socialLinks={socialLinks}
