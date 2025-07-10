@@ -73,7 +73,7 @@ const HeroSection = () => {
           <div className="absolute bottom-0 right-1/4 w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 bg-amber-300/30 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
         </div>
         
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-5">
           <div className="text-center max-w-5xl mx-auto">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md border border-orange-200/60 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
@@ -156,7 +156,7 @@ const QuickActions = () => {
   ]
 
   return (
-    <section className="relative -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20 xl:-mt-24 mb-12 sm:mb-16 md:mb-20 lg:mb-4 xl:mb-6 z-20 px-4 sm:px-6 lg:px-8">
+    <section className="relative -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20 xl:-mt-24 mb-12 sm:mb-16 md:mb-20 lg:mb-4 xl:mb-6 z-5 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {actionItems.map((item, index) => (
@@ -216,7 +216,7 @@ const Statistics = () => {
         <div className="absolute bottom-0 right-0 w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 bg-amber-300/20 rounded-full translate-x-16 sm:translate-x-24 md:translate-x-32 translate-y-16 sm:translate-y-24 md:translate-y-32 blur-3xl"></div>
       </div>
       
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-5">
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md border border-orange-200/60 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 shadow-lg">
             <FaAward className="text-orange-400 text-base sm:text-lg" />
@@ -309,7 +309,7 @@ const Features = () => {
         <div className="absolute bottom-20 left-20 w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 bg-amber-400 rounded-full blur-3xl"></div>
       </div>
       
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-5">
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 sm:gap-3 bg-orange-50 border border-orange-200 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8">
             <BsFillLightningFill className="text-orange-400 text-base sm:text-lg" />
@@ -388,7 +388,7 @@ const Testimonials = () => {
 
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32 bg-gradient-to-br from-gray-50 to-orange-50/40 relative overflow-hidden">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-5">
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md border border-orange-200/60 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 shadow-lg">
             <FaStar className="text-orange-400 text-base sm:text-lg" />
@@ -451,14 +451,14 @@ const VirtualTour = () => {
         <div className="absolute bottom-0 right-0 w-32 h-32 sm:w-40 sm:h-40 md:w-56 md:h-56 lg:w-80 lg:h-80 bg-amber-400/20 rounded-full translate-x-16 sm:translate-x-20 md:translate-x-28 lg:translate-x-40 translate-y-16 sm:translate-y-20 md:translate-y-28 lg:translate-y-40 blur-3xl"></div>
       </div>
       
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-5">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           <div className="relative group animate-fade-in-left">
             {/* Video container with enhanced styling */}
             <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl transform group-hover:scale-105 transition-transform duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-amber-400/20 rounded-2xl sm:rounded-3xl transform rotate-1 sm:rotate-2 group-hover:rotate-1 transition-transform duration-500"></div>
               <iframe
-                className="w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] rounded-2xl sm:rounded-3xl relative z-10"
+                className="w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] rounded-2xl sm:rounded-3xl relative z-5"
                 src="https://www.youtube.com/embed/eIYKgjiguxE"
                 title="YouTube video player"
                 frameBorder="0"
@@ -468,7 +468,7 @@ const VirtualTour = () => {
             </div>
             
             {/* Play button overlay */}
-            <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute inset-0 flex items-center justify-center z-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
                 <FaPlay className="text-white text-lg sm:text-2xl ml-1" />
               </div>
@@ -535,7 +535,7 @@ const LatestBlogs = ({ blogs }: { blogs: { list: Blog[], count: number } }) => {
 
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32 bg-white relative overflow-hidden">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-5">
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 sm:gap-3 bg-orange-50 border border-orange-200 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8">
             <FaBook className="text-orange-400 text-base sm:text-lg" />
@@ -647,7 +647,7 @@ const CallToAction = () => {
         <div className="absolute bottom-0 right-0 w-32 h-32 sm:w-40 sm:h-40 md:w-56 md:h-56 lg:w-80 lg:h-80 bg-white/10 rounded-full translate-x-16 sm:translate-x-20 md:translate-x-28 lg:translate-x-40 translate-y-16 sm:translate-y-20 md:translate-y-28 lg:translate-y-40 blur-3xl"></div>
       </div>
       
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-5 text-center">
         <div className="inline-flex items-center gap-2 sm:gap-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8">
           <FaStar className="text-white text-base sm:text-lg" />
           <span className="text-xs sm:text-sm font-semibold text-white">Ready to Begin?</span>
