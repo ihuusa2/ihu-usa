@@ -1,8 +1,22 @@
 const cloudinaryImageUploadMethod = async (file: File) => {
+  // Check if API key is configured
+  if (!process.env.CLOUDINARY_API_KEY) {
+    console.error('CLOUDINARY_API_KEY is not configured');
+    throw new Error('Cloudinary API key is not configured. Please add CLOUDINARY_API_KEY to your environment variables.');
+  }
+
   const fileFormData = new FormData();
   fileFormData.append("file", file);
   fileFormData.append("upload_preset", "ihuusa");
-  fileFormData.append("api_key", process.env.CLOUDINARY_API_KEY as string);
+  fileFormData.append("api_key", process.env.CLOUDINARY_API_KEY);
+
+  console.log('Uploading to Cloudinary:', {
+    fileName: file.name,
+    fileSize: file.size,
+    fileType: file.type,
+    uploadPreset: 'ihuusa',
+    hasApiKey: !!process.env.CLOUDINARY_API_KEY
+  });
 
   try {
     const response = await fetch(
@@ -13,11 +27,20 @@ const cloudinaryImageUploadMethod = async (file: File) => {
       }
     );
 
+    console.log('Cloudinary response status:', response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Cloudinary error response:', errorText);
       throw new Error(`Cloudinary upload failed: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('Cloudinary upload successful:', {
+      secure_url: data.secure_url,
+      public_id: data.public_id,
+      format: data.format
+    });
     
     if (data.error) {
       throw new Error(`Cloudinary error: ${data.error.message}`);

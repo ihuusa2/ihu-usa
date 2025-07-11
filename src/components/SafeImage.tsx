@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { getValidImageUrl } from '@/utils/imageUtils'
 import HydrationGuard from './HydrationGuard'
 
@@ -29,11 +29,31 @@ export default function SafeImage({
 
   const handleError = () => {
     if (!hasError) {
-      console.error('Image failed to load:', imgSrc)
-      setImgSrc(fallbackSrc)
-      setHasError(true)
+      console.error('SafeImage: Image failed to load:', imgSrc)
+      // Try fallback image
+      if (imgSrc !== fallbackSrc) {
+        console.log('SafeImage: Trying fallback image:', fallbackSrc)
+        setImgSrc(fallbackSrc)
+        setHasError(true)
+      } else {
+        // If fallback also fails, show a placeholder
+        console.error('SafeImage: Fallback image also failed to load')
+      }
     }
   }
+
+  const handleLoad = () => {
+    console.log('SafeImage: Image loaded successfully:', imgSrc)
+  }
+
+  // Reset error state when src changes
+  useEffect(() => {
+    const newSrc = getValidImageUrl(src)
+    if (newSrc !== imgSrc) {
+      setImgSrc(newSrc)
+      setHasError(false)
+    }
+  }, [src, imgSrc])
 
   return (
     <HydrationGuard fallback={
@@ -50,6 +70,8 @@ export default function SafeImage({
         className={className}
         priority={priority}
         onError={handleError}
+        onLoad={handleLoad}
+        unoptimized={imgSrc.startsWith('/')} // Disable optimization for local images
       />
     </HydrationGuard>
   )

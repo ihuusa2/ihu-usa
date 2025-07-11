@@ -20,7 +20,9 @@ const ConditionalLayout: React.FC<ConditionalLayoutProps> = ({ children }) => {
   return (
     <>
       <Header />
-      {children}
+      <div className="pt-30">
+        {children}
+      </div>
       <Footer />
     </>
   )

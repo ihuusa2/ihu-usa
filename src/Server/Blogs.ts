@@ -13,38 +13,53 @@ const Blogs = db.collection('Blogs');
 const processImageUrl = (image: File | string | undefined | null): string => {
     // If image is undefined, null, or empty string, return fallback
     if (!image || (typeof image === 'string' && image.trim() === '')) {
+        console.log('processImageUrl: No image provided, using fallback');
+        return '/Images/Programs/image1.png';
+    }
+    
+    // Handle empty string specifically
+    if (typeof image === 'string' && image === '') {
+        console.log('processImageUrl: Empty string detected, using fallback');
         return '/Images/Programs/image1.png';
     }
     
     if (typeof image === 'string') {
         const trimmed = image.trim();
+        console.log('processImageUrl: Processing string image:', trimmed);
         
         // If it's already a valid URL or relative path, return as is
         if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+            console.log('processImageUrl: Valid URL/path, returning as is');
             return trimmed;
         }
         
         // If it's a Cloudinary URL (common case for uploaded images)
         if (trimmed.includes('cloudinary.com')) {
+            console.log('processImageUrl: Cloudinary URL detected');
             return trimmed;
         }
         
         // If it's just a filename without path, assume it's in the public folder
         if (!trimmed.includes('/') && !trimmed.includes('\\')) {
-            return `/${trimmed}`;
+            const publicPath = `/${trimmed}`;
+            console.log('processImageUrl: Filename detected, adding public path:', publicPath);
+            return publicPath;
         }
         
         // If it's a relative path without leading slash, add it
         if (!trimmed.startsWith('/')) {
-            return `/${trimmed}`;
+            const relativePath = `/${trimmed}`;
+            console.log('processImageUrl: Relative path detected, adding leading slash:', relativePath);
+            return relativePath;
         }
         
         // If none of the above, return fallback
+        console.log('processImageUrl: No valid format detected, using fallback');
         return '/Images/Programs/image1.png';
     }
     
     // If it's a File object, this shouldn't happen at this point
-    // Return fallback image
+    console.log('processImageUrl: File object detected, using fallback');
     return '/Images/Programs/image1.png';
 };
 
@@ -70,18 +85,24 @@ export const getAllBlogs = async ({ searchParams }: {
     searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<{ list: Blog[]; count: number } | null> => {
 
-    const { page = 0, pageSize = 10, ...query } = parseQuery(searchParams) as { page: string; pageSize: string;[key: string]: unknown };
-    const pageNumber: number = Number(page);
-    const pageSizeNumber: number = Number(pageSize);
+    try {
+        const { page = 0, pageSize = 10, ...query } = parseQuery(searchParams) as { page: string; pageSize: string;[key: string]: unknown };
+        const pageNumber: number = Number(page);
+        const pageSizeNumber: number = Number(pageSize);
 
-    const list = await Blogs.find(query)
-        .skip(pageNumber * pageSizeNumber)
-        .limit(pageSizeNumber)
-        .toArray();
+        console.log('Attempting to fetch blogs from database...');
+        
+        const list = await Blogs.find(query)
+            .skip(pageNumber * pageSizeNumber)
+            .limit(pageSizeNumber)
+            .toArray();
 
-    const count = await Blogs.countDocuments(query);
+        console.log(`Successfully fetched ${list.length} blogs`);
 
-    if (!list) return null;
+        const count = await Blogs.countDocuments(query);
+        console.log(`Total blog count: ${count}`);
+
+        if (!list) return null;
 
     // Process images in the returned blogs to ensure they're valid URLs
     const processedList = list.map(blog => {
@@ -93,13 +114,20 @@ export const getAllBlogs = async ({ searchParams }: {
             console.log(`Processing blog "${blog.title}": ${originalImage} -> ${processedImage}`);
         }
         
+        // Ensure we never return empty strings for images
+        const finalImage = processedImage || '/Images/Programs/image1.png';
+        
         return {
             ...blog,
-            image: processedImage
+            image: finalImage
         };
     });
 
-    return JSON.parse(JSON.stringify({ list: processedList, count }));
+        return JSON.parse(JSON.stringify({ list: processedList, count }));
+    } catch (error) {
+        console.error('Error fetching blogs from database:', error);
+        throw error;
+    }
 }
 
 export const getBlogById = async (id: string): Promise<Blog | null> => {
@@ -107,9 +135,12 @@ export const getBlogById = async (id: string): Promise<Blog | null> => {
     if (!result) return null;
     
     // Process image to ensure it's a valid URL
+    const processedImage = processImageUrl(result.image);
+    const finalImage = processedImage || '/Images/Programs/image1.png';
+    
     const processedResult = {
         ...result,
-        image: processImageUrl(result.image)
+        image: finalImage
     };
     
     return JSON.parse(JSON.stringify(processedResult));
@@ -120,9 +151,12 @@ export const getBlogBySlug = async (slug: string): Promise<Blog | null> => {
     if (!result) return null;
     
     // Process image to ensure it's a valid URL
+    const processedImage = processImageUrl(result.image);
+    const finalImage = processedImage || '/Images/Programs/image1.png';
+    
     const processedResult = {
         ...result,
-        image: processImageUrl(result.image)
+        image: finalImage
     };
     
     return JSON.parse(JSON.stringify(processedResult));
@@ -265,11 +299,16 @@ export const getBlogImagesSummary = async (): Promise<{ title: string; image: st
     return allBlogs.map(blog => {
         const originalImage = blog.image;
         const processedImage = processImageUrl(blog.image);
-        const isValid = originalImage === processedImage;
+        const finalImage = processedImage || '/Images/Programs/image1.png';
+        
+        // An image is valid if it's not empty and not the fallback image
+        const isValid = originalImage && 
+                       originalImage.trim() !== '' && 
+                       originalImage !== '/Images/Programs/image1.png';
         
         return {
             title: blog.title,
-            image: originalImage,
+            image: finalImage, // Return the processed image
             isValid
         };
     });

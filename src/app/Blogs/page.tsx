@@ -12,6 +12,8 @@ import Pagination from '@/components/Pagination'
 import SearchInput from '@/components/SearchInput'
 import { Calendar, Clock, ArrowRight, BookOpen, Search, X } from 'lucide-react'
 
+
+
 export const metadata: Metadata = {
   title: 'Educational Blogs - International Hindu University',
   description: 'Explore a range of educational blogs from International Hindu University. Dive into topics on Hindu studies, Yoga, Ayurveda, and more.'
@@ -23,9 +25,17 @@ type Props = {
 
 const Blogs = async ({ searchParams }: Props) => {
   const searchParamsList = await searchParams
-  const blogs: { list: Blog[], count: number } = await getAllBlogs({ searchParams: searchParamsList }) as { list: Blog[], count: number }
+  
+  // Test database connection
+  let blogs: { list: Blog[], count: number } | null = null;
+  try {
+    blogs = await getAllBlogs({ searchParams: searchParamsList }) as { list: Blog[], count: number };
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    blogs = { list: [], count: 0 };
+  }
 
-  if (blogs?.count === 0) {
+  if (!blogs || blogs.count === 0) {
     return (
       <Container className='my-20'>
         <div className='text-center py-16'>
@@ -34,8 +44,21 @@ const Blogs = async ({ searchParams }: Props) => {
           </div>
           <H1 className='text-3xl font-bold text-gray-900 mb-4'>No Blogs Found</H1>
           <p className='text-gray-600 max-w-md mx-auto'>
-            We couldn&apos;t find any blogs matching your search. Try adjusting your search terms or explore our latest content.
+            {!blogs ? 
+              'Unable to load blogs at the moment. Please try again later.' :
+              'We couldn&apos;t find any blogs matching your search. Try adjusting your search terms or explore our latest content.'
+            }
           </p>
+          {!blogs && (
+            <div className='mt-6'>
+              <button 
+                onClick={() => window.location.reload()} 
+                className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors'
+              >
+                Try Again
+              </button>
+            </div>
+          )}
         </div>
       </Container>
     )
@@ -123,6 +146,21 @@ const Blogs = async ({ searchParams }: Props) => {
           )}
         </div>
 
+
+
+        {/* Debug: Blog Data */}
+        {process.env.NODE_ENV === 'development' && blogs?.list && blogs.list.length > 0 && (
+          <div className='mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+            <h3 className='text-sm font-semibold text-blue-800 mb-2'>Debug: Blog Data</h3>
+            <div className='text-xs text-blue-700 space-y-1'>
+              <p>Total blogs: {blogs.count}</p>
+              <p>First blog title: {blogs.list[0]?.title}</p>
+              <p>First blog image: {typeof blogs.list[0]?.image === 'string' ? blogs.list[0]?.image : 'File object'}</p>
+              <p>Processed image URL: {getValidImageUrl(blogs.list[0]?.image)}</p>
+            </div>
+          </div>
+        )}
+
         {/* Featured Blog (if exists) */}
         {blogs?.list && blogs.list.length > 0 && blogs.list[0].slug && !searchParamsList?.title && (
           <div className='mb-16'>
@@ -130,13 +168,13 @@ const Blogs = async ({ searchParams }: Props) => {
             <Link href={`/Blogs/${blogs.list[0].slug}`}>
               <div className='group hover:shadow-2xl transition-all duration-300 border border-gray-200 bg-white rounded-2xl overflow-hidden'>
                 <div className='md:flex'>
-                  <div className='md:w-1/2 bg-gray-100'>
+                  <div className='md:w-1/2 bg-gray-100 relative overflow-hidden'>
                     <SafeImage
-                      src={getValidImageUrl(blogs.list[0].image)}
+                      src={getValidImageUrl(blogs.list[0].image) || '/Images/Programs/image1.png'}
                       alt={blogs.list[0].title || 'Featured Article'}
                       width={600}
                       height={400}
-                      className='w-full h-64 md:h-full object-contain bg-white group-hover:scale-105 transition-transform duration-300'
+                      className='w-full h-64 md:h-full object-cover bg-white group-hover:scale-105 transition-transform duration-300'
                     />
                   </div>
                   <div className='md:w-1/2 p-8 flex flex-col justify-center'>
@@ -210,7 +248,7 @@ const Blogs = async ({ searchParams }: Props) => {
           ) : (
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
               {(searchParamsList?.title ? blogs?.list?.filter(item => item.slug) : blogs?.list?.slice(1).filter(item => item.slug))?.map((item, index) => {
-                const cardImageUrl = getValidImageUrl(item.image);
+                const cardImageUrl = getValidImageUrl(item.image) || '/Images/Programs/image1.png';
                 
                 return (
                   <Link key={index} href={`/Blogs/${item.slug}`}>
