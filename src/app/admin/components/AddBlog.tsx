@@ -4,7 +4,7 @@ import type { Blog } from "@/Types/Blogs";
 import React, { useState, useEffect } from 'react'
 import { createBlog, updateBlog, checkSlugExists } from '@/Server/Blogs'
 import Spinner from '@/components/Spinner'
-import Image from 'next/image'
+import SafeImage from '@/components/SafeImage'
 import cloudinaryImageUploadMethod from '@/functions/cloudinary'
 import Jodit from "./jodit";
 import { FaFileAlt, FaImage, FaUser, FaEdit, FaCheck, FaUpload } from 'react-icons/fa';
@@ -62,13 +62,9 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
 
         if (value.image instanceof File) {
             try {
-                console.log('Uploading image to Cloudinary:', value.image.name);
                 const data = await cloudinaryImageUploadMethod(value.image)
-                console.log('Cloudinary upload response:', data);
                 newImage = data.secure_url
-                console.log('Final image URL:', newImage);
-            } catch (error) {
-                console.error('Image upload failed:', error);
+            } catch {
                 setMessage('Image upload failed.')
                 setLoading(false)
                 return
@@ -293,21 +289,12 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
                         {value.image && (
                             <div className="flex items-center gap-4 p-4 bg-white rounded-lg border border-purple-200">
                                 <div className="flex-shrink-0">
-                                    <Image
+                                    <SafeImage
                                         width={120}
                                         height={80}
                                         src={value.image instanceof File ? URL.createObjectURL(value.image) : value.image as string}
                                         alt="Blog featured image"
                                         className="w-30 h-20 object-cover rounded-lg border-2 border-purple-200"
-                                        onError={(e) => {
-                                            console.log('AddBlog image preview failed to load:', value.image);
-                                            // Fallback to default image on error
-                                            const target = e.target as HTMLImageElement;
-                                            target.src = '/Images/Programs/image1.png';
-                                        }}
-                                        onLoad={() => {
-                                            console.log('AddBlog image preview loaded successfully:', value.image);
-                                        }}
                                     />
                                 </div>
                                 <div className="flex-1 min-w-0">

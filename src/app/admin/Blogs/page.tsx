@@ -7,44 +7,32 @@ import Spinner from '@/components/Spinner'
 import { deleteBlog, getAllBlogs } from '@/Server/Blogs'
 import Pagination from '@/components/Pagination'
 import { useSearchParams } from 'next/navigation'
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import AddBlog from "../components/AddBlog";
 import { Search, Eye, Edit, Trash2, Plus, FileText, User, X } from "lucide-react";
 
 // Utility function to validate and get image URL
 const getImageUrl = (image: File | string | undefined): string => {
     if (!image) {
-        console.log('No image provided, using default');
         return '/Images/Programs/image1.png';
     }
     
     if (typeof image === 'string') {
         const trimmed = image.trim();
         if (trimmed === '') {
-            console.log('Empty image string, using default');
             return '/Images/Programs/image1.png';
         }
         
-        // Check if it's a valid URL or relative path
+        // If it's already a valid URL (http, https, or relative path starting with /)
         if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
-            console.log('Using image URL:', trimmed);
-            return trimmed;
-        }
-        
-        // If it's a Cloudinary URL (common case for uploaded images)
-        if (trimmed.includes('cloudinary.com')) {
-            console.log('Using Cloudinary URL:', trimmed);
             return trimmed;
         }
         
         // If it's just a filename, assume it's in the public folder
-        const publicPath = `/${trimmed}`;
-        console.log('Using public path:', publicPath);
-        return publicPath;
+        return `/${trimmed}`;
     }
     
     // If it's a File object, we can't display it directly in this context
-    console.log('File object detected, using default image');
     return '/Images/Programs/image1.png';
 };
 
@@ -244,12 +232,8 @@ const AdminBlogs = () => {
             });
             await getAllBlogs({ searchParams: params }).then((blogs) => {
                 if (blogs && blogs?.list?.length > 0) {
-                    console.log('Received blogs data:', blogs.list);
-                    console.log('First blog sample:', blogs.list[0]);
                     setData(blogs.list)
                     setCount(blogs.count)
-                } else {
-                    console.log('No blogs data received or empty list');
                 }
             }).finally(() => {
                 setLoading(false)
@@ -349,52 +333,23 @@ const AdminBlogs = () => {
                                         <TableRow key={blog._id}>
                                             <TableCell>
                                                 <div className="flex items-center justify-center min-h-[60px]">
-                                                                                                        {(() => {
-                                                        // Simple approach - always show something
-                                                        const hasImage = blog.image && typeof blog.image === 'string' && blog.image.trim() !== '';
-                                                        const imageUrl = hasImage ? getImageUrl(blog.image) : null;
+                                                    {(() => {
+                                                        const imageUrl = getImageUrl(blog.image);
+                                                        const hasValidImage = blog.image && typeof blog.image === 'string' && blog.image.trim() !== '';
                                                         
-                                                        console.log(`Blog "${blog.title}":`, {
-                                                            originalImage: blog.image,
-                                                            hasImage,
-                                                            imageUrl
-                                                        });
-                                                        
-                                                        if (hasImage && imageUrl) {
+                                                        if (hasValidImage) {
                                                             return (
                                                                 <div 
                                                                     className="relative cursor-pointer group"
                                                                     onClick={() => setSelectedImage(imageUrl)}
                                                                 >
                                                                     <div className="w-[80px] h-[60px] rounded-lg border-2 border-gray-200 group-hover:border-blue-400 transition-colors overflow-hidden bg-gray-50">
-                                                                        <Image 
+                                                                        <SafeImage 
                                                                             src={imageUrl}
                                                                             alt={blog.title || 'Blog image'} 
                                                                             width={80}
                                                                             height={60}
                                                                             className="w-full h-full object-cover"
-                                                                            onError={(e) => {
-                                                                                console.log('Image failed to load:', imageUrl);
-                                                                                // Show placeholder on error
-                                                                                const target = e.target as HTMLImageElement;
-                                                                                target.style.display = 'none';
-                                                                                const container = target.parentElement;
-                                                                                if (container) {
-                                                                                    container.innerHTML = `
-                                                                                        <div class="w-full h-full flex items-center justify-center bg-gray-100">
-                                                                                            <div class="text-center">
-                                                                                                <svg class="w-5 h-5 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                                                                </svg>
-                                                                                                <div class="text-xs text-gray-500">No Image</div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    `;
-                                                                                }
-                                                                            }}
-                                                                            onLoad={() => {
-                                                                                console.log('Image loaded successfully:', imageUrl);
-                                                                            }}
                                                                         />
                                                                     </div>
                                                                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all flex items-center justify-center">
@@ -518,21 +473,12 @@ const AdminBlogs = () => {
             >
                 <div className="p-6">
                     <div className="flex justify-center">
-                        <Image 
+                        <SafeImage 
                             src={selectedImage || '/Images/Programs/image1.png'} 
                             alt="Blog image" 
                             width={500} 
                             height={300} 
                             className="rounded-lg object-cover max-w-full h-auto"
-                            onError={(e) => {
-                                console.log('Modal image failed to load:', selectedImage);
-                                // Fallback to default image on error
-                                const target = e.target as HTMLImageElement;
-                                target.src = '/Images/Programs/image1.png';
-                            }}
-                            onLoad={() => {
-                                console.log('Modal image loaded successfully:', selectedImage);
-                            }}
                         />
                     </div>
                 </div>

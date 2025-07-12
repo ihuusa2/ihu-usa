@@ -156,7 +156,7 @@ const QuickActions = () => {
   ]
 
   return (
-    <section className="relative -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20 xl:-mt-24 mb-12 sm:mb-16 md:mb-20 lg:mb-4 xl:mb-6 z-5 px-4 sm:px-6 lg:px-8">
+    <section className="relative -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20 xl:-mt-24 mb-0 sm:mb-2 md:mb-4 lg:mb-6 xl:mb-8 z-5 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {actionItems.map((item, index) => (
@@ -169,7 +169,7 @@ const QuickActions = () => {
                 <div className={`h-full bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl border-2 ${item.borderColor} p-6 sm:p-8 transform transition-all duration-500 group-hover:scale-105 group-hover:-translate-y-2 relative overflow-hidden ${item.bgColor}`}>
                   {/* Background pattern */}
                   <div className="absolute inset-0 opacity-5">
-                    <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-gradient-to-br from-orange-400 to-amber-400 rounded-full -translate-y-10 sm:-translate-y-12 md:-translate-y-16 translate-x-10 sm:translate-x-12 md:translate-x-16"></div>
+                    <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-gradient-to-br from-orange-300 to-amber-200 rounded-full -translate-y-10 sm:-translate-y-12 md:-translate-y-16 translate-x-10 sm:translate-x-12 md:translate-x-16"></div>
                   </div>
                   
                   {/* Icon */}
@@ -209,7 +209,7 @@ const Statistics = () => {
   ]
 
   return (
-    <section className="bg-gradient-to-br from-white via-orange-50/40 to-amber-50/40 py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32 my-12 sm:my-16 md:my-20 lg:my-24 xl:my-32 relative overflow-hidden">
+    <section className="bg-gradient-to-br from-white via-orange-50/40 to-amber-50/40 py-4 sm:py-6 md:py-8 lg:py-12 xl:py-16 my-0 sm:my-2 md:my-4 lg:my-6 xl:my-8 relative overflow-hidden">
       {/* Background patterns */}
       <div className="absolute inset-0 opacity-15">
         <div className="absolute top-0 left-0 w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 bg-orange-300/20 rounded-full -translate-x-16 sm:-translate-x-24 md:-translate-x-32 -translate-y-16 sm:-translate-y-24 md:-translate-y-32 blur-3xl"></div>

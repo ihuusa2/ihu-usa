@@ -29,21 +29,16 @@ export default function SafeImage({
 
   const handleError = () => {
     if (!hasError) {
-      console.error('SafeImage: Image failed to load:', imgSrc)
       // Try fallback image
       if (imgSrc !== fallbackSrc) {
-        console.log('SafeImage: Trying fallback image:', fallbackSrc)
         setImgSrc(fallbackSrc)
         setHasError(true)
-      } else {
-        // If fallback also fails, show a placeholder
-        console.error('SafeImage: Fallback image also failed to load')
       }
     }
   }
 
   const handleLoad = () => {
-    console.log('SafeImage: Image loaded successfully:', imgSrc)
+    // Image loaded successfully
   }
 
   // Reset error state when src changes
