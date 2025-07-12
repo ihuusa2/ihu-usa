@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 import Spinner from '@/components/Spinner'
 import { deleteTeam, getAllTeams } from '@/Server/Team'
 import Pagination from '@/components/Pagination'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Image from "next/image";
 import AddTeamMember from "../components/AddTeam";
 
@@ -18,8 +18,6 @@ import {
     FaTrash,
     FaPlus,
     FaSearch,
-    FaFilter,
-    FaChartLine,
     FaEye,
     FaTimesCircle,
     FaInfoCircle,
@@ -32,16 +30,40 @@ import {
 
 const AdminTeam = () => {
     const searchParams = useSearchParams()
+    const router = useRouter()
+    const pathname = usePathname()
     const [data, setData] = useState<Team[]>([])
     const [loading, setLoading] = useState(true)
     const [count, setCount] = useState(0)
     const [open, setOpen] = useState(false)
-    const [searchTerm, setSearchTerm] = useState('')
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
+
+    // Handle search input changes
+    const handleSearchChange = (value: string) => {
+        console.log('handleSearchChange called with:', value)
+        setSearchTerm(value)
+        const params = new URLSearchParams(searchParams.toString())
+        
+        if (value.trim()) {
+            params.set('search', value)
+        } else {
+            params.delete('search')
+        }
+        
+        // Reset to first page when searching
+        params.delete('page')
+        
+        const newUrl = `${pathname}?${params.toString()}`
+        console.log('Navigating to:', newUrl)
+        router.push(newUrl)
+    }
 
     useEffect(() => {
         (async () => {
             setLoading(true)
-            await getAllTeams({ searchParams: Object.fromEntries(searchParams.entries()) }).then((members) => {
+            const params = Object.fromEntries(searchParams.entries())
+            console.log('Client sending params:', params)
+            await getAllTeams({ searchParams: params }).then((members) => {
                 if (members) {
                     setData(members.list)
                     setCount(members.count)
@@ -52,12 +74,8 @@ const AdminTeam = () => {
         })()
     }, [searchParams])
 
-    // Filter data based on search term
-    const filteredData = data.filter(item => 
-        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    // Use data directly since server-side filtering handles the search
+    const filteredData = data
 
     const getCategoryBadge = (category: string) => {
         const categoryLower = category?.toLowerCase();
@@ -94,7 +112,7 @@ const AdminTeam = () => {
 
     // Statistics
     const stats = {
-        total: data.length,
+        total: count, // Use total count from server
         categories: [...new Set(data.map(item => item.category))].length,
         withImages: data.filter(item => item.image).length,
         withDescriptions: data.filter(item => item.description).length
@@ -119,14 +137,6 @@ const AdminTeam = () => {
                         </div>
                         
                         <div className="flex items-center gap-3">
-                            <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                <FaFilter className="h-4 w-4" />
-                                Filter
-                            </button>
-                            <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                <FaChartLine className="h-4 w-4" />
-                                Analytics
-                            </button>
                             <button 
                                 onClick={() => setOpen(true)}
                                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -213,7 +223,7 @@ const AdminTeam = () => {
                                     </div>
                                     Team Directory
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 ml-2">
-                                        {data.length} Members
+                                        {count} Members
                                     </span>
                                 </h2>
                                 <p className="mt-2 text-gray-600 text-sm">
@@ -228,7 +238,7 @@ const AdminTeam = () => {
                                         type="text"
                                         placeholder="Search team members..."
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) => handleSearchChange(e.target.value)}
                                         className="pl-10 pr-4 py-2 w-80 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                                     />
                                 </div>
@@ -262,7 +272,7 @@ const AdminTeam = () => {
                                 <div className="px-6 py-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                         <p className="text-sm text-gray-600">
-                                            Showing <span className="font-semibold text-gray-800">{filteredData.length}</span> of <span className="font-semibold text-gray-800">{data.length}</span> team members
+                                            Showing <span className="font-semibold text-gray-800">{filteredData.length}</span> of <span className="font-semibold text-gray-800">{count}</span> team members
                                         </p>
                                         <div className="flex items-center gap-4 text-sm">
                                             <div className="flex items-center gap-2">

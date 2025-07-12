@@ -155,14 +155,49 @@ export const Header = () => {
         },
         {
             title: "Our Team",
-            items: (teamCategory?.list && teamCategory.list.length > 0) ? teamCategory.list.map((item: { title: string }) => ({ 
-                title: item.title, 
-                path: `/Team/${item.title?.replace(/\s+/g, '-')}` 
-            })) : [
-                { title: "Executive Team", path: "/Team/Executive-Team" },
-                { title: "Faculty", path: "/Team/Faculty" },
-                { title: "Advisory Board", path: "/Team/Advisory-Board" }
-            ]
+            items: (() => {
+                if (teamCategory?.list && teamCategory.list.length > 0) {
+                    // Create the dynamic menu items
+                    const dynamicItems = teamCategory.list.map((item: { title: string }) => ({ 
+                        title: item.title, 
+                        path: `/Team/${item.title?.replace(/\s+/g, '-')}` 
+                    }));
+                    
+                    // Check if "Board of Trustees" already exists in the dynamic list
+                    const hasBoardOfTrustees = dynamicItems.some(item => 
+                        item.title.toLowerCase().includes('board of trustees') || 
+                        item.title.toLowerCase().includes('trustees')
+                    );
+                    
+                    // If "Board of Trustees" doesn't exist, add it at the top
+                    if (!hasBoardOfTrustees) {
+                        return [
+                            { title: "Board of Trustees", path: "/Team/Board-of-Trustees" },
+                            ...dynamicItems
+                        ];
+                    }
+                    
+                    // If it exists, reorder to put it at the top
+                    const boardOfTrustees = dynamicItems.find(item => 
+                        item.title.toLowerCase().includes('board of trustees') || 
+                        item.title.toLowerCase().includes('trustees')
+                    );
+                    const otherItems = dynamicItems.filter(item => 
+                        !item.title.toLowerCase().includes('board of trustees') && 
+                        !item.title.toLowerCase().includes('trustees')
+                    );
+                    
+                    return boardOfTrustees ? [boardOfTrustees, ...otherItems] : dynamicItems;
+                } else {
+                    // Fallback menu
+                    return [
+                        { title: "Board of Trustees", path: "/Team/Board-of-Trustees" },
+                        { title: "Executive Team", path: "/Team/Executive-Team" },
+                        { title: "Faculty", path: "/Team/Faculty" },
+                        { title: "Advisory Board", path: "/Team/Advisory-Board" }
+                    ];
+                }
+            })()
         },
         {
             title: "Courses",

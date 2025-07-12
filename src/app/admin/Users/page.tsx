@@ -22,8 +22,6 @@ import {
     FaTrash,
     FaPlus,
     FaSearch,
-    FaFilter,
-    FaChartLine,
     FaTimesCircle,
     FaCrown,
     FaTimes
@@ -132,14 +130,6 @@ const AdminUsers = () => {
                         </div>
                         
                         <div className="flex items-center gap-3">
-                            <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
-                                <FaFilter className="h-4 w-4" />
-                                Filter
-                            </button>
-                            <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
-                                <FaChartLine className="h-4 w-4" />
-                                Analytics
-                            </button>
                             <button 
                                 onClick={() => setOpen(true)}
                                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg hover:from-purple-600 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-lg hover:shadow-xl"

@@ -48,10 +48,36 @@ const InitiatePayment = ({ registration, price, show, onClose }: InitiatePayment
     const handleCart = async (orderId: string) => {
         try {
             setIsProcessing(true)
+            
+            // Create registration with orderId
             await createRegisterForm({
                 ...registration,
                 orderId,
             })
+            
+            // Immediately update payment status to COMPLETED
+            try {
+                const updateResponse = await fetch('/api/payments/update-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        status: 'COMPLETED'
+                    })
+                });
+
+                if (!updateResponse.ok) {
+                    console.warn('Failed to update payment status immediately, but webhook will handle it');
+                } else {
+                    console.log('Payment status updated to COMPLETED immediately');
+                }
+            } catch (updateError) {
+                console.warn('Error updating payment status immediately:', updateError);
+                // Don't fail the entire process - webhook will handle the update
+            }
+            
             route.push('/Success')
         } catch (error) {
             console.error('Error creating registration:', error)

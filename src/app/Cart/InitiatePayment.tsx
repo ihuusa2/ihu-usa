@@ -1,26 +1,67 @@
 'use client'
 
 import InitiatePaypal from '@/components/Paypal'
+import { createMultiCourseRegForm } from '@/Server/CourseRegForm'
 import { Cart } from '@/Types/Cart'
+import { PaymentStatus } from '@/Types/Form'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
 const InitiatePayment = ({ cart }: { cart: Cart[] }) => {
     const [show, setShow] = React.useState(false)
+    const [isProcessing, setIsProcessing] = React.useState(false)
     const route = useRouter()
 
-    // const handleCart = async (orderId: string) => {
-    //     await createMultiCourseRegForm(cart?.map(item => ({
-    //         orderId,
-    //         registrationNumber: item.registrationNumber,
-    //         course: item.course,
-    //         program: item.program,
-    //         subjects: item.subjects,
-    //         price: item.price,
-    //         createdAt: new Date(),
-    //         status: PaymentStatus.PENDING
-    //     })))
-    // }
+    const handleCart = async (orderId: string) => {
+        try {
+            setIsProcessing(true)
+            
+            // Create course registrations with orderId
+            await createMultiCourseRegForm(cart?.map(item => ({
+                orderId,
+                registrationNumber: item.registrationNumber,
+                course: item.course,
+                program: item.program,
+                subjects: item.subjects,
+                price: {
+                    amount: item.price.amount,
+                    currency: item.price.type // Map type to currency
+                },
+                createdAt: new Date(),
+                status: PaymentStatus.PENDING
+            })))
+            
+            // Immediately update payment status to COMPLETED
+            try {
+                const updateResponse = await fetch('/api/payments/update-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        status: 'COMPLETED'
+                    })
+                });
+
+                if (!updateResponse.ok) {
+                    console.warn('Failed to update payment status immediately, but webhook will handle it');
+                } else {
+                    console.log('Payment status updated to COMPLETED immediately');
+                }
+            } catch (updateError) {
+                console.warn('Error updating payment status immediately:', updateError);
+                // Don't fail the entire process - webhook will handle the update
+            }
+            
+            route.push('/Success')
+        } catch (error) {
+            console.error('Error creating course registrations:', error)
+            alert('There was an error processing your course registrations. Please try again.')
+        } finally {
+            setIsProcessing(false)
+        }
+    }
 
     const totalAmount = cart?.reduce((acc, item) => acc + item.price.amount, 0).toFixed(2)
 
@@ -121,14 +162,23 @@ const InitiatePayment = ({ cart }: { cart: Cart[] }) => {
                             {/* PayPal Component */}
                             <div className="flex justify-center overflow-hidden">
                                 <div className="transform scale-90 sm:scale-100 origin-center">
-                                    <InitiatePaypal
-                                        order_price={totalAmount}
-                                        currency_code={"USD"}
-                                        setResponse={() => {
-                                            route.push('/Success')
-                                        }}
-                                        // funcToCall={handleCart}
-                                    />
+                                    {isProcessing ? (
+                                        <div className="w-full p-4 bg-blue-100 border border-blue-300 rounded-lg">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                                <span className="text-blue-700 text-sm font-medium">Processing payment...</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <InitiatePaypal
+                                            order_price={totalAmount}
+                                            currency_code={"USD"}
+                                            setResponse={() => {
+                                                route.push('/Success')
+                                            }}
+                                            funcToCall={handleCart}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>

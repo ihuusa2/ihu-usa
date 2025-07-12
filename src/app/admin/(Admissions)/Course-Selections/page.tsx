@@ -23,10 +23,7 @@ import {
   FaTimesCircle,
   FaClock,
   FaEye,
-  FaChartLine,
-  FaFilter,
   FaTimes,
-  FaDownload,
   FaEdit,
   FaUndo
 } from 'react-icons/fa'
@@ -336,16 +333,7 @@ const AdminCourseSelections = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm">
-                                <FaFilter className="h-4 w-4" />
-                                Filter
-                            </button>
-                            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm">
-                                <FaChartLine className="h-4 w-4" />
-                                Analytics
-                            </button>
-                        </div>
+
                     </div>
 
                     {/* Stats Cards */}
@@ -433,16 +421,7 @@ const AdminCourseSelections = () => {
                                 </p>
                             </div>
                             
-                            <div className="flex items-center gap-2">
-                                <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-500 hover:text-blue-600 transition-all duration-200">
-                                    <FaFilter className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Filter</span>
-                                </button>
-                                <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-green-500 hover:text-green-600 transition-all duration-200">
-                                    <FaDownload className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Export</span>
-                                </button>
-                            </div>
+
                         </div>
                     </div>
                     

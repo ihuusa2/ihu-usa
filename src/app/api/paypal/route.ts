@@ -63,27 +63,46 @@ export async function POST(req: NextRequest) {
         if (verificationStatus === 'SUCCESS') {
             switch (event.event_type) {
                 case 'PAYMENT.SALE.COMPLETED':
+                    console.log('💰 Processing PAYMENT.SALE.COMPLETED for orderId:', event.resource.id);
+                    
                     // Update payment status for completed payments
-                    await CourseRegForm.updateMany({ orderId: event.resource.id }, {
+                    const courseUpdateResult = await CourseRegForm.updateMany({ orderId: event.resource.id }, {
                         $set: {
                             status: PaymentStatus.COMPLETED,
                             transactionId: event.resource.id,
                         }
-                    })
+                    });
+                    console.log('📚 CourseRegForm update result:', courseUpdateResult);
 
-                    await Registration.updateMany({ orderId: event.resource.id }, {
+                    const regUpdateResult = await Registration.updateMany({ orderId: event.resource.id }, {
                         $set: {
                             paymentStatus: PaymentStatus.COMPLETED
                         }
-                    })
+                    });
+                    console.log('📝 Registration update result:', regUpdateResult);
+
+                    // Also update by registration number if orderId doesn't match
+                    if (regUpdateResult.matchedCount === 0) {
+                        console.log('⚠️ No Registration found with orderId, trying to find by registration number...');
+                        const courseData = await CourseRegForm.find({ orderId: event.resource.id }).toArray();
+                        if (courseData.length > 0) {
+                            const registrationNumbers = courseData.map(course => course.registrationNumber);
+                            const regByNumberResult = await Registration.updateMany(
+                                { registrationNumber: { $in: registrationNumbers } },
+                                { $set: { paymentStatus: PaymentStatus.COMPLETED } }
+                            );
+                            console.log('📝 Registration update by registration number result:', regByNumberResult);
+                        }
+                    }
 
                     // Handle donation payments
-                    await Donate.updateMany({ transactionId: event.resource.id }, {
+                    const donationUpdateResult1 = await Donate.updateMany({ transactionId: event.resource.id }, {
                         $set: {
                             status: DonationStatus.COMPLETED,
                             transactionId: event.resource.id,
                         }
-                    })
+                    });
+                    console.log('💝 Donation update result:', donationUpdateResult1);
                     break;
 
                 case 'PAYMENT.SALE.DENIED':
@@ -103,12 +122,15 @@ export async function POST(req: NextRequest) {
                     break;
 
                 case 'CHECKOUT.ORDER.APPROVED':
+                    console.log('✅ Processing CHECKOUT.ORDER.APPROVED for orderId:', event.resource.id);
+                    
                     const course = await CourseRegForm.updateMany({ orderId: event.resource.id }, {
                         $set: {
                             status: PaymentStatus.COMPLETED,
                             transactionId: event.resource.id,
                         }
-                    })
+                    });
+                    console.log('📚 CourseRegForm update result:', course);
 
                     if (course.matchedCount > 0 && course.modifiedCount > 0 && course.acknowledged) {
                         const courseData = await CourseRegForm.find({ orderId: event.resource.id }).toArray()
@@ -125,7 +147,22 @@ export async function POST(req: NextRequest) {
                         $set: {
                             paymentStatus: PaymentStatus.COMPLETED
                         }
-                    })
+                    });
+                    console.log('📝 Registration update result:', reg);
+
+                    // Also update by registration number if orderId doesn't match
+                    if (reg.matchedCount === 0) {
+                        console.log('⚠️ No Registration found with orderId, trying to find by registration number...');
+                        const courseData = await CourseRegForm.find({ orderId: event.resource.id }).toArray();
+                        if (courseData.length > 0) {
+                            const registrationNumbers = courseData.map(course => course.registrationNumber);
+                            const regByNumberResult = await Registration.updateMany(
+                                { registrationNumber: { $in: registrationNumbers } },
+                                { $set: { paymentStatus: PaymentStatus.COMPLETED } }
+                            );
+                            console.log('📝 Registration update by registration number result:', regByNumberResult);
+                        }
+                    }
 
                     if (reg.matchedCount > 0 && reg.modifiedCount > 0 && reg.acknowledged) {
                         const regData = await Registration.findOne({ orderId: event.resource.id }) as RegisterForm
@@ -142,16 +179,17 @@ export async function POST(req: NextRequest) {
                             sub: "Registration Confirmation",
                         })
 
-                        console.log("mail sent to student")
+                        console.log("📧 Mail sent to student")
                     }
 
                     // Handle donation payments
-                    await Donate.updateMany({ orderId: event.resource.id }, {
+                    const donationUpdateResult2 = await Donate.updateMany({ orderId: event.resource.id }, {
                         $set: {
                             status: DonationStatus.COMPLETED,
                             transactionId: event.resource.id,
                         }
-                    })
+                    });
+                    console.log('💝 Donation update result:', donationUpdateResult2);
 
                     break;
 

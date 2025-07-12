@@ -18,16 +18,48 @@ export const getAllTeams = async ({ params, searchParams }: {
     searchParams?: { [key: string]: string | string[] | undefined }
 }): Promise<{ list: Team[]; count: number } | null> => {
 
-    const { page = 0, pageSize = 10, ...query } = parseQuery(searchParams || {}) as { page: string; pageSize: string;[key: string]: unknown };
+    console.log('Raw searchParams:', searchParams);
+    
+    // Extract search parameter before parsing other parameters
+    const searchTerm = searchParams?.search as string;
+    console.log('Extracted searchTerm:', searchTerm);
+    
+    // Remove search from searchParams before parsing
+    const { search, ...otherParams } = searchParams || {};
+    
+    const { page = 0, pageSize = 10, ...query } = parseQuery(otherParams) as { 
+        page: string; 
+        pageSize: string; 
+        [key: string]: unknown 
+    };
     const pageNumber: number = Number(page);
     const pageSizeNumber: number = Number(pageSize);
 
-    const list = await Teams.find({ ...params, ...query })
+    // Build the query object
+    let mongoQuery: Record<string, unknown> = { ...params, ...query };
+    
+    // If search parameter exists, create a $or query to search across multiple fields
+    if (searchTerm && searchTerm.trim()) {
+        mongoQuery = {
+            ...mongoQuery,
+            $or: [
+                { name: { $regex: searchTerm, $options: 'i' } },
+                { role: { $regex: searchTerm, $options: 'i' } },
+                { category: { $regex: searchTerm, $options: 'i' } },
+                { description: { $regex: searchTerm, $options: 'i' } }
+            ]
+        };
+        console.log('Search query created:', JSON.stringify(mongoQuery, null, 2));
+    }
+
+    const list = await Teams.find(mongoQuery)
         .skip(pageNumber * pageSizeNumber)
         .limit(pageSizeNumber)
         .toArray();
 
-    const count = await Teams.countDocuments({ ...params, ...query });
+    const count = await Teams.countDocuments(mongoQuery);
+
+    console.log('Found', list.length, 'results out of', count, 'total');
 
     if (!list) return null;
 
