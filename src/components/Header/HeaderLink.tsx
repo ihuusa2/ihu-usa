@@ -23,8 +23,8 @@ const HeaderLink = ({ href, className, children, ...otherProps }: Props) => {
             className={`
                 block px-4 py-2.5 rounded-lg transition-all duration-200 transform hover:scale-105 relative group
                 ${isActive 
-                    ? "font-medium text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 shadow-sm" 
-                    : "text-gray-700 hover:text-orange-600 hover:bg-orange-50 hover:shadow-sm"
+                    ? "font-medium lg:text-gray-700 lg:bg-gray-100 lg:border-gray-200 text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 shadow-sm" 
+                    : "text-gray-700 lg:hover:text-gray-700 lg:hover:bg-transparent lg:hover:shadow-none hover:text-orange-600 hover:bg-orange-50 hover:shadow-sm"
                 }
                 text-nowrap
                 ${className || ''}
@@ -32,12 +32,12 @@ const HeaderLink = ({ href, className, children, ...otherProps }: Props) => {
             {...otherProps}
         >
             {children}
-            {/* Active state indicator */}
+            {/* Active state indicator - hidden on large screens */}
             {isActive && (
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-orange-500 rounded-full"></div>
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-orange-500 rounded-full lg:hidden"></div>
             )}
-            {/* Hover effect underline */}
-            <div className="absolute bottom-0 left-0 h-0.5 bg-orange-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left w-full"></div>
+            {/* Hover effect underline - hidden on large screens */}
+            <div className="absolute bottom-0 left-0 h-0.5 bg-orange-500 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left w-full lg:hidden"></div>
         </Link>
     )
 }

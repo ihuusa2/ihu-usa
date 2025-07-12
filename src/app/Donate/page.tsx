@@ -232,7 +232,7 @@ const Donate = () => {
             {/* Hero Section */}
             <div className="relative py-8 sm:py-12 lg:py-16 xl:py-20 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-100/30 to-orange-100/30"></div>
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="relative z-5 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-5xl mx-auto">
                         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-800 mb-4 sm:mb-6 leading-tight">
                             Empower Global Minds, Support The Vision Of IHU
@@ -623,7 +623,7 @@ const Donate = () => {
 
             {/* Payment Modal */}
             {showPaymentModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+                <div className="fixed inset-0 z-5 flex items-center justify-center p-2 sm:p-4">
                     {/* Backdrop */}
                     <div 
                         className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity duration-300"
