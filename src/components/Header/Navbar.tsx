@@ -474,7 +474,7 @@ const DropdownMenuItem = ({
 
         {/* Dropdown Menu */}
         {activeDropdown === index && item.items && (
-            <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-10 overflow-hidden">
+            <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden">
                 <div className="py-2">
                     {item.items.map((subItem, subIndex) => {
                         const isSubActive = pathname === subItem.path;

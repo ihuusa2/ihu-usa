@@ -98,7 +98,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user }) => {
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-10 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden">
                     {/* User Info Section */}
                     <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-orange-100">
                         <div className="flex items-center gap-3">

@@ -132,7 +132,7 @@ const Search = () => {
 
                         {/* Custom Dropdown */}
                         {isDropdownOpen && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 overflow-hidden">
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-15 overflow-hidden">
                                 {currentPage?.fields?.map((field) => (
                                     <button
                                         key={field}
