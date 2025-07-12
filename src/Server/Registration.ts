@@ -3,9 +3,9 @@
 import handleMail from "@/app/api/mail"
 import { parseQuery } from "@/functions/serverActions"
 import { db } from "@/lib/mongo"
-import { RegistrationNumberMailTemplate } from "@/Template"
+import { RegistrationMailTemplateForStudent } from "@/Template"
 import { PaymentStatus, RegisterForm, Status } from "@/Types/Form"
-import { Collection, InsertOneResult } from "mongodb"
+import { Collection, InsertOneResult, ObjectId } from "mongodb"
 const Registration: Collection<RegisterForm> = db.collection("Registration")
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -18,6 +18,19 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
     }
 
     const result = await Registration.insertOne({ ...rest, paymentStatus: PaymentStatus.PENDING, status: Status.PENDING, createdAt: new Date() })
+
+    // Send confirmation email to the user
+    try {
+        await handleMail({
+            email: rest.emailAddress,
+            html: RegistrationMailTemplateForStudent({ data: rest }),
+            sub: "Application Received - IHU"
+        })
+        console.log('Confirmation email sent to:', rest.emailAddress)
+    } catch (error) {
+        console.error('Failed to send confirmation email:', error)
+        // Don't fail the registration if email fails
+    }
 
     return JSON.parse(JSON.stringify(result))
 }
@@ -37,6 +50,7 @@ export const getAllRegistration = async ({ searchParams }: {
     const pageSizeNumber: number = Number(pageSize);
 
     const result = await Registration.find(query)
+        .sort({ createdAt: -1 }) // Sort by createdAt in descending order (newest first)
         .skip(pageNumber * pageSizeNumber)
         .limit(pageSizeNumber)
         .toArray()
@@ -56,7 +70,8 @@ export const getRegistrationByEmail = async (email: string): Promise<RegisterFor
 }
 
 export const getRegistrationById = async (id: string): Promise<RegisterForm | null> => {
-    const result = await Registration.findOne({ _id: id })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await Registration.findOne({ _id: new ObjectId(id) } as any)
 
     if (!result) return null
 
@@ -72,73 +87,105 @@ export const getRegistrationByRegNum = async (registrationNumber: string): Promi
 }
 
 export const updateRegistrationById = async (id: string, data: Partial<RegisterForm>): Promise<RegisterForm | null> => {
-    const lastDocument = await Registration.aggregate([
-        {
-            $match: {
-                registrationNumber: { $regex: /^IHU\d+$/ }
-            }
-        },
-        {
-            $addFields: {
-                registrationNumberInt: {
-                    $toInt: {
-                        $substr: ["$registrationNumber", 3, -1]
-                    }
-                }
-            }
-        },
-        {
-            $sort: { registrationNumberInt: -1 }
-        },
-        {
-            $limit: 1
+    console.log('=== updateRegistrationById START ===');
+    console.log('Called with ID:', id);
+    console.log('Called with data:', data);
+    
+    try {
+        // Validate input parameters
+        if (!id || typeof id !== 'string') {
+            console.error('❌ Invalid ID provided:', id);
+            return null;
         }
-    ]).toArray();
 
-    let registrationNumber: string;
-    if (lastDocument.length > 0 && lastDocument[0].registrationNumberInt) {
-        registrationNumber = `IHU${(lastDocument[0].registrationNumberInt + 1).toString().padStart(5, "0")}`;
-    } else {
-        registrationNumber = "IHU10000";
+        if (!data || typeof data !== 'object') {
+            console.error('❌ Invalid data provided:', data);
+            return null;
+        }
+
+        // Validate that the ID is a valid ObjectId format
+        if (id.length !== 24) {
+            console.error('❌ Invalid ObjectId format (length):', id);
+            return null;
+        }
+
+        // Test if the ID can be converted to ObjectId
+        try {
+            new ObjectId(id);
+        } catch {
+            console.error('❌ Invalid ObjectId format (conversion failed):', id);
+            return null;
+        }
+
+        console.log('✅ ID format is valid');
+
+        // Check if document exists first
+        console.log('🔍 Finding existing document with ID:', id);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const existing = await Registration.findOne({ _id: new ObjectId(id) } as any);
+        console.log('📄 Existing document found:', existing ? 'Yes' : 'No');
+        
+        if (existing) {
+            console.log('📋 Existing document data:', {
+                _id: existing._id,
+                firstName: existing.firstName,
+                lastName: existing.lastName,
+                status: existing.status,
+                paymentStatus: existing.paymentStatus
+            });
+        }
+
+        if (!existing) {
+            console.log('❌ Document not found with ID:', id);
+            return null;
+        }
+
+        // Remove _id from data to prevent immutable field error
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { _id: _, ...updateData } = data;
+
+        // Validate that we have data to update
+        if (Object.keys(updateData).length === 0) {
+            console.log('⚠️ No data to update');
+            return existing;
+        }
+
+        console.log('🔄 Updating with data:', updateData);
+        const result = await Registration.findOneAndUpdate(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            { _id: new ObjectId(id) } as any,
+            { $set: updateData },
+            { returnDocument: "after" }
+        )
+        console.log('📊 Update result:', result ? 'Success' : 'Failed');
+
+        if (!result) {
+            console.log('❌ No result returned from update operation');
+            return null;
+        }
+
+        console.log('✅ Update successful, returning document');
+        const serializedResult = JSON.parse(JSON.stringify(result));
+        console.log('📤 Serialized result:', {
+            _id: serializedResult._id,
+            firstName: serializedResult.firstName,
+            lastName: serializedResult.lastName,
+            status: serializedResult.status,
+            paymentStatus: serializedResult.paymentStatus
+        });
+        console.log('=== updateRegistrationById END ===');
+        return serializedResult;
+    } catch (error) {
+        console.error('❌ Error in updateRegistrationById:', error);
+        console.log('=== updateRegistrationById ERROR END ===');
+        throw error;
     }
-
-    // Check if registrationNumber already exists for this document
-    const existing = await Registration.findOne({ _id: id });
-
-    // Remove _id from data to prevent immutable field error
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, ...updateData } = data;
-    if (!existing?.registrationNumber) {
-        updateData.registrationNumber = registrationNumber;
-    }
-
-    const result = await Registration.findOneAndUpdate(
-        { _id: id },
-        { $set: updateData },
-    )
-
-    const res = await Registration.findOne({ _id: id })
-
-    if (!existing?.registrationNumber && res?.registrationNumber) {
-        await handleMail({
-            email: res.emailAddress as string,
-            html: RegistrationNumberMailTemplate({
-                data: res
-            }),
-            sub: "Registration Confirmation"
-        })
-    }
-
-
-    if (!result) return null
-
-    return JSON.parse(JSON.stringify(res))
 }
 
 export const updateRegistrationByOrderId = async (orderId: string, data: Partial<RegisterForm>): Promise<RegisterForm | null> => {
     // Remove _id from data to prevent immutable field error
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, ...updateData } = data;
+    const { _id: _, ...updateData } = data;
     
     const result = await Registration.findOneAndUpdate(
         { orderId },
@@ -151,16 +198,26 @@ export const updateRegistrationByOrderId = async (orderId: string, data: Partial
 }
 
 export const updateRegistration = async (id: string, data: Partial<RegisterForm>): Promise<RegisterForm | null> => {
+    console.log('updateRegistration called with:', { id, data }); // DEBUG LOG
     // Remove _id from data to prevent immutable field error
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, ...updateData } = data;
-    
+    const { _id: _, ...updateData } = data;
+
     const result = await Registration.findOneAndUpdate(
-        { _id: id },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        { _id: new ObjectId(id) } as any,
         { $set: updateData },
         { returnDocument: "after" }
     )
-    if (!result) return null
+    if (!result) {
+        console.error('updateRegistration failed for id:', id, 'data:', data); // DEBUG LOG
+        return null
+    }
 
     return JSON.parse(JSON.stringify(result))
+}
+
+export const countRegistration = async (): Promise<number> => {
+    const count = await Registration.countDocuments()
+    return JSON.parse(JSON.stringify(count))
 }

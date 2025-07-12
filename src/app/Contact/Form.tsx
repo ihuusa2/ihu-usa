@@ -30,10 +30,6 @@ const Form = () => {
         if (fieldErrors[name]) {
             setFieldErrors(prev => ({ ...prev, [name]: '' }));
         }
-        
-        // Clear general error
-        if (error) setError('');
-        if (message) setMessage('');
     };
 
     const validateEmail = (email: string) => {
@@ -75,83 +71,30 @@ const Form = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        setError('');
+        setMessage('');
+
         if (!validateForm()) {
             setError('Please fix the errors above');
             return;
         }
 
         setLoading(true);
-        setError('');
-        setMessage('');
 
         try {
             await createContactForm(value);
             setValue(initialData);
             setMessage('Thank you! Your message has been sent successfully. We\'ll get back to you soon.');
             setFieldErrors({});
-        } catch (err) {
+        } catch {
             setError('Failed to send message. Please try again later.');
-            console.error('Contact form error:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const InputField = ({ 
-        name, 
-        label, 
-        type = 'text', 
-        icon, 
-        value, 
-        placeholder,
-        className = ''
-    }: {
-        name: string;
-        label: string;
-        type?: string;
-        icon: React.ReactNode;
-        value: string;
-        placeholder?: string;
-        className?: string;
-    }) => (
-        <div className={`w-full flex flex-col gap-2 ${className}`}>
-            <label htmlFor={name} className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                {icon}
-                {label}
-            </label>
-            <div className="relative">
-                <input 
-                    id={name}
-                    type={type} 
-                    name={name} 
-                    placeholder={placeholder}
-                    disabled={loading} 
-                    value={value} 
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-200 ${
-                        fieldErrors[name] 
-                            ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                            : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
-                    } disabled:bg-gray-50 disabled:cursor-not-allowed`}
-                />
-                {fieldErrors[name] && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <FaExclamationCircle className="text-red-500" size={16} />
-                    </div>
-                )}
-            </div>
-            {fieldErrors[name] && (
-                <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
-                    <FaExclamationCircle size={12} />
-                    {fieldErrors[name]}
-                </p>
-            )}
-        </div>
-    );
-
     return (
         <div className="w-full">
-            {/* Status Messages */}
             {error && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
                     <FaExclamationCircle className="text-red-500 flex-shrink-0" size={20} />
@@ -169,40 +112,118 @@ const Form = () => {
             <form onSubmit={handleSubmit} className='flex flex-col w-full gap-6'>
                 {/* Name Fields */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full'>
-                    <InputField
-                        name="firstName"
-                        label="First Name"
-                        icon={<FaUser size={14} className="text-orange-500" />}
-                        value={value.firstName}
-                        placeholder="Enter your first name"
-                    />
-                    <InputField
-                        name="lastName"
-                        label="Last Name"
-                        icon={<FaUser size={14} className="text-orange-500" />}
-                        value={value.lastName}
-                        placeholder="Enter your last name"
-                    />
+                    <div className="w-full flex flex-col gap-2">
+                        <label htmlFor="firstName" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaUser size={14} className="text-orange-500" />
+                            First Name
+                        </label>
+                        <input 
+                            id="firstName"
+                            type="text" 
+                            name="firstName" 
+                            placeholder="Enter your first name"
+                            disabled={loading} 
+                            value={value.firstName} 
+                            onChange={handleChange}
+
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                                fieldErrors.firstName 
+                                    ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                                    : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
+                            }`}
+                        />
+                        {fieldErrors.firstName && (
+                            <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
+                                <FaExclamationCircle size={12} />
+                                {fieldErrors.firstName}
+                            </p>
+                        )}
+                    </div>
+                    <div className="w-full flex flex-col gap-2">
+                        <label htmlFor="lastName" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaUser size={14} className="text-orange-500" />
+                            Last Name
+                        </label>
+                        <input 
+                            id="lastName"
+                            type="text" 
+                            name="lastName" 
+                            placeholder="Enter your last name"
+                            disabled={loading} 
+                            value={value.lastName} 
+                            onChange={handleChange}
+
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                                fieldErrors.lastName 
+                                    ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                                    : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
+                            }`}
+                        />
+                        {fieldErrors.lastName && (
+                            <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
+                                <FaExclamationCircle size={12} />
+                                {fieldErrors.lastName}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Contact Fields */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6'>
-                    <InputField
-                        name="email"
-                        label="Email Address"
-                        type="email"
-                        icon={<FaEnvelope size={14} className="text-orange-500" />}
-                        value={value.email}
-                        placeholder="your.email@example.com"
-                    />
-                    <InputField
-                        name="phone"
-                        label="Phone Number"
-                        type="tel"
-                        icon={<FaPhone size={14} className="text-orange-500" />}
-                        value={value.phone}
-                        placeholder="+1 (555) 123-4567"
-                    />
+                    <div className="w-full flex flex-col gap-2">
+                        <label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaEnvelope size={14} className="text-orange-500" />
+                            Email Address
+                        </label>
+                        <input 
+                            id="email"
+                            type="email" 
+                            name="email" 
+                            placeholder="your.email@example.com"
+                            disabled={loading} 
+                            value={value.email} 
+                            onChange={handleChange}
+
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                                fieldErrors.email 
+                                    ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                                    : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
+                            }`}
+                        />
+                        {fieldErrors.email && (
+                            <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
+                                <FaExclamationCircle size={12} />
+                                {fieldErrors.email}
+                            </p>
+                        )}
+                    </div>
+                    <div className="w-full flex flex-col gap-2">
+                        <label htmlFor="phone" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <FaPhone size={14} className="text-orange-500" />
+                            Phone Number
+                        </label>
+                        <input 
+                            id="phone"
+                            type="tel" 
+                            name="phone" 
+                            placeholder="+1 (555) 123-4567"
+                            disabled={loading} 
+                            value={value.phone} 
+                            onChange={handleChange}
+
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                                fieldErrors.phone 
+                                    ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                                    : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
+                            }`}
+                        />
+                        {fieldErrors.phone && (
+                            <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
+                                <FaExclamationCircle size={12} />
+                                {fieldErrors.phone}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Address Field */}
@@ -211,26 +232,20 @@ const Form = () => {
                         <FaMapMarkerAlt size={14} className="text-orange-500" />
                         Address
                     </label>
-                    <div className="relative">
-                        <textarea 
-                            id="address"
-                            name='address' 
-                            placeholder="Enter your full address"
-                            disabled={loading} 
-                            value={value.address} 
-                            onChange={handleChange}
-                            className={`w-full px-4 py-3 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-200 min-h-[80px] resize-none ${
-                                fieldErrors.address 
-                                    ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                                    : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
-                            } disabled:bg-gray-50 disabled:cursor-not-allowed`}
-                        />
-                        {fieldErrors.address && (
-                            <div className="absolute right-3 top-3">
-                                <FaExclamationCircle className="text-red-500" size={16} />
-                            </div>
-                        )}
-                    </div>
+                    <textarea 
+                        id="address"
+                        name='address' 
+                        placeholder="Enter your full address"
+                        disabled={loading} 
+                        value={value.address} 
+                        onChange={handleChange}
+
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 disabled:bg-gray-50 disabled:cursor-not-allowed min-h-[80px] resize-none ${
+                            fieldErrors.address 
+                                ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                                : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
+                        }`}
+                    />
                     {fieldErrors.address && (
                         <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
                             <FaExclamationCircle size={12} />
@@ -245,26 +260,20 @@ const Form = () => {
                         <FaCommentDots size={14} className="text-orange-500" />
                         Message
                     </label>
-                    <div className="relative">
-                        <textarea 
-                            id="message"
-                            name='message' 
-                            placeholder="Tell us about your inquiry, questions, or how we can help you..."
-                            className={`w-full px-4 py-3 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-200 min-h-[120px] resize-y ${
-                                fieldErrors.message 
-                                    ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                                    : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
-                            } disabled:bg-gray-50 disabled:cursor-not-allowed`}
-                            disabled={loading} 
-                            value={value.message} 
-                            onChange={handleChange} 
-                        />
-                        {fieldErrors.message && (
-                            <div className="absolute right-3 top-3">
-                                <FaExclamationCircle className="text-red-500" size={16} />
-                            </div>
-                        )}
-                    </div>
+                    <textarea 
+                        id="message"
+                        name='message' 
+                        placeholder="Tell us about your inquiry, questions, or how we can help you..."
+                        disabled={loading} 
+                        value={value.message} 
+                        onChange={handleChange}
+
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 disabled:bg-gray-50 disabled:cursor-not-allowed min-h-[120px] resize-y ${
+                            fieldErrors.message 
+                                ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                                : 'border-gray-200 focus:border-orange-400 hover:border-gray-300 bg-white'
+                        }`}
+                    />
                     {fieldErrors.message && (
                         <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
                             <FaExclamationCircle size={12} />

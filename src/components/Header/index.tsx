@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image"; 
 import Link from "next/link";
+import { usePathname, useRouter } from 'next/navigation';
 import SignInButton from "./SignInButton";
 import ProfileDropdown from "./ProfileDropdown";
 import { Session } from "next-auth";
@@ -10,6 +11,7 @@ import { Session } from "next-auth";
 // Components
 import Container from "../Container";
 import Navbar from "./Navbar";
+import NavbarSkeleton from "./NavbarSkeleton";
 import Search from "./Search";
 
 // Server Functions
@@ -108,15 +110,7 @@ export const Header = () => {
 
     // Show loading state while fetching data
     if (loading) {
-        return (
-            <header className="bg-white shadow-sm">
-                <Container className="py-4">
-                    <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                </Container>
-            </header>
-        );
+        return <NavbarSkeleton />;
     }
 
     // Social Links Configuration
@@ -322,7 +316,7 @@ const TopContactBar = ({
     session: Session | null;
     user: User | null;
 }) => (
-    <div className="bg-[#333] text-white py-2 w-full">
+    <div className="bg-[#333] text-white py-1 sm:py-2 w-full">
         <Container className="flex items-center justify-between gap-4 w-full">
             {/* Left: Social Media Icons */}
             <div className="flex items-center gap-2">
@@ -347,14 +341,9 @@ const TopContactBar = ({
             
             {/* Center: Search Bar */}
             <div className="flex-1 flex items-center justify-center max-w-md">
-                <form className="hidden sm:flex items-center w-full bg-white rounded-md overflow-hidden shadow-none">
-                    <input
-                        type="text"
-                        placeholder="search"
-                        className="flex-1 px-3 py-2 text-black bg-white border-none outline-none text-sm"
-                    />
-                    <button type="submit" className="px-4 py-2 bg-white text-black font-medium rounded-none">Search</button>
-                </form>
+                <div className="hidden sm:block w-full">
+                    <TopSearchBar />
+                </div>
             </div>
             
             {/* Right: Action Buttons */}
@@ -385,7 +374,7 @@ const MainHeader = ({
     menu: MenuType[]; 
     AdminMenu: MenuType[]; 
 }) => (
-    <div className="bg-white py-2">
+    <div className="bg-white py-1 sm:py-2">
         <Container className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Mobile Layout: Hamburger on left, Logo center */}
             <div className="lg:hidden flex items-center justify-between w-full">
@@ -483,9 +472,56 @@ const CenterSection = ({
     </div>
 );
 
+// Top Search Bar Component (for contact bar)
+const TopSearchBar = () => {
+    const pathName = usePathname()
+    const router = useRouter()
+    const formRef = useRef<HTMLFormElement>(null)
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const formData = new FormData(e.currentTarget)
+        const searchQuery = formData.get('search')?.toString()
+        
+        if (searchQuery && searchQuery.trim()) {
+            // Determine the appropriate search parameter based on current page
+            let searchParam = 'search'
+            if (pathName.includes('/Blogs')) searchParam = 'title'
+            else if (pathName.includes('/Team')) searchParam = 'name'
+            else if (pathName.includes('/Courses')) searchParam = 'title'
+            else if (pathName.includes('/Events')) searchParam = 'title'
+            else if (pathName.includes('/admin/Registrations')) searchParam = 'firstName'
+            else if (pathName.includes('/admin/Course-Selections')) searchParam = 'registrationNumber'
+            
+            router.push(`${pathName}?${searchParam}=${encodeURIComponent(searchQuery.trim())}`)
+        }
+    }
+
+    return (
+        <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            className="flex items-center w-full bg-white rounded-md overflow-hidden shadow-none"
+        >
+            <input
+                type="text"
+                name="search"
+                placeholder="Search..."
+                className="flex-1 px-3 py-2 text-black bg-white border-none outline-none text-sm"
+            />
+            <button 
+                type="submit" 
+                className="px-4 py-2 bg-white text-black font-medium rounded-none hover:bg-gray-50 transition-colors duration-200"
+            >
+                Search
+            </button>
+        </form>
+    )
+}
+
 // Mobile Search Bar Component
 const MobileSearchBar = () => (
-    <div className="sm:hidden bg-gradient-to-r from-gray-50 to-gray-100 py-3 border-t border-gray-200">
+    <div className="sm:hidden bg-gradient-to-r from-gray-50 to-gray-100 py-2 border-t border-gray-200 relative z-15">
         <Container>
             <div className="max-w-sm mx-auto">
                 <Search />

@@ -148,18 +148,7 @@ const Blogs = async ({ searchParams }: Props) => {
 
 
 
-        {/* Debug: Blog Data */}
-        {process.env.NODE_ENV === 'development' && blogs?.list && blogs.list.length > 0 && (
-          <div className='mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
-            <h3 className='text-sm font-semibold text-blue-800 mb-2'>Debug: Blog Data</h3>
-            <div className='text-xs text-blue-700 space-y-1'>
-              <p>Total blogs: {blogs.count}</p>
-              <p>First blog title: {blogs.list[0]?.title}</p>
-              <p>First blog image: {typeof blogs.list[0]?.image === 'string' ? blogs.list[0]?.image : 'File object'}</p>
-              <p>Processed image URL: {getValidImageUrl(blogs.list[0]?.image)}</p>
-            </div>
-          </div>
-        )}
+
 
         {/* Featured Blog (if exists) */}
         {blogs?.list && blogs.list.length > 0 && blogs.list[0].slug && !searchParamsList?.title && (

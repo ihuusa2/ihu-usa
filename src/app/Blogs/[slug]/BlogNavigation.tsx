@@ -30,7 +30,7 @@ export default function BlogNavigation() {
     }
 
     return (
-        <div className='sticky top-4 z-20 w-full min-w-[320px]'>
+        <div className='sticky top-4 w-full min-w-[320px]'>
             <div className='bg-white/95 backdrop-blur-sm border border-gray-200 shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 w-full'>
                 {/* Header */}
                 <div className='px-8 pt-8 pb-4'>

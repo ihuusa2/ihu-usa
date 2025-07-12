@@ -1,10 +1,10 @@
 import { H1 } from '@/components/Headings'
 import { countCourses } from '@/Server/Course'
-import { countCourseRegForm } from '@/Server/CourseRegForm'
+import { countRegistration } from '@/Server/Registration'
 import { totalDonationAmount } from '@/Server/Donate'
 import { countEvents } from '@/Server/Events'
 import { countUsers } from '@/Server/User'
-import { UserRole } from '@/Types/User'
+import { countTeams } from '@/Server/Team'
 import Link from 'next/link'
 import React from 'react'
 import { 
@@ -33,15 +33,15 @@ const Admin = async () => {
 
   try {
     console.log('Fetching course registrations...');
-    totalCourseReg = await countCourseRegForm();
+    totalCourseReg = await countRegistration();
     console.log('Course registrations:', totalCourseReg);
 
-    console.log('Fetching staff count...');
-    totalStaffs = await countUsers({ role: UserRole.Staff });
-    console.log('Staff count:', totalStaffs);
+    console.log('Fetching team count...');
+    totalStaffs = await countTeams();
+    console.log('Team count:', totalStaffs);
 
     console.log('Fetching user count...');
-    totalUsers = await countUsers({ role: UserRole.User });
+    totalUsers = await countUsers({});
     console.log('User count:', totalUsers);
 
     console.log('Fetching course count...');
@@ -160,7 +160,7 @@ const Admin = async () => {
       color: 'from-purple-500 to-purple-600',
       bgColor: 'bg-purple-50',
       iconColor: 'text-purple-600',
-      link: `/admin/Users?role=${UserRole.Staff}`,
+      link: '/admin/Team',
       growth: '+5%'
     },
     {

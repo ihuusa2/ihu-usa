@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     async function getAccessToken() {
         const auth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
 
-        const res = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
+        const res = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
             method: 'POST',
             headers: {
                 'Authorization': `Basic ${auth}`,
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     async function verifyWebhook(rawBody: string, headers: Headers) {
         const accessToken = await getAccessToken();
 
-        const verificationRes = await fetch('https://api-m.paypal.com/v1/notifications/verify-webhook-signature', {
+        const verificationRes = await fetch('https://api-m.sandbox.paypal.com/v1/notifications/verify-webhook-signature', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

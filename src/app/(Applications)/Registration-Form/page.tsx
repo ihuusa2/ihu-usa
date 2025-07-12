@@ -860,7 +860,7 @@ const RegistrationForm = () => {
                                             <CreditCard className="h-4 w-4 text-white" />
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="font-semibold text-blue-900">Application Fee: ${getApplicationFee().amount} {getApplicationFee().currency}</h4>
+                                            <h4 className="font-semibold text-blue-900">Application Fee: {getApplicationFee().currency} {getApplicationFee().amount}</h4>
                                             <p className="text-sm text-blue-700">Payment will be processed securely after form submission</p>
                                         </div>
                                     </div>

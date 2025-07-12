@@ -61,3 +61,8 @@ export const getTeamCategory = async (): Promise<{ _id: string; name: string }[]
     if (!result) return null;
     return JSON.parse(JSON.stringify(result.map((item) => ({ _id: item, name: item }))));
 }
+
+export const countTeams = async (): Promise<number> => {
+    const count = await Teams.countDocuments();
+    return JSON.parse(JSON.stringify(count));
+}

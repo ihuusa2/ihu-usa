@@ -3,12 +3,11 @@
 import type { Blog } from "@/Types/Blogs";
 import React, { useState, useEffect } from 'react'
 import { createBlog, updateBlog, checkSlugExists } from '@/Server/Blogs'
-import { generateSlug } from '@/functions'
 import Spinner from '@/components/Spinner'
 import Image from 'next/image'
 import cloudinaryImageUploadMethod from '@/functions/cloudinary'
 import Jodit from "./jodit";
-import { FaFileAlt, FaImage, FaUser, FaEdit, FaCheck, FaUpload, FaRandom, FaCog } from 'react-icons/fa';
+import { FaFileAlt, FaImage, FaUser, FaEdit, FaCheck, FaUpload } from 'react-icons/fa';
 
 type Props = {
     setData: React.Dispatch<React.SetStateAction<Blog[]>>
@@ -30,42 +29,23 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
     const [message, setMessage] = useState('')
     const [success, setSuccess] = useState('')
     const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null)
-    const [autoSlug, setAutoSlug] = useState(true)
 
     useEffect(() => {
         if (isEdit) {
             setValue(editData as Blog)
-            setAutoSlug(false) // Don't auto-generate slug when editing
         }
     }, [isEdit, editData])
 
-    // Auto-generate slug from title
+    // Check slug availability when slug changes
     useEffect(() => {
-        if (autoSlug && value.title.trim()) {
-            const newSlug = generateSlug(value.title)
-            setValue(prev => ({ ...prev, slug: newSlug }))
-            
-            // Check if slug is available
-            if (newSlug) {
-                checkSlugExists(newSlug).then(exists => {
-                    setSlugAvailable(!exists)
-                }).catch(() => {
-                    setSlugAvailable(null)
-                })
-            }
-        }
-    }, [value.title, autoSlug])
-
-    // Check slug availability when manually changed
-    useEffect(() => {
-        if (!autoSlug && value.slug && value.slug.trim()) {
-            checkSlugExists(value.slug).then(exists => {
+        if (value.slug && value.slug.trim()) {
+            checkSlugExists(value.slug, isEdit ? editData?._id as string : undefined).then(exists => {
                 setSlugAvailable(!exists)
             }).catch(() => {
                 setSlugAvailable(null)
             })
         }
-    }, [value.slug, autoSlug])
+    }, [value.slug, isEdit, editData?._id])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -182,47 +162,26 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
                         </div>
 
                         <div className="md:col-span-2">
-                            <div className="flex items-center justify-between mb-2">
-                                <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
-                                    URL Slug * {autoSlug && <span className="text-xs text-blue-600">(Auto-generated)</span>}
-                                </label>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setAutoSlug(!autoSlug)
-                                        if (!autoSlug && value.title) {
-                                            const newSlug = generateSlug(value.title)
-                                            setValue(prev => ({ ...prev, slug: newSlug }))
-                                        }
-                                    }}
-                                    className="inline-flex items-center gap-1 text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
-                                >
-                                    {autoSlug ? <FaCog className="text-xs" /> : <FaRandom className="text-xs" />}
-                                    {autoSlug ? 'Manual Edit' : 'Auto Generate'}
-                                </button>
-                            </div>
+                            <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
+                                URL Slug *
+                            </label>
                             <div className="relative">
                                 <input
-                                    disabled={loading || autoSlug}
+                                    disabled={loading}
                                     type="text"
                                     id="slug"
                                     name="slug"
                                     value={value.slug || ''}
-                                    onChange={(e) => {
-                                        setAutoSlug(false)
-                                        setValue({ ...value, slug: e.target.value })
-                                    }}
+                                    onChange={(e) => setValue({ ...value, slug: e.target.value })}
                                     required
-                                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors pr-10 ${
-                                        autoSlug ? 'bg-gray-50 text-gray-500' : 'bg-white'
-                                    } ${
+                                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors pr-10 bg-white ${
                                         slugAvailable === false ? 'border-red-500 focus:ring-red-500' : 
                                         slugAvailable === true ? 'border-green-500 focus:ring-green-500' : 
                                         'border-gray-300 focus:border-blue-500'
                                     }`}
                                     placeholder="blog-url-slug"
                                 />
-                                {!autoSlug && slugAvailable !== null && (
+                                {slugAvailable !== null && (
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                                         {slugAvailable ? (
                                             <FaCheck className="text-green-500" />
@@ -232,10 +191,10 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
                                     </div>
                                 )}
                             </div>
-                            {!autoSlug && slugAvailable === false && (
+                            {slugAvailable === false && (
                                 <p className="text-red-500 text-xs mt-1">This slug is already taken. Please choose a different one.</p>
                             )}
-                            {!autoSlug && slugAvailable === true && (
+                            {slugAvailable === true && (
                                 <p className="text-green-500 text-xs mt-1">This slug is available!</p>
                             )}
                             <p className="text-xs text-gray-500 mt-1">

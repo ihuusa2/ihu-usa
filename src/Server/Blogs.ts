@@ -13,53 +13,69 @@ const Blogs = db.collection('Blogs');
 const processImageUrl = (image: File | string | undefined | null): string => {
     // If image is undefined, null, or empty string, return fallback
     if (!image || (typeof image === 'string' && image.trim() === '')) {
-        console.log('processImageUrl: No image provided, using fallback');
+        // Silently use fallback without logging
         return '/Images/Programs/image1.png';
     }
     
     // Handle empty string specifically
     if (typeof image === 'string' && image === '') {
-        console.log('processImageUrl: Empty string detected, using fallback');
+        // Silently use fallback without logging
         return '/Images/Programs/image1.png';
     }
     
     if (typeof image === 'string') {
         const trimmed = image.trim();
-        console.log('processImageUrl: Processing string image:', trimmed);
+        
+        // Only log in development mode to reduce noise
+        if (process.env.NODE_ENV === 'development') {
+            console.log('processImageUrl: Processing string image:', trimmed);
+        }
         
         // If it's already a valid URL or relative path, return as is
         if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
-            console.log('processImageUrl: Valid URL/path, returning as is');
+            if (process.env.NODE_ENV === 'development') {
+                console.log('processImageUrl: Valid URL/path, returning as is');
+            }
             return trimmed;
         }
         
         // If it's a Cloudinary URL (common case for uploaded images)
         if (trimmed.includes('cloudinary.com')) {
-            console.log('processImageUrl: Cloudinary URL detected');
+            if (process.env.NODE_ENV === 'development') {
+                console.log('processImageUrl: Cloudinary URL detected');
+            }
             return trimmed;
         }
         
         // If it's just a filename without path, assume it's in the public folder
         if (!trimmed.includes('/') && !trimmed.includes('\\')) {
             const publicPath = `/${trimmed}`;
-            console.log('processImageUrl: Filename detected, adding public path:', publicPath);
+            if (process.env.NODE_ENV === 'development') {
+                console.log('processImageUrl: Filename detected, adding public path:', publicPath);
+            }
             return publicPath;
         }
         
         // If it's a relative path without leading slash, add it
         if (!trimmed.startsWith('/')) {
             const relativePath = `/${trimmed}`;
-            console.log('processImageUrl: Relative path detected, adding leading slash:', relativePath);
+            if (process.env.NODE_ENV === 'development') {
+                console.log('processImageUrl: Relative path detected, adding leading slash:', relativePath);
+            }
             return relativePath;
         }
         
         // If none of the above, return fallback
-        console.log('processImageUrl: No valid format detected, using fallback');
+        if (process.env.NODE_ENV === 'development') {
+            console.log('processImageUrl: No valid format detected, using fallback');
+        }
         return '/Images/Programs/image1.png';
     }
     
     // If it's a File object, this shouldn't happen at this point
-    console.log('processImageUrl: File object detected, using fallback');
+    if (process.env.NODE_ENV === 'development') {
+        console.log('processImageUrl: File object detected, using fallback');
+    }
     return '/Images/Programs/image1.png';
 };
 
@@ -75,7 +91,9 @@ export const createBlog = async ({ _id, ...rest }: Blog): Promise<InsertOneResul
     const originalImage = rest.image;
     const processedImage = processImageUrl(rest.image);
     
-    console.log(`Creating blog "${rest.title}": image ${originalImage} -> ${processedImage}`);
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Creating blog "${rest.title}": image ${originalImage} -> ${processedImage}`);
+    }
     
     const result = await Blogs.insertOne({ ...rest, image: processedImage });
     return JSON.parse(JSON.stringify(result));
@@ -109,8 +127,8 @@ export const getAllBlogs = async ({ searchParams }: {
         const originalImage = blog.image;
         const processedImage = processImageUrl(blog.image);
         
-        // Log image processing for debugging
-        if (originalImage !== processedImage) {
+        // Log image processing for debugging (only in development)
+        if (originalImage !== processedImage && process.env.NODE_ENV === 'development') {
             console.log(`Processing blog "${blog.title}": ${originalImage} -> ${processedImage}`);
         }
         
@@ -166,15 +184,20 @@ export const updateBlog = async ({ _id, ...rest }: Blog): Promise<Blog | null> =
     // Auto-generate slug if not provided
     if (!rest.slug && rest.title) {
         const existingSlugs = await getAllExistingSlugs();
+        // Exclude the current blog's slug when generating a new one
+        const currentBlog = await Blogs.findOne({ _id: new ObjectId(_id as string) }, { projection: { slug: 1 } });
+        const filteredSlugs = currentBlog?.slug ? existingSlugs.filter(slug => slug !== currentBlog.slug) : existingSlugs;
         const baseSlug = generateSlug(rest.title);
-        rest.slug = await generateUniqueSlugFromBase(baseSlug, existingSlugs);
+        rest.slug = await generateUniqueSlugFromBase(baseSlug, filteredSlugs);
     }
     
     // Process image to ensure it's a valid URL
     const originalImage = rest.image;
     const processedImage = processImageUrl(rest.image);
     
-    console.log(`Updating blog "${rest.title}": image ${originalImage} -> ${processedImage}`);
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Updating blog "${rest.title}": image ${originalImage} -> ${processedImage}`);
+    }
     
     const result = await Blogs.findOneAndUpdate(
         { _id: new ObjectId(_id as string) }, 
@@ -201,9 +224,18 @@ export const getAllExistingSlugs = async (): Promise<string[]> => {
 
 /**
  * Check if a slug already exists
+ * @param slug - The slug to check
+ * @param excludeId - Optional blog ID to exclude from the check (useful when editing)
  */
-export const checkSlugExists = async (slug: string): Promise<boolean> => {
-    const count = await Blogs.countDocuments({ slug });
+export const checkSlugExists = async (slug: string, excludeId?: string): Promise<boolean> => {
+    const query: { slug: string; _id?: { $ne: ObjectId } } = { slug };
+    
+    // If excludeId is provided, exclude that blog from the check
+    if (excludeId) {
+        query._id = { $ne: new ObjectId(excludeId) };
+    }
+    
+    const count = await Blogs.countDocuments(query);
     return count > 0;
 }
 
@@ -267,7 +299,9 @@ export const fixBlogsWithInvalidImages = async (): Promise<{ updated: number }> 
     const allBlogs = await Blogs.find({}).toArray();
     let updatedCount = 0;
     
-    console.log(`Checking ${allBlogs.length} blogs for invalid images...`);
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Checking ${allBlogs.length} blogs for invalid images...`);
+    }
     
     for (const blog of allBlogs) {
         const originalImage = blog.image;
@@ -275,18 +309,22 @@ export const fixBlogsWithInvalidImages = async (): Promise<{ updated: number }> 
         
         // If the processed image is different from the original, update it
         if (originalImage !== processedImage) {
-            console.log(`Fixing blog "${blog.title}": ${originalImage} -> ${processedImage}`);
+            if (process.env.NODE_ENV === 'development') {
+                console.log(`Fixing blog "${blog.title}": ${originalImage} -> ${processedImage}`);
+            }
             await Blogs.updateOne(
                 { _id: blog._id },
                 { $set: { image: processedImage } }
             );
             updatedCount++;
-        } else {
+        } else if (process.env.NODE_ENV === 'development') {
             console.log(`Blog "${blog.title}" has valid image: ${originalImage}`);
         }
     }
     
-    console.log(`Fixed ${updatedCount} blogs with invalid images`);
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Fixed ${updatedCount} blogs with invalid images`);
+    }
     return { updated: updatedCount };
 }
 

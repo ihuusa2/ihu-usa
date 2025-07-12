@@ -4,12 +4,12 @@ import type { Blog } from "@/Types/Blogs";
 import { H1 } from '@/components/Headings/index'
 import React, { useEffect, useState } from 'react'
 import Spinner from '@/components/Spinner'
-import { deleteBlog, getAllBlogs, fixBlogsWithoutSlugs, fixBlogsWithInvalidImages, getBlogImagesSummary } from '@/Server/Blogs'
+import { deleteBlog, getAllBlogs } from '@/Server/Blogs'
 import Pagination from '@/components/Pagination'
 import { useSearchParams } from 'next/navigation'
 import Image from "next/image";
 import AddBlog from "../components/AddBlog";
-import { Search, Eye, Edit, Trash2, Plus, FileText, Image as ImageIcon, User, X } from "lucide-react";
+import { Search, Eye, Edit, Trash2, Plus, FileText, User, X } from "lucide-react";
 
 // Utility function to validate and get image URL
 const getImageUrl = (image: File | string | undefined): string => {
@@ -231,13 +231,9 @@ const AdminBlogs = () => {
     const [count, setCount] = useState(0)
     const [open, setOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
-    const [fixingSlugs, setFixingSlugs] = useState(false)
-    const [fixMessage, setFixMessage] = useState('')
     const [selectedImage, setSelectedImage] = useState<string | null>(null)
     const [selectedDescription, setSelectedDescription] = useState<string | null>(null)
     const [selectedContent, setSelectedContent] = useState<string | null>(null)
-    const [imageSummary, setImageSummary] = useState<{ title: string; image: string; isValid: boolean }[]>([])
-    const [showImageSummary, setShowImageSummary] = useState(false)
 
     useEffect(() => {
         (async () => {
@@ -261,76 +257,7 @@ const AdminBlogs = () => {
         })()
     }, [searchParams])
 
-    // Fix blogs without slugs
-    const handleFixSlugs = async () => {
-        setFixingSlugs(true)
-        setFixMessage('')
-        
-        try {
-            const result = await fixBlogsWithoutSlugs()
-            if (result.updated > 0) {
-                setFixMessage(`✅ Successfully fixed ${result.updated} blog(s) without slugs!`)
-                // Refresh the data
-                const params: { [key: string]: string | string[] | undefined } = {};
-                searchParams.forEach((value, key) => {
-                    params[key] = value;
-                });
-                const updatedBlogs = await getAllBlogs({ searchParams: params })
-                if (updatedBlogs?.list) {
-                    setData(updatedBlogs.list)
-                    setCount(updatedBlogs.count)
-                }
-            } else {
-                setFixMessage('ℹ️ All blogs already have slugs!')
-            }
-        } catch {
-            setFixMessage('❌ Error fixing slugs. Please try again.')
-        } finally {
-            setFixingSlugs(false)
-            // Clear message after 5 seconds
-            setTimeout(() => setFixMessage(''), 5000)
-        }
-    }
 
-    const handleFixImages = async () => {
-        setFixingSlugs(true)
-        setFixMessage('')
-        
-        try {
-            const result = await fixBlogsWithInvalidImages()
-            if (result.updated > 0) {
-                setFixMessage(`✅ Successfully fixed ${result.updated} blog(s) with invalid images!`)
-                // Refresh the data
-                const params: { [key: string]: string | string[] | undefined } = {};
-                searchParams.forEach((value, key) => {
-                    params[key] = value;
-                });
-                const updatedBlogs = await getAllBlogs({ searchParams: params })
-                if (updatedBlogs?.list) {
-                    setData(updatedBlogs.list)
-                    setCount(updatedBlogs.count)
-                }
-            } else {
-                setFixMessage('ℹ️ All blog images are already valid!')
-            }
-        } catch {
-            setFixMessage('❌ Error fixing images. Please try again.')
-        } finally {
-            setFixingSlugs(false)
-            // Clear message after 5 seconds
-            setTimeout(() => setFixMessage(''), 5000)
-        }
-    }
-
-    const handleCheckImages = async () => {
-        try {
-            const summary = await getBlogImagesSummary()
-            setImageSummary(summary)
-            setShowImageSummary(true)
-        } catch (error) {
-            console.error('Error checking images:', error)
-        }
-    }
 
     // Filter data based on search term
     const filteredData = data.filter(blog => 
@@ -355,35 +282,6 @@ const AdminBlogs = () => {
                         </div>
                         <div className="flex items-center gap-3 flex-shrink-0">
                             <Button 
-                                variant="outline"
-                                onClick={handleFixSlugs}
-                                disabled={fixingSlugs}
-                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
-                            >
-                                {fixingSlugs ? <Spinner /> : <FileText size={16} />}
-                                {fixingSlugs ? 'Fixing...' : 'Fix Slugs'}
-                            </Button>
-                            
-                            <Button 
-                                variant="outline"
-                                onClick={handleFixImages}
-                                disabled={fixingSlugs}
-                                className="border-purple-200 text-purple-600 hover:bg-purple-50"
-                            >
-                                {fixingSlugs ? <Spinner /> : <ImageIcon size={16} />}
-                                {fixingSlugs ? 'Fixing...' : 'Fix Images'}
-                            </Button>
-                            
-                            <Button 
-                                variant="outline"
-                                onClick={handleCheckImages}
-                                className="border-green-200 text-green-600 hover:bg-green-50"
-                            >
-                                <Eye size={16} />
-                                Check Images
-                            </Button>
-                            
-                            <Button 
                                 variant="primary"
                                 onClick={() => setOpen(true)}
                             >
@@ -392,15 +290,6 @@ const AdminBlogs = () => {
                             </Button>
                         </div>
                     </div>
-                    
-                                            {/* Fix Slugs Message */}
-                        {fixMessage && (
-                            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div className="text-center">
-                                    <p className="text-sm font-medium text-blue-800">{fixMessage}</p>
-                                </div>
-                            </div>
-                        )}
                 </div>
 
                 {/* Search and Stats */}
@@ -673,48 +562,7 @@ const AdminBlogs = () => {
                 </div>
             </Modal>
 
-            <Modal 
-                isOpen={showImageSummary} 
-                onClose={() => setShowImageSummary(false)} 
-                title="Blog Images Summary"
-                size="4xl"
-            >
-                <div className="p-6">
-                    <div className="space-y-4">
-                        <div className="text-sm text-gray-600 mb-4">
-                            This shows the current state of all blog images and whether they are valid.
-                        </div>
-                        <div className="max-h-96 overflow-y-auto">
-                            <Table>
-                                <TableHeader>
-                                    <tr>
-                                        <TableHeaderCell>Blog Title</TableHeaderCell>
-                                        <TableHeaderCell>Image URL</TableHeaderCell>
-                                        <TableHeaderCell>Status</TableHeaderCell>
-                                    </tr>
-                                </TableHeader>
-                                <TableBody>
-                                    {imageSummary.map((item, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell className="font-medium">{item.title}</TableCell>
-                                            <TableCell className="font-mono text-sm">{item.image}</TableCell>
-                                            <TableCell>
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                                    item.isValid 
-                                                        ? 'bg-green-100 text-green-800' 
-                                                        : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                    {item.isValid ? 'Valid' : 'Invalid'}
-                                                </span>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </div>
-                </div>
-            </Modal>
+
         </div>
     )
 }

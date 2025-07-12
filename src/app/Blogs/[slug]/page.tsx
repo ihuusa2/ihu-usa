@@ -237,7 +237,7 @@ const Blog = async ({ params }: Props) => {
                                         {data?.content && data.content.trim() !== '' ? (
                                             <div 
                                                 className='prose prose-xl max-w-none relative overflow-hidden
-                                                           [&_*]:!static [&_*]:!relative [&_*]:!z-auto
+                                                           [&_*]:!relative [&_*]:!z-auto
                                                            prose-headings:text-gray-900 prose-headings:font-bold prose-headings:leading-tight
                                                            prose-h1:text-4xl prose-h1:mb-8 prose-h1:mt-12 prose-h1:text-gray-900 prose-h1:border-b-2 prose-h1:border-gray-200 prose-h1:pb-4
                                                            prose-h2:text-3xl prose-h2:mb-6 prose-h2:mt-10 prose-h2:text-gray-800 prose-h2:border-l-4 prose-h2:border-orange-500 prose-h2:pl-6

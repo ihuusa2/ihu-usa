@@ -17,11 +17,18 @@ export const createContactForm = async ({ _id, ...rest }: Contact): Promise<Inse
     }
     
     const result = await Contact.insertOne(contactData)
-    await handleMail({
-        email: process.env.NODEMAILER_PUBLIC_EMAIL as string,
-        html: ContactFormMailTemplate({ data: contactData }),
-        sub: 'Contact Form Submission',
-    })
+    
+    // Try to send email notification, but don't fail if it doesn't work
+    try {
+        await handleMail({
+            email: process.env.NODEMAILER_PUBLIC_EMAIL as string,
+            html: ContactFormMailTemplate({ data: contactData }),
+            sub: 'Contact Form Submission',
+        })
+    } catch (error) {
+        // Don't throw error - the form data was saved successfully
+    }
+    
     return JSON.parse(JSON.stringify(result))
 }
 
@@ -73,7 +80,6 @@ export const markContactAsRead = async (id: string): Promise<boolean> => {
         )
         return result.modifiedCount > 0
     } catch (error) {
-        console.error('Error marking contact as read:', error)
         return false
     }
 }
@@ -83,7 +89,6 @@ export const deleteContactForm = async (id: string): Promise<boolean> => {
         const result = await Contact.deleteOne({ _id: new ObjectId(id) })
         return result.deletedCount > 0
     } catch (error) {
-        console.error('Error deleting contact form:', error)
         return false
     }
 }
@@ -100,7 +105,6 @@ export const getContactStats = async (): Promise<{
         
         return { total, unread, read }
     } catch (error) {
-        console.error('Error getting contact stats:', error)
         return null
     }
 }

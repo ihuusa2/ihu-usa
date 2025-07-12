@@ -22,8 +22,6 @@ import {
     FaEnvelope, 
     FaGraduationCap,
     FaCalendarAlt,
-    FaChartLine,
-    FaFilter,
     FaCheckCircle,
     FaTimesCircle,
     FaExclamationTriangle,
@@ -190,16 +188,6 @@ const AdminRegistrations = () => {
                         </div>
                         
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                            <div className="flex items-center gap-2">
-                                <button className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                    <FaFilter className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Filter</span>
-                                </button>
-                                <button className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                    <FaChartLine className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Analytics</span>
-                                </button>
-                            </div>
                             <button 
                                 onClick={() => setShowAddModal(true)}
                                 className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"

@@ -99,10 +99,9 @@ const HeroCarousel = () => {
   if (!isHydrated) {
     return (
       <div 
-        className="relative bg-gray-900 overflow-hidden"
+        className="relative bg-gray-900 overflow-hidden h-[250px] md:h-[350px] lg:h-[450px] xl:h-[500px] 2xl:h-[600px]"
         style={{
           width: '100%',
-          height: '250px',
           minHeight: '250px'
         }}
       >
@@ -167,14 +166,15 @@ const HeroCarousel = () => {
 
   return (
     <div 
-      className="relative bg-gray-900 overflow-hidden hero-carousel"
+      className="relative bg-gray-900 overflow-hidden hero-carousel h-[250px] md:h-[350px] lg:h-[450px] xl:h-[500px] 2xl:h-[600px]"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={{
         width: '100%',
-        height: '250px',
-        minHeight: '250px'
+        minHeight: '250px',
+        zIndex: 1,
+        position: 'relative'
       }}
     >
 

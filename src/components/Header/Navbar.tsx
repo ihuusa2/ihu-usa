@@ -30,6 +30,7 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
     const [mobileExpandedItems, setMobileExpandedItems] = useState<Set<string>>(new Set());
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
+    const hamburgerRef = useRef<HTMLButtonElement>(null);
     const [touchStart, setTouchStart] = useState<number | null>(null);
     const [touchEnd, setTouchEnd] = useState<number | null>(null);
     
@@ -58,7 +59,9 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
     // Helper function to close mobile menu and restore scroll
     const closeMobileMenu = () => {
         setMobileMenuOpen(false);
-        const scrollY = document.body.style.top;
+        setMobileExpandedItems(new Set());
+        
+        // Restore body scroll
         document.documentElement.style.overflow = '';
         document.body.style.position = '';
         document.body.style.top = '';
@@ -66,14 +69,21 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
         document.body.style.overflow = '';
         document.documentElement.classList.remove('menu-open');
         document.body.classList.remove('menu-open');
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        
+        // Focus back to hamburger button
+        setTimeout(() => {
+            hamburgerRef.current?.focus();
+        }, 100);
     };
 
     // Handle mobile menu toggle
     const toggleMobileMenu = () => {
         console.log('Toggle mobile menu clicked, current state:', mobileMenuOpen);
-        setMobileMenuOpen(!mobileMenuOpen);
+        
         if (!mobileMenuOpen) {
+            // Open menu
+            setMobileMenuOpen(true);
+            
             // Prevent body scroll when menu opens
             const scrollY = window.scrollY;
             document.documentElement.style.overflow = 'hidden';
@@ -90,7 +100,7 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                 if (closeButton) {
                     closeButton.focus();
                 }
-            }, 100);
+            }, 300);
         } else {
             closeMobileMenu();
         }
@@ -225,25 +235,28 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
             <div className="lg:hidden">
                 {/* Mobile Menu Button - Enhanced */}
                 <button
+                    ref={hamburgerRef}
                     onClick={toggleMobileMenu}
-                    className="relative p-3 rounded-xl border border-gray-200 hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 touch-manipulation shadow-sm hover:shadow-md group"
+                    className="relative p-2 rounded-lg border border-gray-200 hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 shadow-sm hover:shadow-md group"
                     aria-label="Toggle mobile menu"
+                    aria-expanded={mobileMenuOpen}
+                    aria-controls="mobile-menu-panel"
                 >
-                    <div className="relative w-6 h-6 flex flex-col justify-center items-center">
+                    <div className="relative w-5 h-5 flex flex-col justify-center items-center">
                         {/* Animated Hamburger Lines */}
                         <span className={`
-                            absolute w-5 h-0.5 bg-gray-700 transition-all duration-300 ease-out transform
-                            ${mobileMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-1.5'}
+                            absolute w-4 h-0.5 bg-gray-700 transition-all duration-300 ease-out transform
+                            ${mobileMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-1'}
                             group-hover:bg-orange-600
                         `}></span>
                         <span className={`
-                            absolute w-5 h-0.5 bg-gray-700 transition-all duration-300 ease-out
+                            absolute w-4 h-0.5 bg-gray-700 transition-all duration-300 ease-out
                             ${mobileMenuOpen ? 'opacity-0' : 'opacity-100'}
                             group-hover:bg-orange-600
                         `}></span>
                         <span className={`
-                            absolute w-5 h-0.5 bg-gray-700 transition-all duration-300 ease-out transform
-                            ${mobileMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-1.5'}
+                            absolute w-4 h-0.5 bg-gray-700 transition-all duration-300 ease-out transform
+                            ${mobileMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-1'}
                             group-hover:bg-orange-600
                         `}></span>
                     </div>
@@ -252,23 +265,25 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                 {/* Mobile Menu Overlay - Enhanced */}
                 {mobileMenuOpen && (
                     <div 
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] animate-fade-in mobile-menu-overlay"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] animate-fade-in"
                         onClick={closeMobileMenu}
                         style={{ 
                             animation: 'fadeIn 0.3s ease-out',
                             willChange: 'opacity'
                         }}
+                        aria-hidden="true"
                     />
                 )}
 
                 {/* Mobile Menu Panel - Enhanced */}
                 <div 
+                    id="mobile-menu-panel"
                     ref={mobileMenuRef}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                     className={`
-                        fixed top-0 left-0 h-full w-80 sm:w-96 bg-white shadow-2xl z-[9999] transform transition-all duration-300 ease-out mobile-menu-panel
+                        fixed top-0 left-0 h-full w-80 sm:w-96 bg-white shadow-2xl z-[9999] transform transition-all duration-300 ease-out
                         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                         border-r border-gray-100
                     `}
@@ -278,9 +293,12 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                         transformStyle: 'preserve-3d',
                         pointerEvents: mobileMenuOpen ? 'auto' : 'none'
                     }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Mobile navigation menu"
                 >
                     {/* Mobile Menu Header - Enhanced */}
-                    <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-orange-600 p-6 text-white relative overflow-hidden mobile-menu-header">
+                    <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-orange-600 p-6 text-white relative overflow-hidden">
                         {/* Decorative Background Pattern */}
                         <div className="absolute inset-0 opacity-10">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16"></div>
@@ -295,7 +313,7 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                             <button
                                 data-mobile-close
                                 onClick={closeMobileMenu}
-                                className="p-3 rounded-xl bg-white/20 hover:bg-white/30 transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/30 mobile-touch-feedback mobile-menu-focus"
+                                className="p-3 rounded-xl bg-white/20 hover:bg-white/30 transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
                                 aria-label="Close mobile menu"
                             >
                                 <FaTimes size={18} className="text-white" />
@@ -304,15 +322,15 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                     </div>
 
                     {/* Mobile Menu Content - Enhanced */}
-                    <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-orange-200 scrollbar-track-gray-50 mobile-menu-scrollbar">
-                        <div className="p-4 space-y-1 mobile-menu-content">
+                    <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-orange-200 scrollbar-track-gray-50">
+                        <div className="p-4 space-y-1">
                             {currentMenu?.map((item, index) => {
                                 const hasDropdown = item?.items && item?.items?.length > 0;
                                 const isActive = isItemActive(item);
                                 const isExpanded = mobileExpandedItems.has(item.title);
                                 
                                 return (
-                                    <div key={index} className="rounded-xl overflow-hidden border border-gray-100 bg-white hover:shadow-sm transition-all duration-200 mobile-menu-item">
+                                    <div key={index} className="rounded-xl overflow-hidden border border-gray-100 bg-white hover:shadow-sm transition-all duration-200">
                                         {hasDropdown ? (
                                             <MobileDropdownItem
                                                 item={item}
@@ -335,13 +353,13 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                         </div>
                         
                         {/* Footer Section */}
-                        <div className="p-4 border-t border-gray-100 bg-gray-50 mobile-menu-footer">
+                        <div className="p-4 border-t border-gray-100 bg-gray-50">
                             {/* Mobile SignIn/SignOut Buttons */}
                             <div className="mb-4 flex flex-col gap-2">
                                 <Link href={`/SignIn?redirectUrl=${encodeURIComponent(pathname)}`}>
                                     <button 
                                         onClick={closeMobileMenu}
-                                        className="w-full bg-orange-600 text-white font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:bg-orange-700 shadow-sm"
+                                        className="w-full bg-orange-600 text-white font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:bg-orange-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                                     >
                                         Sign In
                                     </button>
@@ -349,7 +367,7 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                                 <Link href="/Registration-Form">
                                     <button 
                                         onClick={closeMobileMenu}
-                                        className="w-full bg-white text-orange-600 border border-orange-600 font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:bg-orange-50"
+                                        className="w-full bg-white text-orange-600 border border-orange-600 font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                                     >
                                         Register
                                     </button>
@@ -501,21 +519,14 @@ const MobileSimpleItem = ({
         href={item.path as string}
         onClick={onClose}
         className={`
-            block w-full text-left px-5 py-4 text-base font-medium rounded-xl transition-all duration-300 touch-manipulation
-            relative overflow-hidden group mobile-menu-item-hover mobile-touch-feedback mobile-menu-focus
+            block w-full text-left px-5 py-4 text-base font-medium rounded-xl transition-all duration-300
+            relative overflow-hidden group mobile-menu-item-hover mobile-touch-feedback
             ${isActive 
-                ? 'text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 shadow-sm mobile-menu-active' 
-                : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                ? 'text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 mobile-menu-active' 
+                : 'text-gray-700 hover:text-orange-600'
             }
         `}
     >
-        {/* Hover Effect Background */}
-        <div className={`
-            absolute inset-0 bg-gradient-to-r from-orange-500/5 to-orange-400/5 
-            transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left
-            ${isActive ? 'scale-x-100' : ''}
-        `}></div>
-        
         <span className="relative z-10 flex items-center">
             {item.title}
             {isActive && (
@@ -549,20 +560,13 @@ const MobileDropdownItem = ({
                     href={item.path}
                     className={`
                         flex-1 text-left px-5 py-4 text-base font-medium rounded-xl transition-all duration-300
-                        relative overflow-hidden group mobile-menu-item-hover mobile-touch-feedback mobile-menu-focus
+                        relative overflow-hidden group mobile-menu-item-hover mobile-touch-feedback
                         ${isActive 
-                            ? 'text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 shadow-sm mobile-menu-active' 
-                            : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                            ? 'text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 mobile-menu-active' 
+                            : 'text-gray-700 hover:text-orange-600'
                         }
                     `}
                 >
-                    {/* Hover Effect Background */}
-                    <div className={`
-                        absolute inset-0 bg-gradient-to-r from-orange-500/5 to-orange-400/5 
-                        transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left
-                        ${isActive ? 'scale-x-100' : ''}
-                    `}></div>
-                    
                     <span className="relative z-10 flex items-center">
                         {item.title}
                         {isActive && (
@@ -572,9 +576,9 @@ const MobileDropdownItem = ({
                 </HeaderLink>
             ) : (
                 <div className={`
-                    flex-1 px-5 py-4 text-base font-medium rounded-xl
+                    flex-1 px-5 py-4 text-base font-medium rounded-xl mobile-menu-item-hover
                     ${isActive 
-                        ? 'text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 shadow-sm mobile-menu-active' 
+                        ? 'text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 mobile-menu-active' 
                         : 'text-gray-700'
                     }
                 `}>
@@ -589,7 +593,9 @@ const MobileDropdownItem = ({
             
             <button
                 onClick={onToggleExpanded}
-                className="p-4 rounded-xl transition-all duration-300 touch-manipulation hover:bg-orange-50 hover:text-orange-600 group mobile-touch-feedback mobile-menu-focus"
+                className="p-4 rounded-xl transition-all duration-300 hover:bg-orange-50 hover:text-orange-600 group"
+                aria-expanded={isExpanded}
+                aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${item.title} submenu`}
             >
                 <FaChevronDown 
                     size={16} 
@@ -616,21 +622,14 @@ const MobileDropdownItem = ({
                                 href={subItem.path}
                                 onClick={onClose}
                                 className={`
-                                    block px-4 py-3 text-sm rounded-lg transition-all duration-300 touch-manipulation
-                                    relative overflow-hidden group mobile-menu-item-hover mobile-touch-feedback mobile-menu-focus
+                                    block px-4 py-3 text-sm rounded-lg transition-all duration-300
+                                    relative overflow-hidden group mobile-menu-item-hover mobile-touch-feedback
                                     ${isSubActive 
-                                        ? 'text-orange-600 bg-orange-100 font-medium border border-orange-200 shadow-sm mobile-menu-active' 
-                                        : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
+                                        ? 'text-orange-600 bg-orange-100 font-medium mobile-menu-active' 
+                                        : 'text-gray-600 hover:text-orange-600'
                                     }
                                 `}
                             >
-                                {/* Hover Effect Background */}
-                                <div className={`
-                                    absolute inset-0 bg-gradient-to-r from-orange-500/5 to-orange-400/5 
-                                    transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left
-                                    ${isSubActive ? 'scale-x-100' : ''}
-                                `}></div>
-                                
                                 <span className="relative z-10 flex items-center">
                                     {subItem.title}
                                     {isSubActive && (

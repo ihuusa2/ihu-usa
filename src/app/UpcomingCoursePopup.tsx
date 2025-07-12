@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getPopupSettings } from '@/Server/PopupSettings';
 import { PopupSettings } from '@/Types/PopupSettings';
-import HydrationGuard from '@/components/HydrationGuard';
 import { FaTimes, FaArrowRight } from 'react-icons/fa';
 
 const UpcomingCoursePopup = () => {
@@ -18,7 +17,10 @@ const UpcomingCoursePopup = () => {
         const data = await getPopupSettings();
         if (data && data.isActive) {
           setPopupData(data);
-          setOpen(true);
+          // Add a small delay to ensure the popup appears after page load
+          setTimeout(() => {
+            setOpen(true);
+          }, 1000);
         }
       } catch (error) {
         console.error('Error loading popup settings:', error);
@@ -61,15 +63,15 @@ const UpcomingCoursePopup = () => {
   }
 
   return (
-    <HydrationGuard fallback={null}>
+    <>
       {/* Modal Backdrop */}
       {open && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
           onClick={handleBackdropClick}
         >
           {/* Modal Content */}
-          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in-scale">
+          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
             {/* Header */}
             <div className="bg-gradient-to-r from-orange-400 to-amber-400 px-4 sm:px-8 py-3 sm:py-4 flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -124,7 +126,7 @@ const UpcomingCoursePopup = () => {
           </div>
         </div>
       )}
-    </HydrationGuard>
+    </>
   ); 
 };
 

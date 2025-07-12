@@ -7,7 +7,7 @@ const client = new Client({
         oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET as string,
     },
     timeout: 0,
-    environment: Environment.Production, // or Environment.Production
+    environment: Environment.Sandbox, // Changed to Sandbox for development
     logging: {
         logLevel: LogLevel.Info,
         logRequest: {

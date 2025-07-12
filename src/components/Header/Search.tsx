@@ -18,8 +18,8 @@ const Search = () => {
         const formData = new FormData(e.currentTarget)
         const searchQuery = formData.get(inputName)?.toString()
         
-        if (searchQuery) {
-            router.push(`${pathName}?${inputName}=${searchQuery}`)
+        if (searchQuery && searchQuery.trim()) {
+            router.push(`${pathName}?${inputName}=${encodeURIComponent(searchQuery.trim())}`)
         }
     }
 
@@ -85,6 +85,15 @@ const Search = () => {
     const currentPage = inputNames.find((item) => pathName.includes(item.path))
     const hasFields = (currentPage?.fields ?? []).length > 0
 
+    // Set default selected field based on current page
+    useEffect(() => {
+        if (currentPage?.name) {
+            setSelectedField(currentPage.name)
+        } else {
+            setSelectedField('search')
+        }
+    }, [currentPage?.name])
+
     const handleFieldSelect = (field: string) => {
         setSelectedField(field)
         setIsDropdownOpen(false)
@@ -147,7 +156,7 @@ const Search = () => {
                 <div className="relative flex-1">
                     <input
                         type="text"
-                        disabled={hasFields && !selectedField}
+                        disabled={false}
                         name={selectedField || currentPage?.name || 'search'}
                         placeholder={currentPage?.placeholder || 'Search...'}
                         className="w-full h-9 pl-10 pr-4 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 placeholder-gray-400 disabled:bg-gray-50 disabled:text-gray-400 transition-all duration-200"

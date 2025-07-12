@@ -15,8 +15,8 @@ export const createOrder = async ({ order_price, currency_code }: {
             purchaseUnits: [
                 {
                     amount: {
-                        currencyCode: 'USD',
-                        value: '1',
+                        currencyCode: currency_code,
+                        value: order_price,
                     },
                 }
             ],
