@@ -21,7 +21,7 @@ export const createContactForm = async ({ _id, ...rest }: Contact): Promise<Inse
     // Try to send email notification, but don't fail if it doesn't work
     try {
         await handleMail({
-            email: process.env.NODEMAILER_PUBLIC_EMAIL as string,
+            email: process.env.CONTACT_FORM_EMAIL as string,
             html: ContactFormMailTemplate({ data: contactData }),
             sub: 'Contact Form Submission',
         })

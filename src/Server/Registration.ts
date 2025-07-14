@@ -50,12 +50,12 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
         createdAt: new Date() 
     })
 
-    // Send confirmation email to the user
+    // Send confirmation email to the user with BCC to admin for sent box copy
     try {
         await handleMail({
             email: rest.emailAddress,
             html: RegistrationMailTemplateForStudent({ data: { ...rest, registrationNumber } }),
-            sub: "Application Received - IHU"
+            sub: "Application Received - IHU",
         })
         console.log('Confirmation email sent to:', rest.emailAddress)
     } catch (error) {
@@ -66,11 +66,11 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
     // Send notification email to admin
     try {
         await handleMail({
-            email: process.env.NODEMAILER_PUBLIC_EMAIL as string,
+            email: process.env.REGISTRATION_FORM_EMAIL as string,
             html: RegistrationMailTemplate({ data: { ...rest, registrationNumber } }),
             sub: "New Registration - IHU"
         })
-        console.log('Admin notification email sent to:', process.env.NODEMAILER_PUBLIC_EMAIL)
+        console.log('Admin notification email sent to:', process.env.REGISTRATION_FORM_EMAIL)
     } catch (error) {
         console.error('Failed to send admin notification email:', error)
         // Don't fail the registration if email fails

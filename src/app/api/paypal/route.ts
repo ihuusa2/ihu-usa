@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
                         await handleMail({
                             email: regData.emailAddress as string,
                             html: RegistrationMailTemplateForStudent({ data: regData }),
-                            sub: "Registration Confirmation",
+                            sub: "Registration Confirmation"
                         })
 
                         console.log("📧 Mail sent to student")
