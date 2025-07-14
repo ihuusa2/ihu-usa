@@ -1009,7 +1009,7 @@ const RegistrationForm = () => {
                                 const isCompleted = currentStep > step.id
                                 
                                 return (
-                                    <div key={step.id} className="flex flex-col items-center relative z-10 flex-1">
+                                    <div key={step.id} className="flex flex-col items-center relative z-5 flex-1">
                                         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-2 transition-all duration-300 ${
                                             isCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg' :
                                             isActive ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg' :
@@ -1027,7 +1027,7 @@ const RegistrationForm = () => {
                                 )
                             })}
                             {/* Progress Line */}
-                            <div className="absolute top-5 sm:top-6 left-0 right-0 h-0.5 bg-gray-200 -z-10">
+                            <div className="absolute top-5 sm:top-6 left-0 right-0 h-0.5 bg-gray-200 -z-5">
                                 <div 
                                     className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500 ease-in-out"
                                     style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }}
@@ -1163,7 +1163,7 @@ const RegistrationForm = () => {
 
             {/* Error and Message Modals */}
             {msg && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-5 p-4">
                     <div className="bg-white rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
                         <div className="flex items-center gap-2 mb-4">
                             <CheckCircle className="h-5 w-5 text-green-600" />
@@ -1181,7 +1181,7 @@ const RegistrationForm = () => {
             )}
 
             {error && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-5 p-4">
                     <div className="bg-white rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
                         <div className="flex items-center gap-2 mb-4">
                             <AlertCircle className="h-5 w-5 text-red-600" />
