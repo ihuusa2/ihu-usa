@@ -1,6 +1,6 @@
 import { Contact, CourseForm, RegisterForm } from '@/Types/Form'
 
-const RegistrationMailTemplate = ({ data }: {
+export const RegistrationMailTemplate = ({ data }: {
   data: RegisterForm
 }) => {
   return (

@@ -3,7 +3,7 @@
 import handleMail from "@/app/api/mail"
 import { parseQuery } from "@/functions/serverActions"
 import { db } from "@/lib/mongo"
-import { RegistrationMailTemplateForStudent } from "@/Template"
+import { RegistrationMailTemplate, RegistrationMailTemplateForStudent } from "@/Template"
 import { PaymentStatus, RegisterForm, Status } from "@/Types/Form"
 import { Collection, InsertOneResult, ObjectId } from "mongodb"
 import { getNextRegistrationNumber } from "@/functions"
@@ -60,6 +60,19 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
         console.log('Confirmation email sent to:', rest.emailAddress)
     } catch (error) {
         console.error('Failed to send confirmation email:', error)
+        // Don't fail the registration if email fails
+    }
+
+    // Send notification email to admin
+    try {
+        await handleMail({
+            email: process.env.NODEMAILER_PUBLIC_EMAIL as string,
+            html: RegistrationMailTemplate({ data: { ...rest, registrationNumber } }),
+            sub: "New Registration - IHU"
+        })
+        console.log('Admin notification email sent to:', process.env.NODEMAILER_PUBLIC_EMAIL)
+    } catch (error) {
+        console.error('Failed to send admin notification email:', error)
         // Don't fail the registration if email fails
     }
 
@@ -260,6 +273,67 @@ export const updateRegistration = async (id: string, data: Partial<RegisterForm>
 export const countRegistration = async (): Promise<number> => {
     const count = await Registration.countDocuments()
     return JSON.parse(JSON.stringify(count))
+}
+
+export const getRegistrationStats = async (): Promise<{
+    total: number;
+    approved: number;
+    pending: number;
+    rejected: number;
+    completed: number;
+    failed: number;
+    refunded: number;
+    pendingPayment: number;
+} | null> => {
+    try {
+        const [totalStats, statusStats, paymentStats] = await Promise.all([
+            // Total registrations
+            Registration.countDocuments({}),
+            
+            // Stats by status
+            Registration.aggregate([
+                {
+                    $group: {
+                        _id: "$status",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]).toArray(),
+            
+            // Stats by payment status
+            Registration.aggregate([
+                {
+                    $group: {
+                        _id: "$paymentStatus",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]).toArray()
+        ]);
+
+        const approved = statusStats.find(s => s._id === 'APPROVED')?.count || 0;
+        const pending = statusStats.find(s => s._id === 'PENDING')?.count || 0;
+        const rejected = statusStats.find(s => s._id === 'REJECTED')?.count || 0;
+        
+        const completed = paymentStats.find(s => s._id === 'COMPLETED')?.count || 0;
+        const failed = paymentStats.find(s => s._id === 'FAILED')?.count || 0;
+        const refunded = paymentStats.find(s => s._id === 'REFUNDED')?.count || 0;
+        const pendingPayment = paymentStats.find(s => s._id === 'PENDING')?.count || 0;
+        
+        return {
+            total: totalStats,
+            approved,
+            pending,
+            rejected,
+            completed,
+            failed,
+            refunded,
+            pendingPayment
+        };
+    } catch (error) {
+        console.error('Error getting registration stats:', error);
+        return null;
+    }
 }
 
 /**

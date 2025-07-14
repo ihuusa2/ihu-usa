@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Spinner from '@/components/Spinner'
-import { getAllRegistration } from '@/Server/Registration'
+import { getAllRegistration, getRegistrationStats } from '@/Server/Registration'
 import Pagination from '@/components/Pagination'
 import { useSearchParams } from 'next/navigation'
 import { RegisterForm } from '@/Types/Form'
@@ -47,18 +47,39 @@ const AdminRegistrations = () => {
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isAssigningNumbers, setIsAssigningNumbers] = useState(false)
+    const [stats, setStats] = useState<{
+        total: number;
+        approved: number;
+        pending: number;
+        rejected: number;
+        completed: number;
+        failed: number;
+        refunded: number;
+        pendingPayment: number;
+    } | null>(null)
 
     useEffect(() => {
         (async () => {
             setLoading(true)
-            await getAllRegistration({ searchParams: Object.fromEntries(searchParams.entries()) }).then((registrations) => {
+            try {
+                const [registrations, statsData] = await Promise.all([
+                    getAllRegistration({ searchParams: Object.fromEntries(searchParams.entries()) }),
+                    getRegistrationStats()
+                ])
+                
                 if (registrations) {
                     setData(registrations.list)
                     setCount(registrations.count)
                 }
-            }).finally(() => {
+                
+                if (statsData) {
+                    setStats(statsData)
+                }
+            } catch (error) {
+                console.error('Error loading registrations:', error)
+            } finally {
                 setLoading(false)
-            })
+            }
         })()
     }, [searchParams])
 
@@ -188,12 +209,16 @@ const AdminRegistrations = () => {
         }
     }
 
-    // Statistics
-    const stats = {
-        total: data.length,
+    // Use server stats if available, otherwise fallback to calculated stats
+    const displayStats = stats || {
+        total: count,
         approved: data.filter(item => item.status === 'APPROVED').length,
         pending: data.filter(item => item.status === 'PENDING').length,
-        rejected: data.filter(item => item.status === 'REJECTED').length
+        rejected: data.filter(item => item.status === 'REJECTED').length,
+        completed: 0,
+        failed: 0,
+        refunded: 0,
+        pendingPayment: 0
     }
 
     // Get data based on active tab
@@ -259,7 +284,7 @@ const AdminRegistrations = () => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-blue-600 font-semibold text-xs sm:text-sm">Total</p>
-                                    <p className="text-2xl sm:text-3xl font-bold text-blue-800">{stats.total}</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-blue-800">{displayStats.total}</p>
                                     <p className="text-xs text-blue-600 mt-1">All applications</p>
                                 </div>
                                 <div className="p-2 sm:p-3 bg-blue-500 rounded-xl shadow-lg">
@@ -272,9 +297,9 @@ const AdminRegistrations = () => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-green-600 font-semibold text-xs sm:text-sm">Approved</p>
-                                    <p className="text-2xl sm:text-3xl font-bold text-green-800">{stats.approved}</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-green-800">{displayStats.approved}</p>
                                     <p className="text-xs text-green-600 mt-1">
-                                        {stats.total > 0 ? Math.round((stats.approved / stats.total) * 100) : 0}% of total
+                                        {displayStats.total > 0 ? Math.round((displayStats.approved / displayStats.total) * 100) : 0}% of total
                                     </p>
                                 </div>
                                 <div className="p-2 sm:p-3 bg-green-500 rounded-xl shadow-lg">
@@ -287,7 +312,7 @@ const AdminRegistrations = () => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-yellow-600 font-semibold text-xs sm:text-sm">Pending</p>
-                                    <p className="text-2xl sm:text-3xl font-bold text-yellow-800">{stats.pending}</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-yellow-800">{displayStats.pending}</p>
                                     <p className="text-xs text-yellow-600 mt-1">Awaiting review</p>
                                 </div>
                                 <div className="p-2 sm:p-3 bg-yellow-500 rounded-xl shadow-lg">
@@ -300,7 +325,7 @@ const AdminRegistrations = () => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-red-600 font-semibold text-xs sm:text-sm">Rejected</p>
-                                    <p className="text-2xl sm:text-3xl font-bold text-red-800">{stats.rejected}</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-red-800">{displayStats.rejected}</p>
                                     <p className="text-xs text-red-600 mt-1">Not approved</p>
                                 </div>
                                 <div className="p-2 sm:p-3 bg-red-500 rounded-xl shadow-lg">
@@ -432,7 +457,7 @@ const AdminRegistrations = () => {
                                 <FaUsers className="h-4 w-4" />
                                 <span className="hidden sm:inline">All</span>
                                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
-                                    {stats.total}
+                                    {displayStats.total}
                                 </span>
                             </button>
                             <button
@@ -446,7 +471,7 @@ const AdminRegistrations = () => {
                                 <FaUserCheck className="h-4 w-4" />
                                 <span className="hidden sm:inline">Approved</span>
                                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
-                                    {stats.approved}
+                                    {displayStats.approved}
                                 </span>
                             </button>
                             <button
@@ -460,7 +485,7 @@ const AdminRegistrations = () => {
                                 <FaClock className="h-4 w-4" />
                                 <span className="hidden sm:inline">Pending</span>
                                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
-                                    {stats.pending}
+                                    {displayStats.pending}
                                 </span>
                             </button>
                             <button
@@ -474,7 +499,7 @@ const AdminRegistrations = () => {
                                 <FaUserTimes className="h-4 w-4" />
                                 <span className="hidden sm:inline">Rejected</span>
                                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
-                                    {stats.rejected}
+                                    {displayStats.rejected}
                                 </span>
                             </button>
                         </div>
