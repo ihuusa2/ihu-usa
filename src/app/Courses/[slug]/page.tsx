@@ -381,7 +381,7 @@ const Courses = ({ params, searchParams }: Props) => {
                             We&apos;re working on adding new courses in this category. Check back soon for exciting learning opportunities, or explore our other course categories.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                            <Link href="/Courses" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <Link href="/Courses/Certification" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                 Browse All Courses
                             </Link>
                             <Link href="/Contact" className="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300">

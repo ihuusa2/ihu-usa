@@ -205,7 +205,7 @@ const AdminSettings = () => {
                                 <FaCog className="text-white text-2xl" />
                             </div>
                             <div>
-                                <H1 className="mb-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                                <H1 className="mb-2 pb-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                                     Site Settings
                                 </H1>
                                 <p className='text-slate-600 text-lg'>Configure your website settings and preferences</p>
