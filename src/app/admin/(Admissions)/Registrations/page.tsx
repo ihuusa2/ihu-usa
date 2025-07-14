@@ -46,6 +46,7 @@ const AdminRegistrations = () => {
     const [selectedRegistration, setSelectedRegistration] = useState<RegisterForm | null>(null)
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const [isAssigningNumbers, setIsAssigningNumbers] = useState(false)
 
     useEffect(() => {
         (async () => {
@@ -151,6 +152,42 @@ const AdminRegistrations = () => {
         setShowDetailModal(true)
     }
 
+    const handleAssignRegistrationNumbers = async () => {
+        if (!confirm('This will assign registration numbers to all existing registrations that don\'t have them. Continue?')) {
+            return
+        }
+
+        setIsAssigningNumbers(true)
+        try {
+            const response = await fetch('/api/assign-registration-numbers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer admin' // You might want to use proper authentication
+                }
+            })
+
+            const result = await response.json()
+            
+            if (result.success) {
+                alert(`Successfully assigned registration numbers to ${result.count} registrations`)
+                // Refresh the data
+                const registrations = await getAllRegistration({ searchParams: Object.fromEntries(searchParams.entries()) })
+                if (registrations) {
+                    setData(registrations.list)
+                    setCount(registrations.count)
+                }
+            } else {
+                alert(`Failed to assign registration numbers: ${result.message}`)
+            }
+        } catch (error) {
+            console.error('Error assigning registration numbers:', error)
+            alert('An error occurred while assigning registration numbers')
+        } finally {
+            setIsAssigningNumbers(false)
+        }
+    }
+
     // Statistics
     const stats = {
         total: data.length,
@@ -195,6 +232,23 @@ const AdminRegistrations = () => {
                                 <FaPlus className="h-4 w-4" />
                                 <span className="hidden sm:inline">Add Registration</span>
                                 <span className="sm:hidden">Add</span>
+                            </button>
+                            <button 
+                                onClick={handleAssignRegistrationNumbers}
+                                disabled={isAssigningNumbers}
+                                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isAssigningNumbers ? (
+                                    <Spinner size="w-4 h-4" color="text-white" />
+                                ) : (
+                                    <FaClipboardCheck className="h-4 w-4" />
+                                )}
+                                <span className="hidden sm:inline">
+                                    {isAssigningNumbers ? 'Assigning...' : 'Assign Reg Numbers'}
+                                </span>
+                                <span className="sm:hidden">
+                                    {isAssigningNumbers ? 'Assigning...' : 'Assign'}
+                                </span>
                             </button>
                         </div>
                     </div>

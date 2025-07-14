@@ -6,6 +6,7 @@ import { db } from "@/lib/mongo"
 import { RegistrationMailTemplateForStudent } from "@/Template"
 import { PaymentStatus, RegisterForm, Status } from "@/Types/Form"
 import { Collection, InsertOneResult, ObjectId } from "mongodb"
+import { getNextRegistrationNumber } from "@/functions"
 const Registration: Collection<RegisterForm> = db.collection("Registration")
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -17,13 +18,34 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
         return null as unknown as InsertOneResult
     }
 
-    const result = await Registration.insertOne({ ...rest, paymentStatus: PaymentStatus.PENDING, status: Status.PENDING, createdAt: new Date() })
+    // Generate registration number
+    const today = new Date()
+    const existingRegistrations = await Registration.find({ 
+        createdAt: { 
+            $gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+            $lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+        } 
+    }).toArray()
+    
+    const existingNumbers = existingRegistrations
+        .map(reg => reg.registrationNumber)
+        .filter((num): num is string => num !== undefined && num.startsWith('IHU'))
+    
+    const registrationNumber = getNextRegistrationNumber(today, existingNumbers)
+
+    const result = await Registration.insertOne({ 
+        ...rest, 
+        registrationNumber,
+        paymentStatus: PaymentStatus.PENDING, 
+        status: Status.PENDING, 
+        createdAt: new Date() 
+    })
 
     // Send confirmation email to the user
     try {
         await handleMail({
             email: rest.emailAddress,
-            html: RegistrationMailTemplateForStudent({ data: rest }),
+            html: RegistrationMailTemplateForStudent({ data: { ...rest, registrationNumber } }),
             sub: "Application Received - IHU"
         })
         console.log('Confirmation email sent to:', rest.emailAddress)
@@ -220,4 +242,58 @@ export const updateRegistration = async (id: string, data: Partial<RegisterForm>
 export const countRegistration = async (): Promise<number> => {
     const count = await Registration.countDocuments()
     return JSON.parse(JSON.stringify(count))
+}
+
+/**
+ * Assign registration numbers to existing registrations that don't have them
+ * This function should be run once to fix existing data
+ */
+export const assignRegistrationNumbersToExisting = async (): Promise<{ success: boolean; count: number; errors: string[] }> => {
+    try {
+        const registrationsWithoutNumber = await Registration.find({ 
+            $or: [
+                { registrationNumber: { $exists: false } },
+                { registrationNumber: "" }
+            ]
+        }).sort({ createdAt: 1 }).toArray()
+
+        let count = 0
+        const errors: string[] = []
+
+        for (const registration of registrationsWithoutNumber) {
+            try {
+                const registrationDate = registration.createdAt || new Date()
+                const existingRegistrations = await Registration.find({ 
+                    createdAt: { 
+                        $gte: new Date(registrationDate.getFullYear(), registrationDate.getMonth(), registrationDate.getDate()),
+                        $lt: new Date(registrationDate.getFullYear(), registrationDate.getMonth(), registrationDate.getDate() + 1)
+                    },
+                    registrationNumber: { $exists: true, $nin: [""] }
+                }).toArray()
+                
+                const existingNumbers = existingRegistrations
+                    .map(reg => reg.registrationNumber)
+                    .filter((num): num is string => num !== undefined && num.startsWith('IHU'))
+                
+                const registrationNumber = getNextRegistrationNumber(registrationDate, existingNumbers)
+
+                await Registration.updateOne(
+                    { _id: registration._id },
+                    { $set: { registrationNumber } }
+                )
+
+                count++
+                console.log(`Assigned registration number ${registrationNumber} to ${registration.firstName} ${registration.lastName}`)
+            } catch (error) {
+                const errorMsg = `Failed to assign registration number to ${registration.firstName} ${registration.lastName}: ${error}`
+                errors.push(errorMsg)
+                console.error(errorMsg)
+            }
+        }
+
+        return { success: true, count, errors }
+    } catch (error) {
+        console.error('Error in assignRegistrationNumbersToExisting:', error)
+        return { success: false, count: 0, errors: [error instanceof Error ? error.message : 'Unknown error'] }
+    }
 }

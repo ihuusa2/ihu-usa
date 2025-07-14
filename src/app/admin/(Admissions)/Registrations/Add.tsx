@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import InitiatePayment from '@/app/(Applications)/Registration-Form/Checkout/InitiatePayment'
 import Spinner from '@/components/Spinner'
-import { checkEmailAlreadyExists, createRegisterForm, updateRegistration } from '@/Server/Registration'
+import { checkEmailAlreadyExists, createRegisterForm, updateRegistration, getRegistrationById } from '@/Server/Registration'
 import { PaymentStatus, RegisterForm, Status } from '@/Types/Form'
 import { User, Mail, Phone, MapPin, GraduationCap, FileText, CreditCard, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, X } from 'lucide-react'
 import React from 'react'
@@ -137,10 +137,23 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
                     orderId: '',
                 })
 
-                setData((prev) => {
-                    return [...prev, { ...value, orderId: '', _id: res.insertedId?.toString?.() ?? res.insertedId, paymentStatus: PaymentStatus.PENDING, status: Status.PENDING, createdAt: new Date() }]
-                })
-                setOpen?.(false)
+                if (res && res.insertedId) {
+                    // Get the created registration to get the generated registration number
+                    const createdRegistration = await getRegistrationById(res.insertedId.toString())
+                    
+                    setData((prev) => {
+                        return [...prev, { 
+                            ...value, 
+                            ...createdRegistration,
+                            orderId: '', 
+                            _id: res.insertedId?.toString?.() ?? res.insertedId, 
+                            paymentStatus: PaymentStatus.PENDING, 
+                            status: Status.PENDING, 
+                            createdAt: new Date() 
+                        }]
+                    })
+                    setOpen?.(false)
+                }
             }
         }
         setLoading(false)
