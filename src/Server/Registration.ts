@@ -18,6 +18,15 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
         return null as unknown as InsertOneResult
     }
 
+    const isMobileExist = await Registration.findOne({ 
+        countryCode: rest.countryCode,
+        phone: rest.phone 
+    })
+
+    if (isMobileExist) {
+        return null as unknown as InsertOneResult
+    }
+
     // Generate registration number
     const today = new Date()
     const existingRegistrations = await Registration.find({ 
@@ -59,6 +68,15 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
 
 export const checkEmailAlreadyExists = async (email: string): Promise<boolean> => {
     const result = await Registration.findOne({ emailAddress: email })
+    if (!result) return false
+    return true
+}
+
+export const checkMobileAlreadyExists = async (countryCode: string, phone: string): Promise<boolean> => {
+    const result = await Registration.findOne({ 
+        countryCode: countryCode,
+        phone: phone 
+    })
     if (!result) return false
     return true
 }

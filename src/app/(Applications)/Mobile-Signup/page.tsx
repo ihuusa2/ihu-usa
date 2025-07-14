@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { checkEmailAlreadyExists } from '@/Server/Registration'
 import { PaymentStatus, RegisterForm, Status } from '@/Types/Form'
 import { User, Mail, MapPin, GraduationCap, CheckCircle, AlertCircle, CreditCard, ChevronRight, ChevronLeft } from 'lucide-react'
 import Spinner from '@/components/Spinner'
@@ -60,6 +59,34 @@ const MobileSignup = () => {
     const [show, setShow] = useState(false)
     const [currentStep, setCurrentStep] = useState(1)
 
+    // Email validation state
+    const [emailValidation, setEmailValidation] = useState({
+        checking: false,
+        exists: false,
+        message: ''
+    })
+    const [emailTimeout, setEmailTimeout] = useState<NodeJS.Timeout | null>(null)
+
+    // Mobile validation state
+    const [mobileValidation, setMobileValidation] = useState({
+        checking: false,
+        exists: false,
+        message: ''
+    })
+    const [mobileTimeout, setMobileTimeout] = useState<NodeJS.Timeout | null>(null)
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (emailTimeout) {
+                clearTimeout(emailTimeout)
+            }
+            if (mobileTimeout) {
+                clearTimeout(mobileTimeout)
+            }
+        }
+    }, [emailTimeout, mobileTimeout])
+
     const requiredFields: Array<keyof RegisterForm> = [
         'firstName', 'lastName', 'dateOfBirth', 'emailAddress', 'countryCode', 'phone', 'address', 'city', 'state', 'countryOrRegion', 'zipOrPostalCode', 'resident', 'enrollmentType', 'courseType', 'graduationYear', 'howDidYouHearAboutIHU', 'objectives', 'signature'
     ]
@@ -71,6 +98,19 @@ const MobileSignup = () => {
                 return false;
             }
         }
+
+        // Check if email is valid and doesn't exist
+        if (emailValidation.exists || emailValidation.checking) {
+            console.log('Email validation failed:', emailValidation);
+            return false;
+        }
+
+        // Check if mobile is valid and doesn't exist
+        if (mobileValidation.exists || mobileValidation.checking) {
+            console.log('Mobile validation failed:', mobileValidation);
+            return false;
+        }
+        
         return true;
     }
 
@@ -84,12 +124,164 @@ const MobileSignup = () => {
         return missing;
     }
 
+    // Email validation function
+    const validateEmail = async (email: string) => {
+        if (!email || email.length < 3) {
+            setEmailValidation({
+                checking: false,
+                exists: false,
+                message: ''
+            })
+            return
+        }
+
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(email)) {
+            setEmailValidation({
+                checking: false,
+                exists: false,
+                message: 'Please enter a valid email address'
+            })
+            return
+        }
+
+        setEmailValidation(prev => ({ ...prev, checking: true, message: '' }))
+
+        try {
+            const response = await fetch(`/api/check-email?email=${encodeURIComponent(email)}`)
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+            
+            const data = await response.json()
+
+            setEmailValidation({
+                checking: false,
+                exists: data.exists,
+                message: data.exists ? 'This email is already registered' : 'Email is available'
+            })
+        } catch (error) {
+            console.error('Error validating email:', error)
+            setEmailValidation({
+                checking: false,
+                exists: false,
+                message: 'Error checking email availability'
+            })
+        }
+    }
+
+    // Debounced email validation
+    const handleEmailChange = (email: string) => {
+        setValue({ ...value, emailAddress: email })
+        
+        // Clear existing timeout
+        if (emailTimeout) {
+            clearTimeout(emailTimeout)
+        }
+
+        // Clear validation if email is empty or too short
+        if (!email || email.length < 3) {
+            setEmailValidation({
+                checking: false,
+                exists: false,
+                message: ''
+            })
+            return
+        }
+
+        // Set new timeout for debounced validation
+        const timeout = setTimeout(() => {
+            validateEmail(email)
+        }, 500) // 500ms delay
+
+        setEmailTimeout(timeout)
+    }
+
+    // Mobile validation function
+    const validateMobile = async (countryCode: string, phone: string) => {
+        if (!countryCode || !phone || phone.length < 5) {
+            setMobileValidation({
+                checking: false,
+                exists: false,
+                message: ''
+            })
+            return
+        }
+
+        // Basic phone format validation (at least 5 digits)
+        const phoneRegex = /^\d{5,}$/
+        if (!phoneRegex.test(phone)) {
+            setMobileValidation({
+                checking: false,
+                exists: false,
+                message: 'Please enter a valid phone number (at least 5 digits)'
+            })
+            return
+        }
+
+        setMobileValidation(prev => ({ ...prev, checking: true, message: '' }))
+
+        try {
+            const response = await fetch(`/api/check-mobile?countryCode=${encodeURIComponent(countryCode)}&phone=${encodeURIComponent(phone)}`)
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+            
+            const data = await response.json()
+
+            setMobileValidation({
+                checking: false,
+                exists: data.exists,
+                message: data.exists ? 'This mobile number is already registered' : 'Mobile number is available'
+            })
+        } catch (error) {
+            console.error('Error validating mobile:', error)
+            setMobileValidation({
+                checking: false,
+                exists: false,
+                message: 'Error checking mobile number availability'
+            })
+        }
+    }
+
+    // Debounced mobile validation
+    const handleMobileChange = (countryCode: string, phone: string) => {
+        setValue({ ...value, countryCode, phone })
+        
+        // Clear existing timeout
+        if (mobileTimeout) {
+            clearTimeout(mobileTimeout)
+        }
+
+        // Clear validation if phone is empty or too short
+        if (!countryCode || !phone || phone.length < 5) {
+            setMobileValidation({
+                checking: false,
+                exists: false,
+                message: ''
+            })
+            return
+        }
+
+        // Set new timeout for debounced validation
+        const timeout = setTimeout(() => {
+            validateMobile(countryCode, phone)
+        }, 500) // 500ms delay
+
+        setMobileTimeout(timeout)
+    }
+
     const validateCurrentStep = () => {
         switch (currentStep) {
             case 1:
                 return value.firstName && value.lastName && value.dateOfBirth
             case 2:
-                return value.emailAddress && value.countryCode && value.phone
+                return value.emailAddress && value.countryCode && value.phone && 
+                       !emailValidation.exists && !emailValidation.checking &&
+                       !mobileValidation.exists && !mobileValidation.checking
             case 3:
                 return value.address && value.city && value.state && value.countryOrRegion && value.zipOrPostalCode
             case 4:
@@ -103,12 +295,21 @@ const MobileSignup = () => {
 
     const handleSubmit = async () => {
         setLoading(true)
-        const emailExists = await checkEmailAlreadyExists(value.emailAddress);
-        if (emailExists) {
+        
+        // Check email validation
+        if (emailValidation.exists) {
             setError('Email already exists. Please use a different email address.');
             setLoading(false)
             return;
         }
+        
+        // Check mobile number
+        if (mobileValidation.exists) {
+            setError('Mobile number already exists. Please use a different mobile number.');
+            setLoading(false)
+            return;
+        }
+        
         setShow(true)
         setLoading(false)
     }
@@ -197,14 +398,46 @@ const MobileSignup = () => {
                     <div className="space-y-6">
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-700">Email Address *</label>
-                            <input
-                                type="email"
-                                value={value.emailAddress}
-                                onChange={(e) => setValue({ ...value, emailAddress: e.target.value })}
-                                disabled={loading}
-                                placeholder="Enter your email address"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base disabled:bg-gray-50 disabled:cursor-not-allowed"
-                            />
+                            <div className="relative">
+                                <input
+                                    type="email"
+                                    value={value.emailAddress}
+                                    onChange={(e) => handleEmailChange(e.target.value)}
+                                    disabled={loading}
+                                    placeholder="Enter your email address"
+                                    className={`w-full px-4 py-3 pr-10 border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 text-base disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                                        emailValidation.checking 
+                                            ? 'border-yellow-400 focus:ring-yellow-400' 
+                                            : emailValidation.exists 
+                                                ? 'border-red-400 focus:ring-red-400' 
+                                                : emailValidation.message && !emailValidation.exists 
+                                                    ? 'border-green-400 focus:ring-green-400' 
+                                                    : 'border-gray-300 focus:ring-blue-500'
+                                    }`}
+                                />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    {emailValidation.checking && (
+                                        <Spinner size="w-4 h-4" color="text-yellow-600" />
+                                    )}
+                                    {!emailValidation.checking && emailValidation.exists && (
+                                        <AlertCircle className="h-4 w-4 text-red-500" />
+                                    )}
+                                    {!emailValidation.checking && emailValidation.message && !emailValidation.exists && (
+                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                    )}
+                                </div>
+                            </div>
+                            {emailValidation.message && (
+                                <p className={`text-xs ${
+                                    emailValidation.exists 
+                                        ? 'text-red-600' 
+                                        : emailValidation.message === 'Email is available' 
+                                            ? 'text-green-600' 
+                                            : 'text-gray-500'
+                                }`}>
+                                    {emailValidation.message}
+                                </p>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -213,22 +446,62 @@ const MobileSignup = () => {
                                 <input
                                     type="number"
                                     value={value.countryCode}
-                                    onChange={(e) => setValue({ ...value, countryCode: e.target.value })}
+                                    onChange={(e) => handleMobileChange(e.target.value, value.phone)}
                                     disabled={loading}
                                     placeholder="+1, +91"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base disabled:bg-gray-50 disabled:cursor-not-allowed"
+                                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 text-base disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                                        mobileValidation.checking 
+                                            ? 'border-yellow-400 focus:ring-yellow-400' 
+                                            : mobileValidation.exists 
+                                                ? 'border-red-400 focus:ring-red-400' 
+                                                : mobileValidation.message && !mobileValidation.exists 
+                                                    ? 'border-green-400 focus:ring-green-400' 
+                                                    : 'border-gray-300 focus:ring-blue-500'
+                                    }`}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <label className="block text-sm font-semibold text-gray-700">Phone Number *</label>
-                                <input
-                                    type="tel"
-                                    value={value.phone}
-                                    onChange={(e) => setValue({ ...value, phone: e.target.value })}
-                                    disabled={loading}
-                                    placeholder="Enter phone number"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base disabled:bg-gray-50 disabled:cursor-not-allowed"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type="tel"
+                                        value={value.phone}
+                                        onChange={(e) => handleMobileChange(value.countryCode, e.target.value)}
+                                        disabled={loading}
+                                        placeholder="Enter phone number"
+                                        className={`w-full px-4 py-3 pr-10 border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 text-base disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                                            mobileValidation.checking 
+                                                ? 'border-yellow-400 focus:ring-yellow-400' 
+                                                : mobileValidation.exists 
+                                                    ? 'border-red-400 focus:ring-red-400' 
+                                                    : mobileValidation.message && !mobileValidation.exists 
+                                                        ? 'border-green-400 focus:ring-green-400' 
+                                                        : 'border-gray-300 focus:ring-blue-500'
+                                        }`}
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        {mobileValidation.checking && (
+                                            <Spinner size="w-4 h-4" color="text-yellow-600" />
+                                        )}
+                                        {!mobileValidation.checking && mobileValidation.exists && (
+                                            <AlertCircle className="h-4 w-4 text-red-500" />
+                                        )}
+                                        {!mobileValidation.checking && mobileValidation.message && !mobileValidation.exists && (
+                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                        )}
+                                    </div>
+                                </div>
+                                {mobileValidation.message && (
+                                    <p className={`text-xs ${
+                                        mobileValidation.exists 
+                                            ? 'text-red-600' 
+                                            : mobileValidation.message === 'Mobile number is available' 
+                                                ? 'text-green-600' 
+                                                : 'text-gray-500'
+                                    }`}>
+                                        {mobileValidation.message}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
