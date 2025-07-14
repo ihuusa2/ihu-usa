@@ -63,7 +63,7 @@ const Contact = async () => {
             {/* Hero Section */}
             <div className="relative py-12 md:py-16 lg:py-20 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-100/30 to-amber-100/30"></div>
-                <Container className="relative z-10">
+                <Container className="relative z-5">
                     <div className="text-center max-w-4xl mx-auto px-4">
                         <H1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 md:mb-6">
                             Get in Touch with Us
