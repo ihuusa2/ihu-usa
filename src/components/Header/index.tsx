@@ -18,7 +18,7 @@ import Search from "./Search";
 import { getSettings } from "@/Server/Settings";
 import { getAllCourseTypes } from "@/Server/CourseType";
 import { getAllTeamTypes } from "@/Server/TeamType";
-import { getUserById } from "@/Server/User";
+import { getUserById, getUserByRegistrationNumber } from "@/Server/User";
 import { useSession } from "next-auth/react";
 
 // Icons
@@ -85,7 +85,18 @@ export const Header = () => {
 
                 // Fetch user data if session exists
                 if (session?.user?.id) {
-                    const userData = await getUserById(session.user.id);
+                    // Check if the ID is a valid ObjectId (for admin users) or registration number (for students)
+                    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(session.user.id);
+                    
+                    let userData;
+                    if (isValidObjectId) {
+                        // Admin user - use ObjectId
+                        userData = await getUserById(session.user.id);
+                    } else {
+                        // Student user - use registration number
+                        userData = await getUserByRegistrationNumber(session.user.id);
+                    }
+                    
                     setUser(userData);
                 }
 

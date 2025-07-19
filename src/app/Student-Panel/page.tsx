@@ -1,6 +1,6 @@
 'use client'
 
-import { auth, signOut } from '@/auth'
+import { signOut } from 'next-auth/react'
 import Container from '@/components/Container'
 import { H1 } from '@/components/Headings'
 import { getCourseRegFormsByRegistrationNumber } from '@/Server/CourseRegForm'
@@ -11,12 +11,12 @@ import Courses from './Courses'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { BookOpen, GraduationCap, User, Clock, DollarSign, LogOut } from 'lucide-react'
-import { Session } from 'next-auth'
+import { useSession } from 'next-auth/react'
 import { RegisterForm, CourseForm } from '@/Types/Form'
 
 const StudentPanel = () => {
     const [isSigningOut, setIsSigningOut] = useState(false)
-    const [session, setSession] = useState<Session | null>(null)
+    const { data: session, status } = useSession()
     const [registration, setRegistration] = useState<RegisterForm | null>(null)
     const [courses, setCourses] = useState<CourseForm[]>([])
 
@@ -24,16 +24,13 @@ const StudentPanel = () => {
     React.useEffect(() => {
         const loadData = async () => {
             try {
-                const sessionData = await auth()
-                setSession(sessionData)
+                if (!session) return
 
-                if (!sessionData) return
-
-                if (!sessionData.user.id || isValidObjectId(sessionData.user.id)) {
+                if (!session.user.id || isValidObjectId(session.user.id)) {
                     return
                 }
 
-                const regData = await getRegistrationByRegNum(sessionData.user.id)
+                const regData = await getRegistrationByRegNum(session.user.id)
                 setRegistration(regData)
 
                 if (regData) {
@@ -45,15 +42,17 @@ const StudentPanel = () => {
             }
         }
 
-        loadData()
-    }, [])
+        if (status === 'authenticated') {
+            loadData()
+        }
+    }, [session, status])
 
     const handleSignOut = async () => {
         setIsSigningOut(true)
         try {
             await signOut({
                 redirect: true,
-                redirectTo: '/'
+                callbackUrl: '/'
             })
         } catch (error) {
             console.error('Sign out error:', error)
@@ -61,6 +60,23 @@ const StudentPanel = () => {
         } finally {
             setIsSigningOut(false)
         }
+    }
+
+    // Show loading state while session is being fetched
+    if (status === 'loading') {
+        return (
+            <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100'>
+                <Card className='w-full max-w-md shadow-lg'>
+                    <CardContent className='p-8 text-center'>
+                        <div className='w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+                            <div className='w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin'></div>
+                        </div>
+                        <h1 className='text-2xl font-bold text-gray-800 mb-2'>Loading...</h1>
+                        <p className='text-gray-600'>Please wait while we verify your session.</p>
+                    </CardContent>
+                </Card>
+            </div>
+        )
     }
 
     if (!session) {

@@ -3,7 +3,8 @@
 
 import { parseQuery } from "@/functions/serverActions";
 import { db } from "@/lib/mongo";
-import type { User, UserRole } from "@/Types/User";
+import type { User } from "@/Types/User";
+import { UserRole } from "@/Types/User";
 import { InsertOneResult, ObjectId } from "mongodb";
 import bcrypt from "bcryptjs";
 
@@ -45,6 +46,42 @@ export const getUserById = async (id: string): Promise<User | null> => {
     const result = await Users.findOne({ _id: new ObjectId(id) }, { projection: { password: 0 } });
     if (!result) return null;
     return JSON.parse(JSON.stringify(result));
+}
+
+// New function to get user data by registration number (for students)
+export const getUserByRegistrationNumber = async (registrationNumber: string): Promise<User | null> => {
+    if (!registrationNumber) {
+        return null;
+    }
+    
+    // First try to find in Users collection (for admin users with registration numbers)
+    const userResult = await Users.findOne({ registrationNumber }, { projection: { password: 0 } });
+    if (userResult) {
+        return JSON.parse(JSON.stringify(userResult));
+    }
+    
+    // If not found in Users, try to find in Registration collection and convert to User format
+    const { getRegistrationByRegNum } = await import('./Registration');
+    const registrationResult = await getRegistrationByRegNum(registrationNumber);
+    
+    if (!registrationResult) {
+        return null;
+    }
+    
+    // Convert registration data to User format for students
+    const studentUser: User = {
+        _id: registrationResult._id,
+        email: registrationResult.emailAddress,
+        name: `${registrationResult.firstName} ${registrationResult.middleName || ''} ${registrationResult.lastName}`.trim(),
+        password: '', // Students don't have passwords, they use OTP
+        contact: `${registrationResult.countryCode}${registrationResult.phone}`,
+        address: `${registrationResult.address}, ${registrationResult.city}, ${registrationResult.state}, ${registrationResult.countryOrRegion}`,
+        role: UserRole.User, // Students are always User role
+        image: '/Images/logo.png', // Default image for students
+        registrationNumber: registrationResult.registrationNumber || registrationNumber,
+    };
+    
+    return studentUser;
 }
 
 export const updateUser = async ({ _id, password, ...rest }: User): Promise<User | null> => {

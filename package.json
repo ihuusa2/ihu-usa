@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "import-excel": "tsx scripts/excel-import.ts",
+    "import-students": "tsx scripts/student-import.ts",
     "test-db": "tsx scripts/test-import.ts"
   },
   "dependencies": {

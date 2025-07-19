@@ -2,7 +2,7 @@ import { auth } from '@/auth'
 import Container from '@/components/Container'
 import { H1, H3 } from '@/components/Headings'
 import { getCourseRegFormsByRegistrationNumber } from '@/Server/CourseRegForm'
-import { getUserById } from '@/Server/User'
+import { getUserById, getUserByRegistrationNumber } from '@/Server/User'
 import { CourseForm } from '@/Types/Form'
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
@@ -22,7 +22,17 @@ const Profile = async ({ searchParams }: Props) => {
         redirect('/SignIn?redirectUrl=/Profile')
     }
 
-    const user = await getUserById(session.user.id)
+    // Check if the ID is a valid ObjectId (for admin users) or registration number (for students)
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(session.user.id);
+    
+    let user;
+    if (isValidObjectId) {
+        // Admin user - use ObjectId
+        user = await getUserById(session.user.id);
+    } else {
+        // Student user - use registration number
+        user = await getUserByRegistrationNumber(session.user.id);
+    }
 
     if (!user) {
         return (
