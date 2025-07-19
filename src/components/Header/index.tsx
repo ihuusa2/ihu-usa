@@ -13,6 +13,7 @@ import Container from "../Container";
 import Navbar from "./Navbar";
 import NavbarSkeleton from "./NavbarSkeleton";
 import Search from "./Search";
+import AcademicCalendar from "../AcademicCalendar";
 
 // Server Functions
 import { getSettings } from "@/Server/Settings";
@@ -25,7 +26,8 @@ import { useSession } from "next-auth/react";
 import { 
     FaFacebook, 
     FaYoutube, 
-    FaTwitter 
+    FaTwitter,
+    FaCalendarAlt
 } from "react-icons/fa";
 import { AiFillInstagram } from "react-icons/ai";
 
@@ -70,6 +72,7 @@ export const Header = () => {
     const [teamCategory, setTeamCategory] = useState<{ list?: Array<{ title: string }> } | null>(null);
     const [courseCategory, setCourseCategory] = useState<{ list?: Array<{ title: string }> } | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -325,25 +328,33 @@ export const Header = () => {
 
         return (
         <header className="bg-white shadow-lg border-b border-gray-100 fixed top-0 left-0 right-0 z-[99999]">
-            {/* Top Contact Bar */}
-            <TopContactBar 
-                site={site || { logo: '', phone: '', email: '', social: {} }}
-                socialLinks={socialLinks}
-                session={session}
-                user={user}
-            />
+                    {/* Top Contact Bar */}
+        <TopContactBar 
+            site={site || { logo: '', phone: '', email: '', social: {} }}
+            socialLinks={socialLinks}
+            session={session}
+            user={user}
+            setIsCalendarOpen={setIsCalendarOpen}
+        />
             
-            {/* Main Header */}
-            <MainHeader 
-                site={site || { logo: '', phone: '', email: '', social: {} }}
-                menu={menu}
-                AdminMenu={AdminMenu}
-            />
-
-            {/* Mobile Search Bar */}
-            <MobileSearchBar />
-        </header>
-    );
+                    {/* Main Header */}
+        <MainHeader 
+            site={site || { logo: '', phone: '', email: '', social: {} }}
+            menu={menu}
+            AdminMenu={AdminMenu}
+            setIsCalendarOpen={setIsCalendarOpen}
+        />
+        
+        {/* Mobile Search Bar */}
+        <MobileSearchBar />
+        
+        {/* Academic Calendar Modal */}
+        <AcademicCalendar 
+            isOpen={isCalendarOpen}
+            onClose={() => setIsCalendarOpen(false)}
+        />
+    </header>
+);
 };
 
 // ================== HELPER COMPONENTS ==================
@@ -353,12 +364,14 @@ const TopContactBar = ({
     site, 
     socialLinks,
     session,
-    user
+    user,
+    setIsCalendarOpen
 }: { 
     site: SiteType; 
     socialLinks: SocialLinkType[];
     session: Session | null;
     user: User | null;
+    setIsCalendarOpen: (open: boolean) => void;
 }) => (
     <div className="bg-[#333] text-white py-1 sm:py-2 w-full">
         <Container className="flex items-center justify-between gap-4 w-full">
@@ -392,6 +405,14 @@ const TopContactBar = ({
             
             {/* Right: Action Buttons */}
             <div className="flex items-center gap-2 sm:gap-3">
+                {/* Academic Calendar Button */}
+                <button
+                    onClick={() => setIsCalendarOpen(true)}
+                    className="p-2 text-white hover:text-orange-400 hover:bg-white/20 rounded-lg transition-colors duration-200 group"
+                    title="Academic Calendar"
+                >
+                    <FaCalendarAlt className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+                </button>
                 <Link href="/Registration-Form">
                     <button className="bg-white text-black font-medium rounded-md px-3 sm:px-5 py-2 text-sm sm:text-base shadow-none cursor-pointer hover:bg-gray-100 transition-colors duration-200">Apply</button>
                 </Link>
@@ -412,11 +433,13 @@ const TopContactBar = ({
 const MainHeader = ({ 
     site, 
     menu, 
-    AdminMenu 
+    AdminMenu,
+    setIsCalendarOpen
 }: { 
     site: SiteType; 
     menu: MenuType[]; 
-    AdminMenu: MenuType[]; 
+    AdminMenu: MenuType[];
+    setIsCalendarOpen?: (open: boolean) => void;
 }) => (
     <div className="bg-white py-1 sm:py-2">
         <Container className="flex items-center justify-between gap-2 sm:gap-4">
@@ -427,6 +450,7 @@ const MainHeader = ({
                     <MobileNavSection 
                         menu={menu}
                         AdminMenu={AdminMenu}
+                        setIsCalendarOpen={setIsCalendarOpen}
                     />
                 </div>
                 {/* Center: Logo */}
@@ -450,6 +474,7 @@ const MainHeader = ({
                     <CenterSection 
                         menu={menu}
                         AdminMenu={AdminMenu}
+                        setIsCalendarOpen={setIsCalendarOpen}
                     />
                 </div>
             </div>
@@ -487,15 +512,18 @@ const LogoSection = ({ site }: { site: SiteType }) => (
 // Mobile Navigation Section Component
 const MobileNavSection = ({ 
     menu, 
-    AdminMenu 
+    AdminMenu,
+    setIsCalendarOpen
 }: { 
     menu: MenuType[]; 
     AdminMenu: MenuType[];
+    setIsCalendarOpen?: (open: boolean) => void;
 }) => (
     <div className="flex items-center">
         <Navbar
             menu={menu}
             AdminMenu={AdminMenu}
+            setIsCalendarOpen={setIsCalendarOpen}
         />
     </div>
 );
@@ -503,15 +531,18 @@ const MobileNavSection = ({
 // Center Section Component
 const CenterSection = ({ 
     menu, 
-    AdminMenu 
+    AdminMenu,
+    setIsCalendarOpen
 }: { 
     menu: MenuType[]; 
     AdminMenu: MenuType[];
+    setIsCalendarOpen?: (open: boolean) => void;
 }) => (
     <div className="w-full max-w-4xl flex items-center justify-center">
         <Navbar
             menu={menu}
             AdminMenu={AdminMenu}
+            setIsCalendarOpen={setIsCalendarOpen}
         />
     </div>
 );

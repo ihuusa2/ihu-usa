@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation'
 import React, { useState, useRef, useEffect } from 'react'
 import HeaderLink from "./HeaderLink";
-import { FaChevronDown, FaTimes } from 'react-icons/fa';
+import { FaChevronDown, FaTimes, FaCalendarAlt } from 'react-icons/fa';
 import Link from 'next/link';
 
 // Types
@@ -21,9 +21,10 @@ interface MenuType {
 interface NavbarProps {
     menu?: MenuType[];
     AdminMenu?: MenuType[];
+    setIsCalendarOpen?: (open: boolean) => void;
 }
 
-const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
+const Navbar = ({ AdminMenu, menu, setIsCalendarOpen }: NavbarProps) => {
     const pathname = usePathname()
     const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -355,6 +356,22 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
 
                     {/* Footer Section - Fixed at bottom */}
                     <div className="flex-shrink-0 p-4 border-t border-gray-100 bg-gray-50">
+                        {/* Academic Calendar Button */}
+                        {setIsCalendarOpen && (
+                            <div className="mb-4">
+                                <button
+                                    onClick={() => {
+                                        setIsCalendarOpen(true);
+                                        closeMobileMenu();
+                                    }}
+                                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:from-orange-600 hover:to-amber-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                                >
+                                    <FaCalendarAlt className="w-4 h-4" />
+                                    Academic Calendar
+                                </button>
+                            </div>
+                        )}
+                        
                         {/* Mobile SignIn/SignOut Buttons */}
                         <div className="mb-4 flex flex-col gap-2">
                             <Link href={`/SignIn?redirectUrl=${encodeURIComponent(pathname)}`}>
