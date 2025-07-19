@@ -118,7 +118,7 @@ const Footer = () => {
                             {/* Contact Information with Better Design */}
                             <div className="space-y-4">
                                 <div className="flex items-start gap-3 group">
-                                    <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
+                                    <div className="w-15 h-10 lg:w-22 bg-orange-500/20 rounded-lg flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
                                         <FaLocationDot className="text-orange-400" size={16} />
                                     </div>
                                     <div>

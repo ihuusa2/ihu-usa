@@ -1108,7 +1108,7 @@ const RegistrationForm = () => {
                         {currentStep > 1 && (
                             <button
                                 onClick={prevStep}
-                                className="flex-1 sm:flex-none h-12 sm:h-10 px-6 text-base sm:text-sm border border-gray-300 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md"
+                                className="w-full sm:w-auto h-14 px-6 text-base border border-gray-300 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md font-medium"
                             >
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Previous
@@ -1119,10 +1119,10 @@ const RegistrationForm = () => {
                             <button
                                 onClick={nextStep}
                                 disabled={!isStepValid || loading}
-                                className="flex-1 sm:flex-none h-12 sm:h-10 px-6 text-base sm:text-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md"
+                                className="w-full sm:w-auto h-14 px-6 sm:px-8 text-base sm:text-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md font-medium"
                             >
                                 Next
-                                <ArrowRight className="h-4 w-4 ml-2" />
+                                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
                             </button>
                         ) : (
                             <div className="w-full space-y-3">

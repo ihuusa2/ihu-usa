@@ -433,7 +433,7 @@ const DropdownMenuItem = ({
             <HeaderLink
                 href={item.path}
                 className={`
-                    relative inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 h-full flex items-center justify-center min-h-[40px] leading-none align-baseline whitespace-nowrap
+                    relative inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 h-full justify-center min-h-[40px] leading-none align-baseline whitespace-nowrap
                     ${isActive 
                         ? 'text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 shadow-sm' 
                         : 'text-gray-700'
@@ -453,7 +453,7 @@ const DropdownMenuItem = ({
         ) : (
             <button
                 className={`
-                    relative inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg focus:outline-none transition-all duration-200 h-full flex items-center justify-center min-h-[40px] leading-none align-baseline whitespace-nowrap
+                    relative inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg focus:outline-none transition-all duration-200 h-full justify-center min-h-[40px] leading-none align-baseline whitespace-nowrap
                     ${isActive 
                         ? 'text-orange-600 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 shadow-sm' 
                         : 'text-gray-700'
