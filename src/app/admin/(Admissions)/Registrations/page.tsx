@@ -37,7 +37,13 @@ const AdminRegistrations = () => {
     const [data, setData] = useState<RegisterForm[]>([])
     const [loading, setLoading] = useState(true)
     const [count, setCount] = useState(0)
-    const [activeTab, setActiveTab] = useState('all')
+    const [activeTab, setActiveTab] = useState(() => {
+        const status = searchParams.get('status')
+        if (status) {
+            return status.toLowerCase()
+        }
+        return 'all'
+    })
     const [searchTerm, setSearchTerm] = useState('')
     const [showAddModal, setShowAddModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
@@ -61,8 +67,14 @@ const AdminRegistrations = () => {
         (async () => {
             setLoading(true)
             try {
+                // Create search params with status filter if a specific tab is selected
+                const currentSearchParams = Object.fromEntries(searchParams.entries())
+                if (activeTab !== 'all') {
+                    currentSearchParams.status = activeTab.toUpperCase()
+                }
+                
                 const [registrations, statsData] = await Promise.all([
-                    getAllRegistration({ searchParams: Object.fromEntries(searchParams.entries()) }),
+                    getAllRegistration({ searchParams: currentSearchParams }),
                     getRegistrationStats()
                 ])
                 
@@ -80,7 +92,7 @@ const AdminRegistrations = () => {
                 setLoading(false)
             }
         })()
-    }, [searchParams])
+    }, [searchParams, activeTab])
 
     // Filter data based on search term
     const filteredData = data.filter(item => 
@@ -186,14 +198,9 @@ const AdminRegistrations = () => {
         pendingPayment: 0
     }
 
-    // Get data based on active tab
+    // Get data based on active tab - now handled server-side
     const getTabData = () => {
-        switch (activeTab) {
-            case 'approved': return filteredData.filter(item => item.status === 'APPROVED')
-            case 'pending': return filteredData.filter(item => item.status === 'PENDING')
-            case 'rejected': return filteredData.filter(item => item.status === 'REJECTED')
-            default: return filteredData
-        }
+        return filteredData
     }
 
     return (
@@ -395,7 +402,13 @@ const AdminRegistrations = () => {
                     <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-b border-gray-200">
                         <div className="flex flex-wrap gap-2">
                             <button
-                                onClick={() => setActiveTab('all')}
+                                onClick={() => {
+                                    setActiveTab('all')
+                                    // Reset to first page when switching tabs
+                                    const url = new URL(window.location.href)
+                                    url.searchParams.delete('page')
+                                    window.history.replaceState({}, '', url.toString())
+                                }}
                                 className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                                     activeTab === 'all'
                                         ? 'bg-blue-100 text-blue-700 border border-blue-200'
@@ -409,7 +422,13 @@ const AdminRegistrations = () => {
                                 </span>
                             </button>
                             <button
-                                onClick={() => setActiveTab('approved')}
+                                onClick={() => {
+                                    setActiveTab('approved')
+                                    // Reset to first page when switching tabs
+                                    const url = new URL(window.location.href)
+                                    url.searchParams.delete('page')
+                                    window.history.replaceState({}, '', url.toString())
+                                }}
                                 className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                                     activeTab === 'approved'
                                         ? 'bg-green-100 text-green-700 border border-green-200'
@@ -423,7 +442,13 @@ const AdminRegistrations = () => {
                                 </span>
                             </button>
                             <button
-                                onClick={() => setActiveTab('pending')}
+                                onClick={() => {
+                                    setActiveTab('pending')
+                                    // Reset to first page when switching tabs
+                                    const url = new URL(window.location.href)
+                                    url.searchParams.delete('page')
+                                    window.history.replaceState({}, '', url.toString())
+                                }}
                                 className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                                     activeTab === 'pending'
                                         ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
@@ -437,7 +462,13 @@ const AdminRegistrations = () => {
                                 </span>
                             </button>
                             <button
-                                onClick={() => setActiveTab('rejected')}
+                                onClick={() => {
+                                    setActiveTab('rejected')
+                                    // Reset to first page when switching tabs
+                                    const url = new URL(window.location.href)
+                                    url.searchParams.delete('page')
+                                    window.history.replaceState({}, '', url.toString())
+                                }}
                                 className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                                     activeTab === 'rejected'
                                         ? 'bg-red-100 text-red-700 border border-red-200'

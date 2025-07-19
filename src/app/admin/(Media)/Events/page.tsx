@@ -148,7 +148,6 @@ const AdminEvents = () => {
 
     // Calculate statistics
     const totalEvents = data.length
-    const upcomingEvents = data.filter(event => new Date(event.date) > new Date()).length
     const pastEvents = data.filter(event => new Date(event.date) <= new Date()).length
     const eventsWithImages = data.filter(event => event.image && event.image !== '').length
 
@@ -321,17 +320,7 @@ const AdminEvents = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-green-200 shadow-lg hover:shadow-xl transition-all duration-200">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-green-600 mb-1">Upcoming Events</p>
-                                    <p className="text-2xl font-bold text-gray-900">{upcomingEvents}</p>
-                                </div>
-                                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                                    <FaCalendarAlt className="w-6 h-6 text-white" />
-                                </div>
-                            </div>
-                        </div>
+
 
                         <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-purple-200 shadow-lg hover:shadow-xl transition-all duration-200">
                             <div className="flex items-center justify-between">
@@ -369,9 +358,6 @@ const AdminEvents = () => {
                                     All Events ({totalEvents})
                                 </h2>
                                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                        {upcomingEvents} Upcoming
-                                    </span>
                                     <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
                                         {pastEvents} Past
                                     </span>

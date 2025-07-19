@@ -12,7 +12,6 @@ import {
   FaUsers, 
   FaChalkboardTeacher, 
   FaBookOpen, 
-  FaCalendarAlt, 
   FaEnvelope, 
   FaCog, 
   FaBlog,
@@ -183,16 +182,7 @@ const Admin = async () => {
       link: '/admin/Courses',
       growth: '+8%'
     },
-    {
-      title: 'Upcoming Events',
-      value: totalEvents,
-      icon: FaCalendarAlt,
-      color: 'from-red-500 to-red-600',
-      bgColor: 'bg-red-50',
-      iconColor: 'text-red-600',
-      link: '/admin/Events',
-      growth: '+25%'
-    },
+
     {
       title: 'Total Donations',
       value: `$${totalDonationAmounts}`,

@@ -2,7 +2,6 @@ import Container from '@/components/Container'
 import { H1 } from '@/components/Headings'
 import { getAllEvents } from '@/Server/Events'
 import type { Events } from '@/Types/Gallery'
-import Image from 'next/image'
 import React from 'react'
 
 import { Metadata } from 'next'
@@ -131,116 +130,7 @@ const Events = async({ searchParams }: Props) => {
                 </Container>
             </div>
 
-            {/* Events Section */}
-            <Container className='pb-20'>
-                <div className='max-w-7xl mx-auto'>
-                    {/* Section Header */}
-                    <div className='text-center mb-16'>
-                        <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
-                            Upcoming Events
-                        </h2>
-                        <p className='text-gray-600 text-lg max-w-2xl mx-auto'>
-                            Explore our exciting lineup of events designed to inspire, educate, and bring our community together
-                        </p>
-                    </div>
 
-                    {/* Events Grid */}
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-                        {data?.list?.map((item) => {
-                            const imageUrl = typeof item.image === 'string' ? item.image : ''
-                            return (
-                                <div key={item._id?.toString()} className='group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border border-gray-100'>
-                                    {/* Event Image */}
-                                    <div className='relative h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200'>
-                                        {imageUrl ? (
-                                            <Image
-                                                src={imageUrl}
-                                                alt={item.title}
-                                                fill
-                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                className='object-contain group-hover:scale-105 transition-transform duration-500 p-4'
-                                                priority={false}
-                                            />
-                                        ) : (
-                                            <div className='flex items-center justify-center h-full bg-gradient-to-br from-orange-100 to-pink-100'>
-                                                <svg className='w-16 h-16 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1} d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' />
-                                                </svg>
-                                            </div>
-                                        )}
-                                        
-                                        {/* Event Category Badge */}
-                                        <div className='absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium text-orange-600'>
-                                            Event
-                                        </div>
-                                        
-                                        {/* Date Badge */}
-                                        <div className='absolute top-4 right-4 bg-orange-600 text-white rounded-xl px-3 py-2 text-sm font-bold shadow-lg'>
-                                            <div className='text-center'>
-                                                <div className='text-xs opacity-90'>Dec</div>
-                                                <div className='text-lg leading-none'>25</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Event Content */}
-                                    <div className='p-6 space-y-4'>
-                                        <h3 className='text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors duration-300'>
-                                            {item.title}
-                                        </h3>
-                                        
-                                        <p className='text-gray-600 line-clamp-3 leading-relaxed'>
-                                            {item.description}
-                                        </p>
-
-                                        {/* Event Details */}
-                                        <div className='flex items-center gap-4 text-sm text-gray-500 pt-2'>
-                                            <div className='flex items-center gap-1'>
-                                                <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' />
-                                                </svg>
-                                                <span>6:00 PM</span>
-                                            </div>
-                                            <div className='flex items-center gap-1'>
-                                                <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' />
-                                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 11a3 3 0 11-6 0 3 3 0 016 0z' />
-                                                </svg>
-                                                <span>Main Hall</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Action Button */}
-                                        <button className='w-full mt-6 px-6 py-3 bg-gradient-to-r from-orange-600 to-pink-600 text-white font-semibold rounded-xl hover:from-orange-700 hover:to-pink-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transform hover:scale-[1.02]'>
-                                            Learn More
-                                        </button>
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </div>
-
-                    {/* Events Stats */}
-                    <div className="mt-16 text-center">
-                        <div className="inline-flex items-center gap-8 bg-white/60 backdrop-blur-sm rounded-2xl px-8 py-4 border border-white/80">
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-orange-600">{data.count}</div>
-                                <div className="text-sm text-gray-600">Total Events</div>
-                            </div>
-                            <div className="w-px h-8 bg-gray-300"></div>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-pink-600">Live</div>
-                                <div className="text-sm text-gray-600">Coverage</div>
-                            </div>
-                            <div className="w-px h-8 bg-gray-300"></div>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-red-600">∞</div>
-                                <div className="text-sm text-gray-600">Memories</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Container>
         </div>
     )
 }

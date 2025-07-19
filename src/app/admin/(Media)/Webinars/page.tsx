@@ -44,7 +44,6 @@ const AdminWebinars = () => {
 
     // Calculate statistics
     const totalWebinars = data.length;
-    const upcomingWebinars = data.filter(webinar => new Date(webinar.date) > new Date()).length;
     const pastWebinars = data.filter(webinar => new Date(webinar.date) <= new Date()).length;
     const webinarsWithImages = data.filter(webinar => webinar.image && typeof webinar.image === 'string' && webinar.image.trim() !== '').length;
 
@@ -214,17 +213,7 @@ const AdminWebinars = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-blue-600 text-sm font-medium">Upcoming</p>
-                                <p className="text-3xl font-bold text-gray-900 mt-1">{upcomingWebinars}</p>
-                            </div>
-                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl">
-                                <FaCalendar className="text-white text-xl" />
-                            </div>
-                        </div>
-                    </div>
+
 
                     <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-200">
                         <div className="flex items-center justify-between">
