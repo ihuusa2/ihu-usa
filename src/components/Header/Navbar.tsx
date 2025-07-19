@@ -283,7 +283,7 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                     className={`
-                        fixed top-0 left-0 h-full w-80 sm:w-96 bg-white shadow-2xl z-[9999] transform transition-all duration-300 ease-out
+                        fixed top-0 left-0 h-full w-80 sm:w-96 bg-white shadow-2xl z-[9999] transform transition-all duration-300 ease-out flex flex-col
                         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                         border-r border-gray-100
                     `}
@@ -298,7 +298,7 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                     aria-label="Mobile navigation menu"
                 >
                     {/* Mobile Menu Header - Enhanced */}
-                    <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-orange-600 p-6 text-white relative overflow-hidden">
+                    <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-orange-600 p-6 text-white relative overflow-hidden flex-shrink-0">
                         {/* Decorative Background Pattern */}
                         <div className="absolute inset-0 opacity-10">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16"></div>
@@ -351,33 +351,33 @@ const Navbar = ({ AdminMenu, menu }: NavbarProps) => {
                                 );
                             })}
                         </div>
+                    </div>
+
+                    {/* Footer Section - Fixed at bottom */}
+                    <div className="flex-shrink-0 p-4 border-t border-gray-100 bg-gray-50">
+                        {/* Mobile SignIn/SignOut Buttons */}
+                        <div className="mb-4 flex flex-col gap-2">
+                            <Link href={`/SignIn?redirectUrl=${encodeURIComponent(pathname)}`}>
+                                <button 
+                                    onClick={closeMobileMenu}
+                                    className="w-full bg-orange-600 text-white font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:bg-orange-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                                >
+                                    Sign In
+                                </button>
+                            </Link>
+                            <Link href="/Registration-Form">
+                                <button 
+                                    onClick={closeMobileMenu}
+                                    className="w-full bg-white text-orange-600 border border-orange-600 font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                                >
+                                    Register
+                                </button>
+                            </Link>
+                        </div>
                         
-                        {/* Footer Section */}
-                        <div className="p-4 border-t border-gray-100 bg-gray-50">
-                            {/* Mobile SignIn/SignOut Buttons */}
-                            <div className="mb-4 flex flex-col gap-2">
-                                <Link href={`/SignIn?redirectUrl=${encodeURIComponent(pathname)}`}>
-                                    <button 
-                                        onClick={closeMobileMenu}
-                                        className="w-full bg-orange-600 text-white font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:bg-orange-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-                                    >
-                                        Sign In
-                                    </button>
-                                </Link>
-                                <Link href="/Registration-Form">
-                                    <button 
-                                        onClick={closeMobileMenu}
-                                        className="w-full bg-white text-orange-600 border border-orange-600 font-medium rounded-lg px-4 py-3 text-sm transition-all duration-200 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-                                    >
-                                        Register
-                                    </button>
-                                </Link>
-                            </div>
-                            
-                            <div className="text-center text-sm text-gray-500">
-                                <p>© 2024 IHU USA</p>
-                                <p className="mt-1">Traditional Hindu University</p>
-                            </div>
+                        <div className="text-center text-sm text-gray-500">
+                            <p>© 2025 IHU USA</p>
+                            <p className="mt-1">Traditional Hindu University</p>
                         </div>
                     </div>
                 </div>
