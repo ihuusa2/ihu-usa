@@ -46,7 +46,6 @@ const AdminRegistrations = () => {
     const [selectedRegistration, setSelectedRegistration] = useState<RegisterForm | null>(null)
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const [isAssigningNumbers, setIsAssigningNumbers] = useState(false)
     const [stats, setStats] = useState<{
         total: number;
         approved: number;
@@ -173,41 +172,7 @@ const AdminRegistrations = () => {
         setShowDetailModal(true)
     }
 
-    const handleAssignRegistrationNumbers = async () => {
-        if (!confirm('This will assign registration numbers to all existing registrations that don\'t have them. Continue?')) {
-            return
-        }
 
-        setIsAssigningNumbers(true)
-        try {
-            const response = await fetch('/api/assign-registration-numbers', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer admin' // You might want to use proper authentication
-                }
-            })
-
-            const result = await response.json()
-            
-            if (result.success) {
-                alert(`Successfully assigned registration numbers to ${result.count} registrations`)
-                // Refresh the data
-                const registrations = await getAllRegistration({ searchParams: Object.fromEntries(searchParams.entries()) })
-                if (registrations) {
-                    setData(registrations.list)
-                    setCount(registrations.count)
-                }
-            } else {
-                alert(`Failed to assign registration numbers: ${result.message}`)
-            }
-        } catch (error) {
-            console.error('Error assigning registration numbers:', error)
-            alert('An error occurred while assigning registration numbers')
-        } finally {
-            setIsAssigningNumbers(false)
-        }
-    }
 
     // Use server stats if available, otherwise fallback to calculated stats
     const displayStats = stats || {
@@ -257,23 +222,6 @@ const AdminRegistrations = () => {
                                 <FaPlus className="h-4 w-4" />
                                 <span className="hidden sm:inline">Add Registration</span>
                                 <span className="sm:hidden">Add</span>
-                            </button>
-                            <button 
-                                onClick={handleAssignRegistrationNumbers}
-                                disabled={isAssigningNumbers}
-                                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isAssigningNumbers ? (
-                                    <Spinner size="w-4 h-4" color="text-white" />
-                                ) : (
-                                    <FaClipboardCheck className="h-4 w-4" />
-                                )}
-                                <span className="hidden sm:inline">
-                                    {isAssigningNumbers ? 'Assigning...' : 'Assign Reg Numbers'}
-                                </span>
-                                <span className="sm:hidden">
-                                    {isAssigningNumbers ? 'Assigning...' : 'Assign'}
-                                </span>
                             </button>
                         </div>
                     </div>
@@ -701,8 +649,8 @@ const AdminRegistrations = () => {
             {/* Add Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl z-10">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
+                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -718,7 +666,7 @@ const AdminRegistrations = () => {
                                 </button>
                             </div>
                         </div>
-                        <div className="p-4 sm:p-6 relative z-0">
+                        <div className="flex-1 overflow-hidden">
                             <Add setData={setData} setOpen={setShowAddModal} />
                         </div>
                     </div>
@@ -728,8 +676,8 @@ const AdminRegistrations = () => {
             {/* Edit Modal */}
             {showEditModal && selectedRegistration && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl z-10">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
+                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -745,7 +693,7 @@ const AdminRegistrations = () => {
                                 </button>
                             </div>
                         </div>
-                        <div className="p-4 sm:p-6 relative z-0">
+                        <div className="flex-1 overflow-hidden">
                             <Add setData={setData} editData={selectedRegistration} setOpen={setShowEditModal} isEdit={true} />
                         </div>
                     </div>
@@ -755,8 +703,8 @@ const AdminRegistrations = () => {
             {/* Status Update Modal */}
             {showStatusModal && selectedRegistration && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
-                        <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 rounded-t-2xl z-10">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[95vh] flex flex-col">
+                        <div className="flex-shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 rounded-t-2xl">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 sm:gap-3">
                                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-orange-500 to-amber-600 rounded-lg flex items-center justify-center">
@@ -772,7 +720,7 @@ const AdminRegistrations = () => {
                                 </button>
                             </div>
                         </div>
-                        <div className="p-2 sm:p-4 lg:p-6 relative z-0">
+                        <div className="flex-1 overflow-hidden p-2 sm:p-4 lg:p-6">
                             <Update data={selectedRegistration} setData={setData} />
                         </div>
                     </div>
@@ -782,8 +730,8 @@ const AdminRegistrations = () => {
             {/* Detail Modal */}
             {showDetailModal && selectedRegistration && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl z-10">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
+                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -799,7 +747,7 @@ const AdminRegistrations = () => {
                                 </button>
                             </div>
                         </div>
-                        <div className="p-4 sm:p-6 relative z-0">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 {/* Personal Information */}
                                 <div className="space-y-4">

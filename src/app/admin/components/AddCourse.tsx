@@ -33,6 +33,8 @@ const AddCourse = ({ setData, setOpen, onSuccess, isEdit, editData }: Props) => 
         level: 'Beginner',
         instructor: '',
         status: 'active',
+        startDate: '',
+        endDate: '',
         testimonialVideos: [],
         faqs: [],
         galleryImages: []
@@ -55,6 +57,8 @@ const AddCourse = ({ setData, setOpen, onSuccess, isEdit, editData }: Props) => 
                 level: editData?.level || 'Beginner',
                 instructor: editData?.instructor || '',
                 status: editData?.status || 'active',
+                startDate: editData?.startDate || '',
+                endDate: editData?.endDate || '',
                 testimonialVideos: editData?.testimonialVideos || [],
                 faqs: editData?.faqs || [],
                 galleryImages: editData?.galleryImages || []
@@ -468,6 +472,40 @@ const AddCourse = ({ setData, setOpen, onSuccess, isEdit, editData }: Props) => 
                                                 onChange={(e) => setValue({ ...value, instructor: e.target.value })}
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
                                                 placeholder="Instructor name"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Course Schedule Section */}
+                                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label htmlFor="startDate" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                                <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                                                Start Date
+                                            </label>
+                                            <input
+                                                disabled={loading}
+                                                type="date"
+                                                id="startDate"
+                                                name="startDate"
+                                                value={value.startDate || ''}
+                                                onChange={(e) => setValue({ ...value, startDate: e.target.value })}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label htmlFor="endDate" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                                <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                                                End Date
+                                            </label>
+                                            <input
+                                                disabled={loading}
+                                                type="date"
+                                                id="endDate"
+                                                name="endDate"
+                                                value={value.endDate || ''}
+                                                onChange={(e) => setValue({ ...value, endDate: e.target.value })}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
                                             />
                                         </div>
                                     </div>

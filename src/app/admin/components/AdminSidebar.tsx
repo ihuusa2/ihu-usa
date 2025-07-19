@@ -128,6 +128,15 @@ const AdminSidebar = () => {
       hoverColor: 'hover:bg-red-50'
     },
     {
+      title: 'Course Types',
+      href: '/admin/Courses/CourseType',
+      icon: FaBookOpen,
+      color: 'text-red-500',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
+      hoverColor: 'hover:bg-red-50'
+    },
+    {
       title: 'Events',
       href: '/admin/Events',
       icon: FaCalendarAlt,

@@ -142,7 +142,7 @@ const CourseCard = ({ item, isHighlighted = false }: { item: Course, isHighlight
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span className="text-xs sm:text-sm">Self-Paced</span>
+                            <span className="text-xs sm:text-sm">{item.duration || 'Self-Paced'}</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,6 +150,20 @@ const CourseCard = ({ item, isHighlighted = false }: { item: Course, isHighlight
                             </svg>
                             <span className="text-xs sm:text-sm">Certificate</span>
                         </div>
+                        {item.startDate && (
+                            <div className="flex items-center gap-1">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span className="text-xs sm:text-sm">
+                                    {new Date(item.startDate).toLocaleDateString('en-US', { 
+                                        month: 'short', 
+                                        day: 'numeric',
+                                        year: 'numeric'
+                                    })}
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Enhanced CTA Buttons */}
@@ -381,7 +395,7 @@ const Courses = ({ params, searchParams }: Props) => {
                             We&apos;re working on adding new courses in this category. Check back soon for exciting learning opportunities, or explore our other course categories.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                            <Link href="/Courses/Certification" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <Link href="/Courses/Certificate" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                 Browse All Courses
                             </Link>
                             <Link href="/Contact" className="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300">

@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { PaymentStatus, RegisterForm, Status } from '@/Types/Form'
+import { getAllCourseTypesForSelect } from '@/Server/CourseType'
+import type { CourseType } from '@/Types/Courses'
 import { User, Mail, MapPin, GraduationCap, CheckCircle, AlertCircle, CreditCard, ChevronRight, ChevronLeft } from 'lucide-react'
 import Spinner from '@/components/Spinner'
 import InitiatePayment from '../Registration-Form/Checkout/InitiatePayment'
@@ -58,6 +60,7 @@ const MobileSignup = () => {
     const [error, setError] = useState('')
     const [show, setShow] = useState(false)
     const [currentStep, setCurrentStep] = useState(1)
+    const [courseTypes, setCourseTypes] = useState<CourseType[]>([])
 
     // Email validation state
     const [emailValidation, setEmailValidation] = useState({
@@ -86,6 +89,19 @@ const MobileSignup = () => {
             }
         }
     }, [emailTimeout, mobileTimeout])
+
+    // Fetch course types
+    useEffect(() => {
+        const fetchCourseTypes = async () => {
+            try {
+                const types = await getAllCourseTypesForSelect()
+                setCourseTypes(types)
+            } catch (error) {
+                console.error('Error fetching course types:', error)
+            }
+        }
+        fetchCourseTypes()
+    }, [])
 
     const requiredFields: Array<keyof RegisterForm> = [
         'firstName', 'lastName', 'dateOfBirth', 'emailAddress', 'countryCode', 'phone', 'address', 'city', 'state', 'countryOrRegion', 'zipOrPostalCode', 'resident', 'enrollmentType', 'courseType', 'graduationYear', 'howDidYouHearAboutIHU', 'objectives', 'signature'
@@ -616,11 +632,11 @@ const MobileSignup = () => {
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base disabled:bg-gray-50 disabled:cursor-not-allowed bg-white"
                                 >
                                     <option value="">Select course</option>
-                                    <option value="Certificate">Certificate</option>
-                                    <option value="Diploma">Diploma</option>
-                                    <option value="Bachelor">Bachelor</option>
-                                    <option value="Master">Master</option>
-                                    <option value="PhD">PhD</option>
+                                    {courseTypes.map((courseType) => (
+                                        <option key={courseType._id} value={courseType.title}>
+                                            {courseType.title}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="space-y-2">

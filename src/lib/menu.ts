@@ -27,7 +27,7 @@ export const menu: { title: string; items?: { title: string; path: string }[]; p
         title: "Courses",
         items: [
             { title: "Degree", path: "/Courses/Degree" },
-            { title: "Certification", path: "/Courses/Certification" },
+            { title: "Certificate", path: "/Courses/Certificate" },
             { title: "PhD", path: "/Courses/PhD" },
         ],
     },

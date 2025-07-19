@@ -98,7 +98,7 @@ const HeroSection = () => {
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4 mb-10">
-              <Link href="/Courses/Certification" className="w-full sm:w-auto">
+              <Link href="/Courses/Certificate" className="w-full sm:w-auto">
                 <button className="group w-full sm:w-auto bg-gradient-to-r from-orange-400 to-amber-400 hover:from-orange-500 hover:to-amber-500 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-orange-400/25 font-semibold flex items-center justify-center">
                   <span>Explore Courses</span>
                   <FaArrowRight className="ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform duration-300" />
@@ -135,7 +135,7 @@ const QuickActions = () => {
       icon: <FaBook className="text-xl sm:text-2xl" />,
       title: "View All Courses",
       desc: "Explore our comprehensive range of traditional and modern courses tailored for every learner.",
-      link: "/Courses/Certification",
+      link: "/Courses/Certificate",
       gradient: "from-orange-400 to-amber-400",
       hoverGradient: "from-orange-500 to-amber-500",
       bgColor: "bg-orange-50",
@@ -458,20 +458,13 @@ const VirtualTour = () => {
             <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl transform group-hover:scale-105 transition-transform duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-amber-400/20 rounded-2xl sm:rounded-3xl transform rotate-1 sm:rotate-2 group-hover:rotate-1 transition-transform duration-500"></div>
               <iframe
-                className="w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] rounded-2xl sm:rounded-3xl relative z-5"
+                className="w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] rounded-2xl sm:rounded-3xl relative z-10"
                 src="https://www.youtube.com/embed/eIYKgjiguxE"
                 title="YouTube video player"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen>
               </iframe>
-            </div>
-            
-            {/* Play button overlay */}
-            <div className="absolute inset-0 flex items-center justify-center z-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
-                <FaPlay className="text-white text-lg sm:text-2xl ml-1" />
-              </div>
             </div>
           </div>
           
@@ -511,7 +504,7 @@ const VirtualTour = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <Link href="/Courses/Certification" className="w-full sm:w-auto">
+              <Link href="/Courses/Certificate" className="w-full sm:w-auto">
                 <button className="group w-full sm:w-auto bg-gradient-to-r from-orange-400 to-amber-400 hover:from-orange-500 hover:to-amber-500 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-orange-400/25 font-semibold flex items-center justify-center">
                   <span>Start Your Journey</span>
                   <FaArrowRight className="ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform duration-300" />
@@ -665,7 +658,7 @@ const CallToAction = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-4">
-          <Link href="/Courses/Certification" className="w-full sm:w-auto">
+          <Link href="/Courses/Certificate" className="w-full sm:w-auto">
             <button className="group w-full sm:w-auto bg-white text-orange-600 hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl font-semibold flex items-center justify-center">
               <span>Explore Courses</span>
               <FaArrowRight className="ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform duration-300" />

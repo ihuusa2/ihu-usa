@@ -16,6 +16,8 @@ export interface Course {
     level?: string
     instructor?: string
     status?: 'active' | 'inactive'
+    startDate?: string
+    endDate?: string
     testimonialVideos?: TestimonialVideo[]
     faqs?: CourseFAQ[]
     galleryImages?: File[] | string[]

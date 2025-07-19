@@ -10,7 +10,6 @@ import {
     FaSignOutAlt, 
     FaChevronDown, 
     FaUserCircle,
-    FaGraduationCap,
     FaPhone,
     FaMapMarkerAlt,
     FaIdCard
@@ -162,14 +161,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user }) => {
                             <span>My Profile</span>
                         </Link>
 
-                        <Link
-                            href="/Student-Panel"
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                        >
-                            <FaGraduationCap className="w-4 h-4 text-gray-400" />
-                            <span>Student Panel</span>
-                        </Link>
+
 
                         {isAdmin && (
                             <Link

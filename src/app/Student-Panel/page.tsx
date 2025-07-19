@@ -1,17 +1,67 @@
-import { auth } from '@/auth'
+'use client'
+
+import { auth, signOut } from '@/auth'
 import Container from '@/components/Container'
 import { H1 } from '@/components/Headings'
 import { getCourseRegFormsByRegistrationNumber } from '@/Server/CourseRegForm'
 import { getRegistrationByRegNum } from '@/Server/Registration'
 import { isValidObjectId } from '@/lib/utils'
-import React from 'react'
+import React, { useState } from 'react'
 import Courses from './Courses'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { BookOpen, GraduationCap, User, Clock, DollarSign } from 'lucide-react'
+import { BookOpen, GraduationCap, User, Clock, DollarSign, LogOut } from 'lucide-react'
+import { Session } from 'next-auth'
+import { RegisterForm, CourseForm } from '@/Types/Form'
 
-const StudentPanel = async () => {
-    const session = await auth()
+const StudentPanel = () => {
+    const [isSigningOut, setIsSigningOut] = useState(false)
+    const [session, setSession] = useState<Session | null>(null)
+    const [registration, setRegistration] = useState<RegisterForm | null>(null)
+    const [courses, setCourses] = useState<CourseForm[]>([])
+
+    // Load data on component mount
+    React.useEffect(() => {
+        const loadData = async () => {
+            try {
+                const sessionData = await auth()
+                setSession(sessionData)
+
+                if (!sessionData) return
+
+                if (!sessionData.user.id || isValidObjectId(sessionData.user.id)) {
+                    return
+                }
+
+                const regData = await getRegistrationByRegNum(sessionData.user.id)
+                setRegistration(regData)
+
+                if (regData) {
+                    const coursesData = await getCourseRegFormsByRegistrationNumber(regData.registrationNumber as string, 0)
+                    setCourses(coursesData)
+                }
+            } catch (error) {
+                console.error('Error loading data:', error)
+            }
+        }
+
+        loadData()
+    }, [])
+
+    const handleSignOut = async () => {
+        setIsSigningOut(true)
+        try {
+            await signOut({
+                redirect: true,
+                redirectTo: '/'
+            })
+        } catch (error) {
+            console.error('Sign out error:', error)
+            window.location.href = '/'
+        } finally {
+            setIsSigningOut(false)
+        }
+    }
 
     if (!session) {
         return (
@@ -45,8 +95,6 @@ const StudentPanel = async () => {
         )
     }
 
-    const registration = await getRegistrationByRegNum(session.user.id)
-
     if (!registration) {
         return (
             <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100'>
@@ -63,8 +111,6 @@ const StudentPanel = async () => {
         )
     }
 
-    const courses = await getCourseRegFormsByRegistrationNumber(registration.registrationNumber as string, 0)
-
     // Calculate statistics
     const totalCourses = courses.length
     const completedCourses = courses.filter(course => course.status === 'COMPLETED').length
@@ -76,16 +122,28 @@ const StudentPanel = async () => {
             <Container className='py-8'>
                 {/* Header Section */}
                 <div className='mb-8'>
-                    <div className='flex items-center gap-3 mb-4'>
-                        <div className='w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center'>
-                            <GraduationCap className='w-6 h-6 text-white' />
+                    <div className='flex items-center justify-between mb-4'>
+                        <div className='flex items-center gap-3'>
+                            <div className='w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center'>
+                                <GraduationCap className='w-6 h-6 text-white' />
+                            </div>
+                            <div>
+                                <H1 className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
+                                    Student Dashboard
+                                </H1>
+                                <p className='text-gray-600'>Welcome back, {registration.firstName}!</p>
+                            </div>
                         </div>
-                        <div>
-                            <H1 className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
-                                Student Dashboard
-                            </H1>
-                            <p className='text-gray-600'>Welcome back, {registration.firstName}!</p>
-                        </div>
+                        
+                        {/* Logout Button */}
+                        <button
+                            onClick={handleSignOut}
+                            disabled={isSigningOut}
+                            className="flex items-center gap-2 bg-white hover:bg-red-50 border border-red-200 text-red-600 hover:text-red-700 hover:border-red-300 px-4 py-2 rounded-md font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            <span>{isSigningOut ? 'Signing Out...' : 'Logout'}</span>
+                        </button>
                     </div>
                 </div>
 

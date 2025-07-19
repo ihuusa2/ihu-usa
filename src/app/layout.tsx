@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Vedic Studies, Yoga, & Ayurveda Online Courses",
-  description: "Discover the best online courses in Vedic Studies, Yoga, Ayurveda, and more at IHU-USA. Enroll now for master's degree programs and certification courses.",
+  description: "Discover the best online courses in Vedic Studies, Yoga, Ayurveda, and more at IHU-USA. Enroll now for master's degree programs and Certificate courses.",
 };
 
 export default function RootLayout({

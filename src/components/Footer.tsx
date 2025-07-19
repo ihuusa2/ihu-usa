@@ -39,7 +39,7 @@ const Footer = () => {
 
     const educationLinks = [
         { title: "Vedic Studies", path: "/Courses/Vedic-Studies" },
-        { title: "Yoga Certification", path: "/Courses/Yoga" },
+        { title: "Yoga Certificate", path: "/Courses/Yoga" },
         { title: "Ayurveda Programs", path: "/Courses/Ayurveda" },
         { title: "Sanskrit Learning", path: "/Courses/Sanskrit" },
         { title: "Philosophy & Ethics", path: "/Courses/Philosophy" }

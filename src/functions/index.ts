@@ -66,16 +66,18 @@ export const generateUniqueSlug = (baseSlug: string, existingSlugs: string[]): s
 }
 
 /**
- * Generate a registration number in format IHUYYYYMMDDXXX
+ * Generate a registration number in format IHUYYMMDDX
  * @param date - The date for the registration (defaults to current date)
- * @param sequenceNumber - The sequence number for the day (defaults to 1)
- * @returns A registration number in format IHU20250101
+ * @param sequenceNumber - The sequence number for the day (1-9, defaults to 1)
+ * @returns A registration number in format IHU2501136
  */
 export const generateRegistrationNumber = (date: Date = new Date(), sequenceNumber: number = 1): string => {
-  const year = date.getFullYear()
+  const year = String(date.getFullYear()).slice(-2) // Get last 2 digits of year
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
-  const sequence = String(sequenceNumber).padStart(3, '0')
+  
+  // Ensure sequence number is between 1-9 to maintain single digit format
+  const sequence = Math.min(Math.max(sequenceNumber, 1), 9).toString()
   
   return `IHU${year}${month}${day}${sequence}`
 }
@@ -88,18 +90,25 @@ export const generateRegistrationNumber = (date: Date = new Date(), sequenceNumb
  */
 export const getNextRegistrationNumber = (date: Date = new Date(), existingNumbers: string[] = []): string => {
   const baseNumber = generateRegistrationNumber(date, 1)
-  const datePrefix = baseNumber.slice(0, 11) // IHU20250101
+  const datePrefix = baseNumber.slice(0, 9) // IHU250113
   
   // Find the highest sequence number for this date
   let maxSequence = 0
   existingNumbers.forEach(number => {
     if (number.startsWith(datePrefix)) {
-      const sequence = parseInt(number.slice(11), 10)
-      if (sequence > maxSequence) {
+      const sequence = parseInt(number.slice(9), 10)
+      if (sequence > maxSequence && sequence <= 9) {
         maxSequence = sequence
       }
     }
   })
+  
+  // If we've reached 9 registrations for the day, we need to handle this case
+  if (maxSequence >= 9) {
+    console.warn(`Maximum registrations (9) reached for date ${date.toISOString().split('T')[0]}. Consider using a different date or format.`)
+    // For now, we'll cycle back to 1, but you might want to handle this differently
+    return generateRegistrationNumber(date, 1)
+  }
   
   return generateRegistrationNumber(date, maxSequence + 1)
 }

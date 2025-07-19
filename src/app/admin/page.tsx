@@ -195,7 +195,7 @@ const Admin = async () => {
     },
     {
       title: 'Total Donations',
-      value: `₹${totalDonationAmounts}`,
+      value: `$${totalDonationAmounts}`,
       icon: FaDonate,
       color: 'from-teal-500 to-teal-600',
       bgColor: 'bg-teal-50',

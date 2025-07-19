@@ -2,7 +2,9 @@
 'use client'
 
 import { checkEmailAlreadyExists, createRegisterForm } from '@/Server/Registration'
+import { getAllCourseTypesForSelect } from '@/Server/CourseType'
 import { PaymentStatus, RegisterForm, Status } from '@/Types/Form'
+import type { CourseType } from '@/Types/Courses'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { User, Mail, Phone, MapPin, GraduationCap, FileText, CreditCard, CheckCircle, AlertCircle, Info, ArrowLeft, ArrowRight, Shield, Clock, GraduationCap as GraduationCapIcon } from 'lucide-react'
 import React, { useEffect, Suspense } from 'react'
@@ -80,6 +82,7 @@ const RegistrationForm = () => {
     const [error, setError] = React.useState('')
     const [show, setShow] = React.useState(false)
     const [currentStep, setCurrentStep] = React.useState(1)
+    const [courseTypes, setCourseTypes] = React.useState<CourseType[]>([])
     
     // Email validation state
     const [emailValidation, setEmailValidation] = React.useState({
@@ -117,6 +120,19 @@ const RegistrationForm = () => {
             });
         }
     }, [searchParams])
+
+    // Fetch course types
+    useEffect(() => {
+        const fetchCourseTypes = async () => {
+            try {
+                const types = await getAllCourseTypesForSelect()
+                setCourseTypes(types)
+            } catch (error) {
+                console.error('Error fetching course types:', error)
+            }
+        }
+        fetchCourseTypes()
+    }, [])
 
     // Cleanup timeout on unmount
     useEffect(() => {
@@ -744,11 +760,11 @@ const RegistrationForm = () => {
                                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md"
                                 >
                                     <option value="">Select course type</option>
-                                    <option value="Certificate">Certificate</option>
-                                    <option value="Diploma">Diploma</option>
-                                    <option value="Bachelor">Bachelor</option>
-                                    <option value="Master">Master</option>
-                                    <option value="PhD">PhD</option>
+                                    {courseTypes.map((courseType) => (
+                                        <option key={courseType._id} value={courseType.title}>
+                                            {courseType.title}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="space-y-2">

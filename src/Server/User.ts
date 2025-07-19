@@ -37,12 +37,22 @@ export const getAllUsers = async ({ searchParams }: {
 }
 
 export const getUserById = async (id: string): Promise<User | null> => {
+    // Validate that id is a valid ObjectId format (24 character hex string)
+    if (!id || !ObjectId.isValid(id)) {
+        return null;
+    }
+    
     const result = await Users.findOne({ _id: new ObjectId(id) }, { projection: { password: 0 } });
     if (!result) return null;
     return JSON.parse(JSON.stringify(result));
 }
 
 export const updateUser = async ({ _id, password, ...rest }: User): Promise<User | null> => {
+    // Validate that _id is a valid ObjectId format
+    if (!_id || !ObjectId.isValid(_id as string)) {
+        return null;
+    }
+    
     const obj: { [key: string]: unknown } = { ...rest };
     const checkIsPasswordSame = await Users.findOne({ _id: new ObjectId(_id as string) }, { projection: { password: 1 } });
 
@@ -65,6 +75,11 @@ export const updateUser = async ({ _id, password, ...rest }: User): Promise<User
 }
 
 export const deleteUser = async (id: string): Promise<User | null> => {
+    // Validate that id is a valid ObjectId format
+    if (!id || !ObjectId.isValid(id)) {
+        return null;
+    }
+    
     const result = await Users.findOneAndDelete({ _id: new ObjectId(id) }, { projection: { password: 0 } });
     if (!result) return null;
     return JSON.parse(JSON.stringify(result));

@@ -99,7 +99,7 @@ const SingleCourse = async ({ params }: Props) => {
                 <div className="absolute bottom-20 right-20 w-16 h-16 bg-white/10 rounded-full animate-float animation-delay-2000"></div>
                 <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-white/10 rounded-full animate-float animation-delay-4000"></div>
                 
-                <div className="relative z-10 py-12 md:py-20 w-full max-w-5xl mx-auto px-4">
+                <div className="relative z-5 py-12 md:py-20 w-full max-w-5xl mx-auto px-4">
                     {/* Course Badge */}
                     <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-sm font-semibold mb-6 shadow-lg border border-white/30">
                         <span className="w-3 h-3 bg-[var(--amber-gold)] rounded-full animate-pulse"></span>
@@ -177,7 +177,7 @@ const SingleCourse = async ({ params }: Props) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {courseBenefits.map((benefit, index) => (
                                     <div key={index} className="flex items-center gap-3 p-3 bg-white/50 rounded-xl hover:bg-white/70 transition-colors duration-200">
-                                        <span className="inline-block w-6 h-6 bg-[var(--amber-gold)] rounded-full flex items-center justify-center text-white shadow-md">
+                                        <span className="w-6 h-6 bg-[var(--amber-gold)] rounded-full flex items-center justify-center text-white shadow-md">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
                                             </svg>
@@ -269,6 +269,34 @@ const SingleCourse = async ({ params }: Props) => {
                                 <div className="flex justify-between items-center py-3 border-b border-[var(--spiritual-blue)]/10">
                                     <span className="text-gray-700 font-medium">Level:</span>
                                     <span className="text-gray-900 font-semibold">{data.level || 'All Levels'}</span>
+                                </div>
+                                <div className="flex justify-between items-center py-3 border-b border-[var(--spiritual-blue)]/10">
+                                    <span className="text-gray-700 font-medium">Start Date:</span>
+                                    <span className="text-gray-900 font-semibold">
+                                        {data.startDate ? 
+                                            new Date(data.startDate).toLocaleDateString('en-US', { 
+                                                weekday: 'long',
+                                                year: 'numeric', 
+                                                month: 'long', 
+                                                day: 'numeric' 
+                                            }) : 
+                                            'To be announced'
+                                        }
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-3 border-b border-[var(--spiritual-blue)]/10">
+                                    <span className="text-gray-700 font-medium">End Date:</span>
+                                    <span className="text-gray-900 font-semibold">
+                                        {data.endDate ? 
+                                            new Date(data.endDate).toLocaleDateString('en-US', { 
+                                                weekday: 'long',
+                                                year: 'numeric', 
+                                                month: 'long', 
+                                                day: 'numeric' 
+                                            }) : 
+                                            'To be announced'
+                                        }
+                                    </span>
                                 </div>
                                 <div className="flex justify-between items-center py-3">
                                     <span className="text-gray-700 font-medium">Language:</span>
@@ -401,7 +429,7 @@ const SingleCourse = async ({ params }: Props) => {
             </Container>
 
             {/* Sticky Registration CTA */}
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 pointer-events-auto">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-5 w-full max-w-md px-4 pointer-events-auto">
                 <Link 
                     href={registrationUrl} 
                     className="block w-full py-4 bg-gradient-to-r from-[var(--orange-saffron)] to-[var(--amber-gold)] text-white text-xl font-bold rounded-2xl shadow-2xl text-center hover:from-[var(--amber-gold)] hover:to-[var(--orange-saffron)] transition-all duration-300 animate-glow hover:scale-105 transform hover:-translate-y-1 cursor-pointer"

@@ -70,3 +70,6 @@ logs
 .cache/
 .next/cache/
 Doc
+
+# Windows special files
+nul

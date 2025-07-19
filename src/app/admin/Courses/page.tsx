@@ -290,6 +290,31 @@ const AdminCourse = () => {
                                                     </div>
 
                                                     <div>
+                                                        {(course.startDate || course.endDate) && (
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {course.startDate && (
+                                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                        📅 Start: {new Date(course.startDate).toLocaleDateString('en-US', { 
+                                                                            month: 'short', 
+                                                                            day: 'numeric',
+                                                                            year: 'numeric'
+                                                                        })}
+                                                                    </span>
+                                                                )}
+                                                                {course.endDate && (
+                                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                                        🏁 End: {new Date(course.endDate).toLocaleDateString('en-US', { 
+                                                                            month: 'short', 
+                                                                            day: 'numeric',
+                                                                            year: 'numeric'
+                                                                        })}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div>
                                                         <p className="text-sm text-gray-600 line-clamp-2">
                                                             {(course.description || 'No description available').replace(/<[^>]*>/g, '').substring(0, 80)}
                                                             {(course.description || '').replace(/<[^>]*>/g, '').length > 80 ? '...' : ''}

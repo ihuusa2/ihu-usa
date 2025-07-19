@@ -30,8 +30,7 @@ import {
 import { AiFillInstagram } from "react-icons/ai";
 
 // Utils
-import { isValidObjectId } from "@/lib/utils";
-import { User } from "@/Types/User";
+import { User, UserRole } from "@/Types/User";
 
 // ================== TYPE DEFINITIONS ==================
 
@@ -241,9 +240,8 @@ export const Header = () => {
     // Add dynamic menu items based on session
     // Profile is now handled in the dropdown, so we don't add it to the main menu
 
-    if (!isValidObjectId(session?.user?.id as string) && 
-        session?.user.id !== null && 
-        session?.user.id !== undefined) {
+    // Show Student Panel only for students (User role)
+    if (session?.user && user && user.role === UserRole.User) {
         menu.push({
             title: "Student Panel",
             items: [

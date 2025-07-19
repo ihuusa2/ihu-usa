@@ -177,7 +177,7 @@ const SignIn = () => {
               </svg>
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 drop-shadow-lg">
-              Welcome to IHUSA
+              Welcome to IHU USA
             </h2>
             <p className="text-lg md:text-xl lg:text-2xl drop-shadow-md max-w-md leading-relaxed">
               Sign in to access your account and explore our educational programs
@@ -360,7 +360,7 @@ const SignIn = () => {
                       required
                     />
                     <p className="text-xs text-gray-500 mt-2 text-center">
-                      Enter the 6-digit code sent to your registered mobile number
+                      Enter the 6-digit code sent to your registered Email Address
                     </p>
                   </div>
                   
@@ -409,7 +409,7 @@ const SignIn = () => {
                       required
                     />
                     <p className="text-xs text-gray-500 mt-2">
-                      We&apos;ll send an OTP to your registered mobile number
+                      We&apos;ll send an OTP to your registered Email Address
                     </p>
                   </div>
                   

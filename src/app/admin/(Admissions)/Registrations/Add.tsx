@@ -2,7 +2,9 @@
 import InitiatePayment from '@/app/(Applications)/Registration-Form/Checkout/InitiatePayment'
 import Spinner from '@/components/Spinner'
 import { checkEmailAlreadyExists, createRegisterForm, updateRegistration, getRegistrationById } from '@/Server/Registration'
+import { getAllCourseTypesForSelect } from '@/Server/CourseType'
 import { PaymentStatus, RegisterForm, Status } from '@/Types/Form'
+import type { CourseType } from '@/Types/Courses'
 import { User, Mail, Phone, MapPin, GraduationCap, FileText, CreditCard, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, X } from 'lucide-react'
 import React from 'react'
 
@@ -66,6 +68,7 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
     const [withPayment, setWithPayment] = React.useState(isEdit ? false : true)
     const [paymentCost, setPaymentCost] = React.useState(1)
     const [currentStep, setCurrentStep] = React.useState(1)
+    const [courseTypes, setCourseTypes] = React.useState<CourseType[]>([])
 
     // Email validation state
     const [emailValidation, setEmailValidation] = React.useState({
@@ -88,6 +91,19 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
             setValue(editData)
         }
     }, [isEdit, editData])
+
+    // Fetch course types
+    React.useEffect(() => {
+        const fetchCourseTypes = async () => {
+            try {
+                const types = await getAllCourseTypesForSelect()
+                setCourseTypes(types)
+            } catch (error) {
+                console.error('Error fetching course types:', error)
+            }
+        }
+        fetchCourseTypes()
+    }, [])
 
     // Cleanup timeout on unmount
     React.useEffect(() => {
@@ -671,9 +687,11 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
                                 >
                                     <option value="">Select course type</option>
-                                    <option value="Degree">Degree</option>
-                                    <option value="Certification">Certification</option>
-                                    <option value="PhD">PhD</option>
+                                    {courseTypes.map((courseType) => (
+                                        <option key={courseType._id} value={courseType.title}>
+                                            {courseType.title}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
@@ -897,12 +915,12 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
     }
 
     return (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col h-full">
             {/* Fixed Header */}
             <div className="flex-shrink-0 bg-white border-b border-gray-200 p-4">
                 {/* Progress Indicator */}
                 <div className="w-full">
-                    <div className="flex items-center justify-between mb-4 relative overflow-x-auto scrollbar-hide">
+                    <div className="flex items-center justify-between mb-4 relative overflow-x-auto">
                         <div className="flex items-center justify-between min-w-full px-2 gap-2">
                             {STEPS.map((step, index) => {
                                 const Icon = step.icon
@@ -947,8 +965,8 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
                 </div>
             </div>
 
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto">
                 <div className="p-4 space-y-6">
             
             {/* Error and Message Dialogs */}
@@ -989,7 +1007,7 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
             )}
 
             {/* Step Content */}
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm min-h-[400px] overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm min-h-[400px]">
                 <div className="p-4 md:p-6 border-b border-gray-200 bg-white">
                     <div className="flex items-center gap-2 mb-2">
                         {React.createElement(STEPS[currentStep - 1].icon, { className: "h-5 w-5 text-gray-600 flex-shrink-0" })}

@@ -24,7 +24,7 @@ export default function CourseNotFound() {
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
                     <Link 
-                        href="/Courses/Certification" 
+                        href="/Courses/Certificate" 
                         className='inline-flex items-center gap-2 px-8 py-4 border border-transparent rounded-2xl bg-gradient-to-r from-[var(--orange-saffron)] to-[var(--amber-gold)] text-white font-semibold hover:from-[var(--amber-gold)] hover:to-[var(--orange-saffron)] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1'
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

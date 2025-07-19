@@ -106,6 +106,7 @@ const Programs = () => {
 
                 {/* Enhanced Call to Action */}
                 <div className="text-center mt-16">
+                    <Link href="/Courses/programs">
                     <button className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl overflow-hidden">
                         <span className="relative z-10">Explore All Programs</span>
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -113,6 +114,7 @@ const Programs = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
                     </button>
+                    </Link>
                 </div>
             </div>
 

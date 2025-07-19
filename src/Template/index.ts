@@ -250,7 +250,7 @@ export const RegistrationNumberMailTemplate = ({ data }: {
         <p>
           With this registration number, kindly click on the following link and select the course you want to learn:
           <br>
-          <a class="course-link" href="https://www.ihu-usa.org/Courses/Certification" target="_blank">Course Selection Application</a>
+          <a class="course-link" href="https://www.ihu-usa.org/Courses/Certificate" target="_blank">Course Selection Application</a>
         </p>
         <p>
           Once again, congratulations on becoming a part of the IHU family! We believe that your journey here will be filled with growth, learning, and unforgettable experiences.
