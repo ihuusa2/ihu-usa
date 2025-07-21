@@ -355,24 +355,31 @@ const RegistrationForm = () => {
     }
 
     const handleSubmit = async () => {
-        console.log('handleSubmit called!');
-        console.log('Current form values:', value);
-        console.log('Is form valid:', validateFields());
-        console.log('Missing fields:', getMissingFields());
-        
-        setLoading(true)
-        
+        setLoading(true);
+        setError('');
+        setMsg('');
+
         try {
-            // Email validation is already done in real-time, so we can proceed directly
-            console.log('Setting show to true - opening payment modal');
-            setShow(true)
-            setLoading(false)
+            const response = await fetch('/api/registrations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(value),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                setShow(true); // Open payment modal
+            } else {
+                setError(result.error || 'Failed to save application. Please try again.');
+            }
         } catch (error) {
+            setError('An error occurred while saving your application. Please try again.');
             console.error('Error in handleSubmit:', error);
-            setError('An error occurred. Please try again.');
-            setLoading(false)
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     const nextStep = () => {
         if (currentStep < STEPS.length && validateCurrentStep()) {
@@ -395,9 +402,6 @@ const RegistrationForm = () => {
     console.log('Form state - isStepValid:', isStepValid);
 
     const getApplicationFee = () => {
-        if (value.resident === 'Indian Resident') {
-            return { amount: 750, currency: 'INR' }
-        }
         return { amount: 20, currency: 'USD' }
     }
 
@@ -800,11 +804,7 @@ const RegistrationForm = () => {
                                 <div>
                                     <h4 className="font-semibold text-green-900">Application Fee</h4>
                                     <p className="text-sm text-green-700 mt-1">
-                                        {value.resident === 'Indian Resident' ? (
-                                            <>Application fee: <strong>₹750 INR</strong></>
-                                        ) : (
-                                            <>Application fee: <strong>$20 USD</strong></>
-                                        )}
+                                        Application fee: <strong>$20 USD</strong>
                                     </p>
                                 </div>
                             </div>

@@ -61,6 +61,8 @@ const MobileSignup = () => {
     const [show, setShow] = useState(false)
     const [currentStep, setCurrentStep] = useState(1)
     const [courseTypes, setCourseTypes] = useState<CourseType[]>([])
+    // registrationId is not used, so removed
+    const [paymentComplete, setPaymentComplete] = useState(false)
 
     // Email validation state
     const [emailValidation, setEmailValidation] = useState({
@@ -311,22 +313,37 @@ const MobileSignup = () => {
 
     const handleSubmit = async () => {
         setLoading(true)
-        
+        setError("")
+        setMsg("")
         // Check email validation
         if (emailValidation.exists) {
             setError('Email already exists. Please use a different email address.');
             setLoading(false)
             return;
         }
-        
         // Check mobile number
         if (mobileValidation.exists) {
             setError('Mobile number already exists. Please use a different mobile number.');
             setLoading(false)
             return;
         }
-        
-        setShow(true)
+        try {
+            // Submit application (without payment)
+            const response = await fetch('/api/registrations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(value),
+            })
+            const data = await response.json()
+            if (!response.ok || !data.insertedId) {
+                setError(data.error || 'Failed to submit application.')
+                setLoading(false)
+                return
+            }
+            setShow(true) // Open payment modal
+        } catch {
+            setError('Failed to submit application. Please try again.')
+        }
         setLoading(false)
     }
 
@@ -347,7 +364,7 @@ const MobileSignup = () => {
 
     const getApplicationFee = () => {
         if (value.resident === 'Indian Resident') {
-            return { amount: 750, currency: 'INR' }
+            return { amount: 20, currency: 'USD' }
         }
         return { amount: 20, currency: 'USD' }
     }
@@ -748,6 +765,12 @@ const MobileSignup = () => {
         }
     }
 
+    // Payment success handler
+    const handlePaymentSuccess = () => {
+        setShow(false)
+        setPaymentComplete(true)
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
             <div className="max-w-4xl mx-auto px-4 py-8">
@@ -949,7 +972,28 @@ const MobileSignup = () => {
                 price={getApplicationFee().amount.toString()}
                 show={show}
                 onClose={() => setShow(false)}
+                onPaymentSuccess={handlePaymentSuccess}
             />
+            {/* Payment Complete Modal */}
+            {paymentComplete && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900">Payment Complete!</h3>
+                        </div>
+                        <p className="text-gray-600 mb-4">Your application and payment have been received successfully.</p>
+                        <button
+                            onClick={() => { setPaymentComplete(false); router.push('/') }}
+                            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+                        >
+                            Go to Home
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

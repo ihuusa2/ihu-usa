@@ -11,27 +11,22 @@ interface InitiatePaymentProps {
     price?: string
     show: boolean
     onClose: () => void
+    onPaymentSuccess?: () => void
 }
 
-const InitiatePayment = ({ registration, price, show, onClose }: InitiatePaymentProps) => {
+const InitiatePayment = ({ registration, price, show, onClose, onPaymentSuccess }: InitiatePaymentProps) => {
     const route = useRouter()
     const [isProcessing, setIsProcessing] = useState(false)
 
     // Determine currency based on resident status
     const getCurrencyInfo = () => {
         if (registration.resident === 'Indian Resident') {
-            // For INR, we'll use USD for PayPal but display INR to user
-            // Approximate conversion rate (you may want to use a real-time API)
-            const inrToUsdRate = 0.012; // 1 INR ≈ 0.012 USD
-            const inrAmount = 750;
-            const usdAmount = (inrAmount * inrToUsdRate).toFixed(2);
-            
             return {
-                displayCode: 'INR',
-                displaySymbol: '₹',
-                displayAmount: '750',
+                displayCode: 'USD',
+                displaySymbol: '$',
+                displayAmount: price || '20',
                 paypalCode: 'USD',
-                paypalAmount: usdAmount
+                paypalAmount: price || '20'
             }
         }
         return {
@@ -78,7 +73,7 @@ const InitiatePayment = ({ registration, price, show, onClose }: InitiatePayment
                 // Don't fail the entire process - webhook will handle the update
             }
             
-            route.push('/Success')
+            if (onPaymentSuccess) onPaymentSuccess();
         } catch (error) {
             console.error('Error creating registration:', error)
             alert('There was an error processing your registration. Please try again.')

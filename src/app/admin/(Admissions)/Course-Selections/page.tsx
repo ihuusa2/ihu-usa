@@ -149,28 +149,28 @@ const AdminCourseSelections = () => {
         {
             accessorKey: "registrationNumber",
             header: () => (
-                <div className="flex items-center gap-2 text-gray-700 font-semibold">
+                <div className="flex items-center gap-2 text-gray-700 font-semibold min-w-[150px]">
                     <FaUser className="h-4 w-4" />
                     <span>Registration Number</span>
                 </div>
             ),
             cell: ({ row }) => {
                 if (!row.original.registrationData) return (
-                    <div className="text-gray-400 font-mono text-xs bg-gray-100 px-3 py-1 rounded-full">
+                    <div className="text-gray-400 font-mono text-xs bg-gray-100 px-3 py-1 rounded-full min-w-[120px]">
                         No Data
                     </div>
                 )
                 return (
                     <button
                         onClick={() => openModal(row.original)}
-                        className="group w-full text-left"
+                        className="group w-full text-left min-w-[150px]"
                     >
                         <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-blue-50 transition-all duration-200 border border-transparent hover:border-blue-200">
                             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
                                 <FaEye className="text-white text-xs" />
                             </div>
-                            <div className="flex flex-col">
-                                <span className="font-mono text-sm font-medium text-blue-700 group-hover:text-blue-800">
+                            <div className="flex flex-col min-w-0">
+                                <span className="font-mono text-sm font-medium text-blue-700 group-hover:text-blue-800 truncate" title={row.original.registrationNumber}>
                                     {row.original.registrationNumber}
                                 </span>
                                 <span className="text-xs text-gray-500">Click to view details</span>
@@ -183,26 +183,26 @@ const AdminCourseSelections = () => {
         {
             accessorKey: "studentName",
             header: () => (
-                <div className="flex items-center gap-2 text-gray-700 font-semibold">
+                <div className="flex items-center gap-2 text-gray-700 font-semibold min-w-[180px]">
                     <FaUsers className="h-4 w-4" />
                     <span>Student Name</span>
                 </div>
             ),
             cell: ({ row }) => {
                 if (!row.original.registrationData) return (
-                    <div className="text-gray-400 text-sm">No student data</div>
+                    <div className="text-gray-400 text-sm min-w-[120px]">No student data</div>
                 )
                 const { firstName, middleName, lastName } = row.original.registrationData
                 const fullName = `${firstName} ${middleName} ${lastName}`.trim()
                 return (
-                    <div className="flex items-center gap-3 py-1">
+                    <div className="flex items-center gap-3 py-1 min-w-0">
                         <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
                             <span className="text-white text-sm font-semibold">
                                 {firstName?.charAt(0)}{lastName?.charAt(0)}
                             </span>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="font-semibold text-gray-900 text-sm">{fullName}</span>
+                        <div className="flex flex-col min-w-0">
+                            <span className="font-semibold text-gray-900 text-sm truncate" title={fullName}>{fullName}</span>
                             <span className="text-xs text-gray-500">Student</span>
                         </div>
                     </div>
@@ -212,14 +212,14 @@ const AdminCourseSelections = () => {
         {
             accessorKey: "course",
             header: () => (
-                <div className="flex items-center gap-2 text-gray-700 font-semibold">
+                <div className="flex items-center gap-2 text-gray-700 font-semibold min-w-[140px]">
                     <FaBookOpen className="h-4 w-4" />
                     <span>Course</span>
                 </div>
             ),
             cell: ({ row }) => (
-                <div className="flex flex-col gap-1">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                <div className="flex flex-col gap-1 min-w-0">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 truncate" title={row.original.course}>
                         <FaBookOpen className="mr-1 h-3 w-3" />
                         {row.original.course}
                     </span>
@@ -229,14 +229,14 @@ const AdminCourseSelections = () => {
         {
             accessorKey: "program",
             header: () => (
-                <div className="flex items-center gap-2 text-gray-700 font-semibold">
+                <div className="flex items-center gap-2 text-gray-700 font-semibold min-w-[120px]">
                     <FaGraduationCap className="h-4 w-4" />
                     <span>Program</span>
                 </div>
             ),
             cell: ({ row }) => (
-                <div className="flex flex-col gap-1">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                <div className="flex flex-col gap-1 min-w-0">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200 truncate" title={row.original.program}>
                         <FaGraduationCap className="mr-1 h-3 w-3" />
                         {row.original.program}
                     </span>
@@ -246,7 +246,7 @@ const AdminCourseSelections = () => {
         {
             accessorKey: "subjects",
             header: () => (
-                <div className="flex items-center gap-2 text-gray-700 font-semibold">
+                <div className="flex items-center gap-2 text-gray-700 font-semibold min-w-[120px]">
                     <FaBookOpen className="h-4 w-4" />
                     <span>Subjects</span>
                 </div>
@@ -258,9 +258,9 @@ const AdminCourseSelections = () => {
                 }
                 if (subjects.length <= 2) {
                     return (
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1 min-w-0">
                             {subjects.map((subject, index) => (
-                                <span key={index} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                                <span key={index} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 truncate" title={subject}>
                                     {subject}
                                 </span>
                             ))}
@@ -268,9 +268,9 @@ const AdminCourseSelections = () => {
                     );
                 }
                 return (
-                    <div className="flex flex-wrap items-center gap-1">
+                    <div className="flex flex-wrap items-center gap-1 min-w-0">
                         {subjects.slice(0, 2).map((subject, index) => (
-                            <span key={index} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                            <span key={index} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 truncate" title={subject}>
                                 {subject}
                             </span>
                         ))}
@@ -466,12 +466,13 @@ const AdminCourseSelections = () => {
                                 </div>
 
                                 {/* Responsive Table Container */}
-                                <div className="overflow-x-auto">
+                                <div className="overflow-x-auto w-full my-6">
                                     <div className="min-w-full">
                                         <DataTable
                                             classNames={{
-                                                tableCell: 'py-4 px-6 text-sm border-b border-gray-100 whitespace-nowrap',
-                                                tableHead: 'py-4 px-6 bg-gradient-to-r from-gray-100 to-gray-50 font-semibold text-gray-700 text-sm uppercase tracking-wide border-b-2 border-gray-200 sticky top-0'
+                                                tableCell: 'py-5 px-8 text-base border-b border-gray-100 whitespace-nowrap',
+                                                tableHead: 'py-5 px-8 bg-gradient-to-r from-gray-100 to-gray-50 font-semibold text-gray-700 text-base uppercase tracking-wide border-b-2 border-gray-200 sticky top-0',
+                                                tableRow: 'hover:bg-blue-50 transition-colors',
                                             }}
                                             columns={columns} 
                                             data={JSON.parse(JSON.stringify(data))} 
