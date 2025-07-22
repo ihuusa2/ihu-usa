@@ -627,6 +627,7 @@ const AdminRegistrations = () => {
                                                     <tr>
                                                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                                                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
                                                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Student</th>
                                                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Course</th>
                                                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment</th>
@@ -662,6 +663,11 @@ const AdminRegistrations = () => {
                                                             </td>
                                                             <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                                                 {getStatusBadge(registration.status)}
+                                                            </td>
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                                                <div className="font-semibold text-gray-900 text-xs sm:text-sm truncate">
+                                                                    {`${registration.firstName || ''} ${registration.middleName || ''} ${registration.lastName || ''}`.trim()}
+                                                                </div>
                                                             </td>
                                                             <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                                                 <div className="flex items-center gap-2 sm:gap-3">
