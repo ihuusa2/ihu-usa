@@ -22,7 +22,9 @@ const Team = async ({ params, searchParams }: Props) => {
         .replace(/\b\w/g, char => char.toUpperCase())
 
     const searchParamsList = await searchParams
-    const data: { list: Team[], count: number } = await getAllTeams({ params: { category: slug }, searchParams: searchParamsList }) as { list: Team[], count: number }
+    // Merge pageSize=1000 into searchParamsList
+    const mergedSearchParams = { ...(searchParamsList || {}), pageSize: '1000' }
+    const data: { list: Team[], count: number } = await getAllTeams({ params: { category: slug }, searchParams: mergedSearchParams }) as { list: Team[], count: number }
 
     if (data?.count === 0) {
         return (

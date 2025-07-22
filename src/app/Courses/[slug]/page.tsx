@@ -19,18 +19,26 @@ const Container = ({ children, className = '' }: { children: React.ReactNode, cl
 )
 
 // Custom Pagination Component
-const Pagination = ({ count }: { count: number }) => {
+const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
     return (
         <div className="flex justify-center items-center gap-4 mt-12">
-            <button className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button
+                className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+            >
                 Previous
             </button>
             <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">
-                    Page 1 of {Math.ceil(count / 10)}
+                    Page {currentPage} of {totalPages}
                 </span>
             </div>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 border border-transparent rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg">
+            <button
+                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 border border-transparent rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+            >
                 Next
             </button>
         </div>
@@ -308,6 +316,8 @@ const Courses = ({ params, searchParams }: Props) => {
     const [courses, setCourses] = useState<Course[]>([])
     const [loading, setLoading] = useState(true)
     const [originalCount, setOriginalCount] = useState(0)
+    const [currentPage, setCurrentPage] = useState(1)
+    const COURSES_PER_PAGE = 10
 
     // Fetch courses on component mount
     React.useEffect(() => {
@@ -343,12 +353,24 @@ const Courses = ({ params, searchParams }: Props) => {
                 course.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 course.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 course.type?.toLowerCase().includes(searchQuery.toLowerCase())
-            
             const matchesLevel = !selectedLevel || course.type === selectedLevel
-            
             return matchesSearch && matchesLevel
         })
     }, [courses, searchQuery, selectedLevel])
+
+    // Calculate total pages
+    const totalPages = Math.max(1, Math.ceil(filteredCourses.length / COURSES_PER_PAGE))
+
+    // Slice courses for current page
+    const paginatedCourses = useMemo(() => {
+        const start = (currentPage - 1) * COURSES_PER_PAGE
+        return filteredCourses.slice(start, start + COURSES_PER_PAGE)
+    }, [filteredCourses, currentPage])
+
+    // Reset to page 1 when filters/search change
+    React.useEffect(() => {
+        setCurrentPage(1)
+    }, [searchQuery, selectedLevel])
 
     const [slug, setSlug] = React.useState('')
 
@@ -518,11 +540,11 @@ const Courses = ({ params, searchParams }: Props) => {
                 {/* Course Grid */}
                 {filteredCourses.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-16">
-                        {filteredCourses.map((item, index) => (
+                        {paginatedCourses.map((item, index) => (
                             <div key={item._id?.toString()} className="group">
                                 <CourseCard 
                                     item={item} 
-                                    isHighlighted={index < 3} // Highlight first 3 courses
+                                    isHighlighted={index < 3 && currentPage === 1} // Highlight first 3 courses on first page only
                                 />
                             </div>
                         ))}
@@ -598,7 +620,11 @@ const Courses = ({ params, searchParams }: Props) => {
                 </div>
 
                 {/* Pagination */}
-                <Pagination count={filteredCourses.length} />
+                <Pagination 
+                    currentPage={currentPage} 
+                    totalPages={totalPages} 
+                    onPageChange={setCurrentPage} 
+                />
             </Container>
         </div>
     )
