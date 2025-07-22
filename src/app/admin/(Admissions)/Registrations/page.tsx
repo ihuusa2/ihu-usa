@@ -62,6 +62,8 @@ const AdminRegistrations = () => {
         refunded: number;
         pendingPayment: number;
     } | null>(null)
+    const [sortField, setSortField] = useState<'date' | 'name'>('date')
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
     useEffect(() => {
         (async () => {
@@ -94,13 +96,25 @@ const AdminRegistrations = () => {
         })()
     }, [searchParams, activeTab])
 
-    // Filter data based on search term
-    const filteredData = data.filter(item => 
+    // Filter data based on search term and apply sorting
+    const filteredData = data
+      .filter(item => 
         item.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.emailAddress?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.registrationNumber?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      )
+      .sort((a, b) => {
+        let compare = 0
+        if (sortField === 'date') {
+          compare = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        } else if (sortField === 'name') {
+          const nameA = `${a.firstName || ''} ${a.lastName || ''}`.toLowerCase()
+          const nameB = `${b.firstName || ''} ${b.lastName || ''}`.toLowerCase()
+          compare = nameA.localeCompare(nameB)
+        }
+        return sortOrder === 'asc' ? compare : -compare
+      })
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -343,7 +357,24 @@ const AdminRegistrations = () => {
                                         Table
                                     </button>
                                 </div>
-                                
+                                {/* Sorting Controls */}
+                                <div className="flex items-center gap-2">
+                                  <select
+                                    value={sortField}
+                                    onChange={e => setSortField(e.target.value as 'date' | 'name')}
+                                    className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
+                                  >
+                                    <option value="date">Sort by Date</option>
+                                    <option value="name">Sort by Name</option>
+                                  </select>
+                                  <button
+                                    onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                                    className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
+                                    title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+                                  >
+                                    {sortOrder === 'asc' ? '↑' : '↓'}
+                                  </button>
+                                </div>
                                 <div className="relative flex-1 max-w-md">
                                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <input
@@ -357,7 +388,7 @@ const AdminRegistrations = () => {
                             </div>
 
                             {/* Controls - Mobile */}
-                            <div className={`lg:hidden space-y-3 ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+                            <div className={`lg:hidden space-y-3 ${isMobileMenuOpen ? 'block' : 'hidden'}`}> 
                                 {/* View Mode Toggle */}
                                 <div className="flex items-center bg-white border border-gray-300 rounded-lg p-1 shadow-sm">
                                     <button
@@ -383,7 +414,24 @@ const AdminRegistrations = () => {
                                         Table
                                     </button>
                                 </div>
-                                
+                                {/* Sorting Controls */}
+                                <div className="flex items-center gap-2">
+                                  <select
+                                    value={sortField}
+                                    onChange={e => setSortField(e.target.value as 'date' | 'name')}
+                                    className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
+                                  >
+                                    <option value="date">Sort by Date</option>
+                                    <option value="name">Sort by Name</option>
+                                  </select>
+                                  <button
+                                    onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                                    className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
+                                    title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+                                  >
+                                    {sortOrder === 'asc' ? '↑' : '↓'}
+                                  </button>
+                                </div>
                                 <div className="relative">
                                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <input
