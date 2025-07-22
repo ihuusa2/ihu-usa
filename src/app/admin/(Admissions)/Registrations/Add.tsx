@@ -65,6 +65,7 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
     const [msg, setMsg] = React.useState('')
     const [error, setError] = React.useState('')
     const [show, setShow] = React.useState(false)
+    const [registrationId, setRegistrationId] = React.useState<string>('')
     const [withPayment, setWithPayment] = React.useState(isEdit ? false : true)
     const [paymentCost, setPaymentCost] = React.useState(1)
     const [currentStep, setCurrentStep] = React.useState(1)
@@ -344,7 +345,29 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
                 return;
             }
             if (withPayment) {
-                setShow(true)
+                // Create registration first for payment flow
+                try {
+                    const response = await fetch('/api/registrations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(value),
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        setRegistrationId(result.insertedId);
+                        setShow(true);
+                    } else {
+                        setError(result.error || 'Failed to save registration. Please try again.');
+                        setLoading(false);
+                        return;
+                    }
+                } catch (error) {
+                    setError('An error occurred while saving registration. Please try again.');
+                    setLoading(false);
+                    return;
+                }
             } else {
                 const res = await createRegisterForm({
                     ...value,
@@ -1123,12 +1146,13 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
                                         <div className="text-2xl font-bold text-blue-600 mb-4">
                                             ${paymentCost} USD
                                         </div>
-                                        <InitiatePayment
-                                            price={paymentCost.toString()}
-                                            registration={value}
-                                            show={show}
-                                            onClose={() => setShow(false)}
-                                        />
+                                                                <InitiatePayment
+                            price={paymentCost.toString()}
+                            registration={value}
+                            registrationId={registrationId}
+                            show={show}
+                            onClose={() => setShow(false)}
+                        />
                                     </div>
                                 </div>
                             </div>

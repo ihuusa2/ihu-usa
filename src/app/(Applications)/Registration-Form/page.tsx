@@ -81,6 +81,7 @@ const RegistrationForm = () => {
     const [msg, setMsg] = React.useState('')
     const [error, setError] = React.useState('')
     const [show, setShow] = React.useState(false)
+    const [registrationId, setRegistrationId] = React.useState<string>('')
     const [currentStep, setCurrentStep] = React.useState(1)
     const [courseTypes, setCourseTypes] = React.useState<CourseType[]>([])
     
@@ -369,6 +370,7 @@ const RegistrationForm = () => {
             const result = await response.json();
 
             if (response.ok && result.success) {
+                setRegistrationId(result.insertedId); // Store registration ID
                 setShow(true); // Open payment modal
             } else {
                 setError(result.error || 'Failed to save application. Please try again.');
@@ -1217,6 +1219,7 @@ const RegistrationForm = () => {
             {/* Payment Modal */}
             <InitiatePayment
                 registration={value}
+                registrationId={registrationId}
                 price={getApplicationFee().amount.toString()}
                 show={show}
                 onClose={() => setShow(false)}

@@ -1,20 +1,21 @@
 'use client'
 
 import InitiatePaypal from '@/components/Paypal'
-import { createRegisterForm } from '@/Server/Registration'
+import { createRegisterForm, updateRegistration } from '@/Server/Registration'
 import { RegisterForm } from '@/Types/Form'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 interface InitiatePaymentProps {
     registration: RegisterForm
+    registrationId?: string
     price?: string
     show: boolean
     onClose: () => void
     onPaymentSuccess?: () => void
 }
 
-const InitiatePayment = ({ registration, price, show, onClose, onPaymentSuccess }: InitiatePaymentProps) => {
+const InitiatePayment = ({ registration, registrationId, price, show, onClose, onPaymentSuccess }: InitiatePaymentProps) => {
     const route = useRouter()
     const [isProcessing, setIsProcessing] = useState(false)
 
@@ -44,11 +45,18 @@ const InitiatePayment = ({ registration, price, show, onClose, onPaymentSuccess 
         try {
             setIsProcessing(true)
             
-            // Create registration with orderId
-            await createRegisterForm({
-                ...registration,
-                orderId,
-            })
+            if (registrationId) {
+                // Update existing registration with orderId
+                await updateRegistration(registrationId, {
+                    orderId,
+                })
+            } else {
+                // Fallback: Create new registration with orderId (for backwards compatibility)
+                await createRegisterForm({
+                    ...registration,
+                    orderId,
+                })
+            }
             
             // Immediately update payment status to COMPLETED
             try {
@@ -75,7 +83,7 @@ const InitiatePayment = ({ registration, price, show, onClose, onPaymentSuccess 
             
             if (onPaymentSuccess) onPaymentSuccess();
         } catch (error) {
-            console.error('Error creating registration:', error)
+            console.error('Error updating registration:', error)
             alert('There was an error processing your registration. Please try again.')
         } finally {
             setIsProcessing(false)

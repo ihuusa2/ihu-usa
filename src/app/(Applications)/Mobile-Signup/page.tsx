@@ -59,6 +59,7 @@ const MobileSignup = () => {
     const [msg, setMsg] = useState('')
     const [error, setError] = useState('')
     const [show, setShow] = useState(false)
+    const [registrationId, setRegistrationId] = useState<string>('')
     const [currentStep, setCurrentStep] = useState(1)
     const [courseTypes, setCourseTypes] = useState<CourseType[]>([])
     // registrationId is not used, so removed
@@ -340,6 +341,7 @@ const MobileSignup = () => {
                 setLoading(false)
                 return
             }
+            setRegistrationId(data.insertedId) // Store registration ID
             setShow(true) // Open payment modal
         } catch {
             setError('Failed to submit application. Please try again.')
@@ -973,6 +975,7 @@ const MobileSignup = () => {
                 show={show}
                 onClose={() => setShow(false)}
                 onPaymentSuccess={handlePaymentSuccess}
+                registrationId={registrationId}
             />
             {/* Payment Complete Modal */}
             {paymentComplete && (
