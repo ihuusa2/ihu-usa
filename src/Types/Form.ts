@@ -37,6 +37,7 @@ export interface RegisterForm {
     resident: string;
     enrollmentType: string;
     courseType: string;
+    selectedCourse: string;
     presentLevelOfEducation: string;
     graduationYear: string;
     howDidYouHearAboutIHU: string;

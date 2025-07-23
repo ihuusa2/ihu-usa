@@ -27,6 +27,7 @@ const initialValue: RegisterForm = {
     resident: '',
     enrollmentType: '',
     courseType: '',
+    selectedCourse: '',
     presentLevelOfEducation: '',
     graduationYear: '',
     howDidYouHearAboutIHU: '',

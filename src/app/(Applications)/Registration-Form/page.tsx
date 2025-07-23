@@ -3,8 +3,9 @@
 
 import { createRegisterForm } from '@/Server/Registration'
 import { getAllCourseTypesForSelect } from '@/Server/CourseType'
+import { getCoursesByType } from '@/Server/Course'
 import { PaymentStatus, RegisterForm, Status } from '@/Types/Form'
-import type { CourseType } from '@/Types/Courses'
+import type { CourseType, Course } from '@/Types/Courses'
 import React, { useEffect, Suspense } from 'react'
 import { AlertCircle } from 'lucide-react'
 import InitiatePayment from './Checkout/InitiatePayment'
@@ -29,6 +30,7 @@ const initialValue: RegisterForm = {
     resident: '',
     enrollmentType: '',
     courseType: '',
+    selectedCourse: '', // Add this new field
     presentLevelOfEducation: '',
     graduationYear: '',
     howDidYouHearAboutIHU: '',
@@ -132,6 +134,177 @@ const countryOptions = [
   { value: '+970', label: 'Palestine (+970)' },
 ];
 
+const countryRegionOptions = [
+  { value: 'United States', label: 'United States' },
+  { value: 'India', label: 'India' },
+  { value: 'United Kingdom', label: 'United Kingdom' },
+  { value: 'Australia', label: 'Australia' },
+  { value: 'Japan', label: 'Japan' },
+  { value: 'United Arab Emirates', label: 'United Arab Emirates' },
+  { value: 'Germany', label: 'Germany' },
+  { value: 'France', label: 'France' },
+  { value: 'China', label: 'China' },
+  { value: 'Pakistan', label: 'Pakistan' },
+  { value: 'Bangladesh', label: 'Bangladesh' },
+  { value: 'Sri Lanka', label: 'Sri Lanka' },
+  { value: 'Russia', label: 'Russia' },
+  { value: 'Nigeria', label: 'Nigeria' },
+  { value: 'South Africa', label: 'South Africa' },
+  { value: 'South Korea', label: 'South Korea' },
+  { value: 'Spain', label: 'Spain' },
+  { value: 'Italy', label: 'Italy' },
+  { value: 'Indonesia', label: 'Indonesia' },
+  { value: 'Philippines', label: 'Philippines' },
+  { value: 'Malaysia', label: 'Malaysia' },
+  { value: 'Singapore', label: 'Singapore' },
+  { value: 'New Zealand', label: 'New Zealand' },
+  { value: 'Brazil', label: 'Brazil' },
+  { value: 'Mexico', label: 'Mexico' },
+  { value: 'Egypt', label: 'Egypt' },
+  { value: 'Saudi Arabia', label: 'Saudi Arabia' },
+  { value: 'Algeria', label: 'Algeria' },
+  { value: 'Morocco', label: 'Morocco' },
+  { value: 'Iran', label: 'Iran' },
+  { value: 'Turkey', label: 'Turkey' },
+  { value: 'Ireland', label: 'Ireland' },
+  { value: 'Sweden', label: 'Sweden' },
+  { value: 'Norway', label: 'Norway' },
+  { value: 'Finland', label: 'Finland' },
+  { value: 'Switzerland', label: 'Switzerland' },
+  { value: 'Austria', label: 'Austria' },
+  { value: 'Poland', label: 'Poland' },
+  { value: 'Czech Republic', label: 'Czech Republic' },
+  { value: 'Slovakia', label: 'Slovakia' },
+  { value: 'Slovenia', label: 'Slovenia' },
+  { value: 'Croatia', label: 'Croatia' },
+  { value: 'Hungary', label: 'Hungary' },
+  { value: 'Ukraine', label: 'Ukraine' },
+  { value: 'Belarus', label: 'Belarus' },
+  { value: 'Portugal', label: 'Portugal' },
+  { value: 'Greece', label: 'Greece' },
+  { value: 'Romania', label: 'Romania' },
+  { value: 'Estonia', label: 'Estonia' },
+  { value: 'Latvia', label: 'Latvia' },
+  { value: 'Lithuania', label: 'Lithuania' },
+  { value: 'Serbia', label: 'Serbia' },
+  { value: 'Montenegro', label: 'Montenegro' },
+  { value: 'Kosovo', label: 'Kosovo' },
+  { value: 'North Macedonia', label: 'North Macedonia' },
+  { value: 'Moldova', label: 'Moldova' },
+  { value: 'Georgia', label: 'Georgia' },
+  { value: 'Azerbaijan', label: 'Azerbaijan' },
+  { value: 'Armenia', label: 'Armenia' },
+  { value: 'Israel', label: 'Israel' },
+  { value: 'Jordan', label: 'Jordan' },
+  { value: 'Lebanon', label: 'Lebanon' },
+  { value: 'Syria', label: 'Syria' },
+  { value: 'Iraq', label: 'Iraq' },
+  { value: 'Kuwait', label: 'Kuwait' },
+  { value: 'Oman', label: 'Oman' },
+  { value: 'Qatar', label: 'Qatar' },
+  { value: 'Bahrain', label: 'Bahrain' },
+  { value: 'Palestine', label: 'Palestine' },
+  { value: 'Canada', label: 'Canada' },
+  { value: 'Argentina', label: 'Argentina' },
+  { value: 'Chile', label: 'Chile' },
+  { value: 'Colombia', label: 'Colombia' },
+  { value: 'Peru', label: 'Peru' },
+  { value: 'Venezuela', label: 'Venezuela' },
+  { value: 'Uruguay', label: 'Uruguay' },
+  { value: 'Paraguay', label: 'Paraguay' },
+  { value: 'Bolivia', label: 'Bolivia' },
+  { value: 'Ecuador', label: 'Ecuador' },
+  { value: 'Guyana', label: 'Guyana' },
+  { value: 'Suriname', label: 'Suriname' },
+  { value: 'French Guiana', label: 'French Guiana' },
+  { value: 'Falkland Islands', label: 'Falkland Islands' },
+  { value: 'Greenland', label: 'Greenland' },
+  { value: 'Iceland', label: 'Iceland' },
+  { value: 'Denmark', label: 'Denmark' },
+  { value: 'Netherlands', label: 'Netherlands' },
+  { value: 'Belgium', label: 'Belgium' },
+  { value: 'Luxembourg', label: 'Luxembourg' },
+  { value: 'Liechtenstein', label: 'Liechtenstein' },
+  { value: 'Monaco', label: 'Monaco' },
+  { value: 'Andorra', label: 'Andorra' },
+  { value: 'San Marino', label: 'San Marino' },
+  { value: 'Vatican City', label: 'Vatican City' },
+  { value: 'Malta', label: 'Malta' },
+  { value: 'Cyprus', label: 'Cyprus' },
+  { value: 'Bulgaria', label: 'Bulgaria' },
+  { value: 'Albania', label: 'Albania' },
+  { value: 'Bosnia and Herzegovina', label: 'Bosnia and Herzegovina' },
+  { value: 'Kazakhstan', label: 'Kazakhstan' },
+  { value: 'Uzbekistan', label: 'Uzbekistan' },
+  { value: 'Kyrgyzstan', label: 'Kyrgyzstan' },
+  { value: 'Tajikistan', label: 'Tajikistan' },
+  { value: 'Turkmenistan', label: 'Turkmenistan' },
+  { value: 'Afghanistan', label: 'Afghanistan' },
+  { value: 'Nepal', label: 'Nepal' },
+  { value: 'Bhutan', label: 'Bhutan' },
+  { value: 'Myanmar', label: 'Myanmar' },
+  { value: 'Thailand', label: 'Thailand' },
+  { value: 'Vietnam', label: 'Vietnam' },
+  { value: 'Laos', label: 'Laos' },
+  { value: 'Cambodia', label: 'Cambodia' },
+  { value: 'Brunei', label: 'Brunei' },
+  { value: 'East Timor', label: 'East Timor' },
+  { value: 'Mongolia', label: 'Mongolia' },
+  { value: 'North Korea', label: 'North Korea' },
+  { value: 'Taiwan', label: 'Taiwan' },
+  { value: 'Hong Kong', label: 'Hong Kong' },
+  { value: 'Macau', label: 'Macau' },
+  { value: 'Maldives', label: 'Maldives' },
+  { value: 'Yemen', label: 'Yemen' },
+  { value: 'Somalia', label: 'Somalia' },
+  { value: 'Djibouti', label: 'Djibouti' },
+  { value: 'Eritrea', label: 'Eritrea' },
+  { value: 'Ethiopia', label: 'Ethiopia' },
+  { value: 'Sudan', label: 'Sudan' },
+  { value: 'South Sudan', label: 'South Sudan' },
+  { value: 'Central African Republic', label: 'Central African Republic' },
+  { value: 'Chad', label: 'Chad' },
+  { value: 'Niger', label: 'Niger' },
+  { value: 'Mali', label: 'Mali' },
+  { value: 'Burkina Faso', label: 'Burkina Faso' },
+  { value: 'Senegal', label: 'Senegal' },
+  { value: 'Gambia', label: 'Gambia' },
+  { value: 'Guinea-Bissau', label: 'Guinea-Bissau' },
+  { value: 'Guinea', label: 'Guinea' },
+  { value: 'Sierra Leone', label: 'Sierra Leone' },
+  { value: 'Liberia', label: 'Liberia' },
+  { value: 'Ivory Coast', label: 'Ivory Coast' },
+  { value: 'Ghana', label: 'Ghana' },
+  { value: 'Togo', label: 'Togo' },
+  { value: 'Benin', label: 'Benin' },
+  { value: 'Cameroon', label: 'Cameroon' },
+  { value: 'Equatorial Guinea', label: 'Equatorial Guinea' },
+  { value: 'Gabon', label: 'Gabon' },
+  { value: 'Republic of the Congo', label: 'Republic of the Congo' },
+  { value: 'Democratic Republic of the Congo', label: 'Democratic Republic of the Congo' },
+  { value: 'Angola', label: 'Angola' },
+  { value: 'Zambia', label: 'Zambia' },
+  { value: 'Zimbabwe', label: 'Zimbabwe' },
+  { value: 'Botswana', label: 'Botswana' },
+  { value: 'Namibia', label: 'Namibia' },
+  { value: 'Lesotho', label: 'Lesotho' },
+  { value: 'Eswatini', label: 'Eswatini' },
+  { value: 'Madagascar', label: 'Madagascar' },
+  { value: 'Mauritius', label: 'Mauritius' },
+  { value: 'Seychelles', label: 'Seychelles' },
+  { value: 'Comoros', label: 'Comoros' },
+  { value: 'Mayotte', label: 'Mayotte' },
+  { value: 'Réunion', label: 'Réunion' },
+  { value: 'Kenya', label: 'Kenya' },
+  { value: 'Uganda', label: 'Uganda' },
+  { value: 'Tanzania', label: 'Tanzania' },
+  { value: 'Rwanda', label: 'Rwanda' },
+  { value: 'Burundi', label: 'Burundi' },
+  { value: 'Malawi', label: 'Malawi' },
+  { value: 'Mozambique', label: 'Mozambique' },
+  { value: 'Other', label: 'Other' }
+];
+
 const fieldLabels: Record<string, string> = {
   firstName: "First Name",
   lastName: "Last Name",
@@ -145,6 +318,7 @@ const fieldLabels: Record<string, string> = {
   zipOrPostalCode: "Zip or Postal Code",
   resident: "Resident Status",
   courseType: "Course Type",
+  selectedCourse: "Selected Course",
   graduationYear: "Graduation Year",
   howDidYouHearAboutIHU: "How Did You Hear About IHU",
   objectives: "Objectives",
@@ -159,6 +333,7 @@ const RegistrationForm = () => {
     const [show, setShow] = React.useState(false)
     const [registrationId, setRegistrationId] = React.useState<string>('')
     const [courseTypes, setCourseTypes] = React.useState<CourseType[]>([])
+    const [courses, setCourses] = React.useState<Course[]>([])
 
     useEffect(() => {
         const fetchCourseTypes = async () => {
@@ -172,8 +347,24 @@ const RegistrationForm = () => {
         fetchCourseTypes()
     }, [])
 
+    useEffect(() => {
+        const fetchCourses = async () => {
+            if (value.courseType) {
+                try {
+                    const courses = await getCoursesByType(value.courseType);
+                    setCourses(courses);
+                } catch (error) {
+                    console.error('Error fetching courses:', error);
+                }
+            } else {
+                setCourses([]);
+            }
+        };
+        fetchCourses();
+    }, [value.courseType]);
+
     const requiredFields: Array<keyof RegisterForm> = [
-        'firstName', 'lastName', 'dateOfBirth', 'emailAddress', 'countryCode', 'phone', 'address', 'city', 'state', 'countryOrRegion', 'zipOrPostalCode', 'resident', 'enrollmentType', 'courseType', 'graduationYear', 'howDidYouHearAboutIHU', 'objectives', 'signature'
+        'firstName', 'lastName', 'dateOfBirth', 'emailAddress', 'countryCode', 'phone', 'address', 'city', 'state', 'countryOrRegion', 'zipOrPostalCode', 'resident', 'enrollmentType', 'courseType', 'selectedCourse', 'graduationYear', 'howDidYouHearAboutIHU', 'objectives', 'signature'
     ]
 
     const validateFields = () => {
@@ -232,37 +423,27 @@ const RegistrationForm = () => {
                     </div>
 
                     {/* Simple Content */}
-                    <div className="space-y-4 mb-6">
-                        <div className="bg-orange-50 rounded-lg p-4">
-                            <h3 className="font-semibold text-gray-800 mb-2">Getting Started</h3>
-                            <ul className="text-gray-700 space-y-1 text-sm">
-                                <li>• Please fill out this application to the best of your ability</li>
-                                <li>• Once admitted, register for courses with your academic advisor</li>
-                                <li>• Tuition details available on our website or IHU office</li>
-                            </ul>
-                        </div>
-
-                        <div className="bg-green-50 rounded-lg p-4">
-                            <div className="flex justify-between items-center">
-                                <span className="font-semibold text-gray-800">Application Fee:</span>
-                                <span className="text-xl font-bold text-green-600">$20</span>
-                            </div>
-                            <p className="text-sm text-gray-600 mt-1">One-time non-refundable fee</p>
-                        </div>
-
+                    <div className="space-y-4 mb-10">
                         <div className="bg-blue-50 rounded-lg p-4">
-                            <h3 className="font-semibold text-gray-800 mb-2">Quick Response</h3>
-                            <p className="text-sm text-gray-700">
-                                We&apos;ll notify you within <span className="font-semibold">two weeks</span> of receiving your application.
+                            <p className="text-gray-700 text-sm leading-relaxed text-center">
+                                <strong>Thank you for considering International Hindu University, USA, as your academic institution of choice.</strong> <br /> We invite you to complete this application form with utmost diligence and accuracy. Once you are granted admission, you will be eligible to register for your preferred courses and choose subjects in consultation with an assigned academic advisor at IHU. Information regarding tuition and associated fees is available on our official website or may be obtained by contacting the university directly at <strong> contact@ihu-usa.org.</strong> At International Hindu University, we are committed to a timely admissions process. Applicants will be notified of the admission and acceptance decision within two weeks of the receipt of a complete application and all requisite documentation. <strong>A one-time, non-refundable application fee</strong> is applicable as follows:
                             </p>
-                        </div>
-
-                        <div className="bg-purple-50 rounded-lg p-4">
-                            <h3 className="font-semibold text-gray-800 mb-2">Instant Access</h3>
-                            <p className="text-sm text-gray-700">
-                                Your <span className="font-semibold">IHU ID</span> will be activated after payment and form submission.
+                            <div className="mt-4 text-center">
+                                <ul className="text-gray-700 text-sm space-y-1">
+                                    <li className="flex items-center justify-center">
+                                        <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                                        <strong>$20 USD</strong> for applicants residing outside India
+                                    </li>
+                                    <li className="flex items-center justify-center">
+                                        <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                                        <strong>INR xxxx</strong> for applicants residing within India
+                                    </li>
+                                </ul>
+                            </div>
+                            <p className="text-gray-700 text-sm leading-relaxed text-center mt-4">
+                                Once the application form is submitted and the registration fee is successfully processed, your <strong>IHU Student ID </strong>will be activated, allowing you to proceed with course registration. We look forward to welcoming you into the IHU academic community and supporting you in your pursuit of knowledge rooted in Sanatana Dharma, Hindu philosophy, Vedic Sciences and Global Excellence.
                             </p>
-                        </div>
+                        </div>                      
                     </div>
 
                     {/* Simple Contact */}
@@ -361,7 +542,27 @@ const RegistrationForm = () => {
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700">Country Or Region <span className="text-red-500">*</span></label>
-                            <input type="text" value={value.countryOrRegion} onChange={e => setValue({ ...value, countryOrRegion: e.target.value })} disabled={loading} placeholder="Enter your country or region" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md" />
+                            <Select
+                                options={countryRegionOptions}
+                                value={countryRegionOptions.find(option => option.value === value.countryOrRegion) || null}
+                                onChange={option => setValue({ ...value, countryOrRegion: option ? option.value : '' })}
+                                isClearable
+                                placeholder="Select Your Country Or Region"
+                                isSearchable
+                                classNamePrefix="react-select"
+                                className="react-select-container"
+                                styles={{
+                                    control: (base) => ({
+                                        ...base,
+                                        minHeight: '48px',
+                                        borderRadius: '0.75rem',
+                                        borderColor: '#d1d5db',
+                                        boxShadow: 'none',
+                                        fontSize: '1rem',
+                                    }),
+                                    menu: (base) => ({ ...base, zIndex: 9999 }),
+                                }}
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700">Zip Or Postal Code <span className="text-red-500">*</span></label>
@@ -387,17 +588,70 @@ const RegistrationForm = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700">Courses you applied for* <span className="text-red-500">*</span></label>
-                            <select value={value.courseType} onChange={e => setValue({ ...value, courseType: e.target.value })} disabled={loading} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md">
-                                <option value="">Select Course</option>
-                                {courseTypes.map((courseType) => (
-                                    <option key={courseType._id} value={courseType.title}>{courseType.title}</option>
-                                ))}
-                            </select>
+                            <label className="block text-sm font-semibold text-gray-700">Course Type <span className="text-red-500">*</span></label>
+                            <Select
+                                options={courseTypes.map(type => ({ value: type.title, label: type.title }))}
+                                value={courseTypes.find(type => type.title === value.courseType) ? { value: value.courseType, label: value.courseType } : null}
+                                onChange={option => setValue({ ...value, courseType: option ? option.value : '' })}
+                                isClearable
+                                placeholder="Select Course Type"
+                                isSearchable
+                                classNamePrefix="react-select"
+                                className="react-select-container"
+                                styles={{
+                                    control: (base) => ({
+                                        ...base,
+                                        minHeight: '48px',
+                                        borderRadius: '0.75rem',
+                                        borderColor: '#d1d5db',
+                                        boxShadow: 'none',
+                                        fontSize: '1rem',
+                                    }),
+                                    menu: (base) => ({ ...base, zIndex: 9999 }),
+                                }}
+                            />
                         </div>
+                        {value.courseType && (
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700">Select Course for {value.courseType} <span className="text-red-500">*</span></label>
+                                <Select
+                                    options={courses
+                                        .filter((course): course is Course & { _id: string } => Boolean(course._id))
+                                        .map(course => ({ 
+                                            value: course._id, 
+                                            label: course.title 
+                                        }))}
+                                    value={courses.find(course => course._id === value.selectedCourse) ? { 
+                                        value: value.selectedCourse, 
+                                        label: courses.find(course => course._id === value.selectedCourse)?.title || '' 
+                                    } : null}
+                                    onChange={option => setValue({ ...value, selectedCourse: option ? option.value : '' })}
+                                    isClearable
+                                    placeholder="Select Course"
+                                    isSearchable
+                                    classNamePrefix="react-select"
+                                    className="react-select-container"
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            minHeight: '48px',
+                                            borderRadius: '0.75rem',
+                                            borderColor: '#d1d5db',
+                                            boxShadow: 'none',
+                                            fontSize: '1rem',
+                                        }),
+                                        menu: (base) => ({ ...base, zIndex: 9999 }),
+                                    }}
+                                />
+                            </div>
+                        )}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700">Present Level Of Education</label>
                             <input type="text" value={value.presentLevelOfEducation} onChange={e => setValue({ ...value, presentLevelOfEducation: e.target.value })} disabled={loading} placeholder="Enter your present level of education" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700">Graduation Year <span className="text-red-500">*</span></label>
+                            <input type="number" value={value.graduationYear} onChange={e => setValue({ ...value, graduationYear: e.target.value })} disabled={loading} placeholder="Enter your graduation year" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md" />
                         </div>
                         <div className="md:col-span-2">
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Please check what you have received, or expect to receive</label>
@@ -420,13 +674,9 @@ const RegistrationForm = () => {
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700">Graduation Year <span className="text-red-500">*</span></label>
-                            <input type="number" value={value.graduationYear} onChange={e => setValue({ ...value, graduationYear: e.target.value })} disabled={loading} placeholder="Enter your graduation year" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md" />
-                        </div>
-                        <div>
+                        <div className="md:col-span-2">
                             <label className="block text-sm font-semibold text-gray-700">How Did You Hear About IHU: <span className="text-red-500">*</span></label>
-                            <input type="text" value={value.howDidYouHearAboutIHU} onChange={e => setValue({ ...value, howDidYouHearAboutIHU: e.target.value })} disabled={loading} placeholder="How did you hear about IHU?" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md" />
+                            <textarea value={value.howDidYouHearAboutIHU} onChange={e => setValue({ ...value, howDidYouHearAboutIHU: e.target.value })} disabled={loading} placeholder="How did you hear about IHU?" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md" rows={3} />
                         </div>
                         <div className="md:col-span-2">
                             <label className="block text-sm font-semibold text-gray-700">Your Objectives For Joining International Hindu University... <span className="text-red-500">*</span></label>

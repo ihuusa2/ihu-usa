@@ -47,36 +47,7 @@ const CourseCard = async ({ item, className = '', isHighlighted = false }: Props
                     </Link>
                 </div>
 
-                {/* Course Features Badges */}
-                <div className="absolute top-3 right-3 flex flex-col gap-1 sm:gap-2">
-                    {item.testimonialVideos && item.testimonialVideos.length > 0 && (
-                        <div className="bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-                            </svg>
-                            <span className="hidden sm:inline">{item.testimonialVideos.length} Videos</span>
-                            <span className="sm:hidden">{item.testimonialVideos.length}</span>
-                        </div>
-                    )}
-                    {item.faqs && item.faqs.length > 0 && (
-                        <div className="bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                            </svg>
-                            <span className="hidden sm:inline">{item.faqs.length} FAQs</span>
-                            <span className="sm:hidden">{item.faqs.length}</span>
-                        </div>
-                    )}
-                    {item.galleryImages && item.galleryImages.length > 0 && (
-                        <div className="bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                            </svg>
-                            <span className="hidden sm:inline">{item.galleryImages.length} Images</span>
-                            <span className="sm:hidden">{item.galleryImages.length}</span>
-                        </div>
-                    )}
-                </div>
+
             </div>
 
             {/* Content Section */}
@@ -162,32 +133,7 @@ const CourseCard = async ({ item, className = '', isHighlighted = false }: Props
                     </div>
                 </div>
 
-                {/* Quick Preview of Content */}
-                {(item.testimonialVideos?.length || item.faqs?.length || item.galleryImages?.length) && (
-                    <div className="pt-3 border-t border-gray-100">
-                        <p className="text-xs text-gray-500 font-medium mb-2">Includes:</p>
-                        <div className="flex flex-wrap gap-1">
-                            {item.testimonialVideos && item.testimonialVideos.length > 0 && (
-                                <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
-                                    <span className="hidden sm:inline">📹 Testimonials</span>
-                                    <span className="sm:hidden">📹</span>
-                                </span>
-                            )}
-                            {item.faqs && item.faqs.length > 0 && (
-                                <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-100 text-purple-700">
-                                    <span className="hidden sm:inline">❓ FAQs</span>
-                                    <span className="sm:hidden">❓</span>
-                                </span>
-                            )}
-                            {item.galleryImages && item.galleryImages.length > 0 && (
-                                <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-700">
-                                    <span className="hidden sm:inline">🖼️ Gallery</span>
-                                    <span className="sm:hidden">🖼️</span>
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                )}
+
             </div>
         </div>
     )

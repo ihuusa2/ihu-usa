@@ -54,20 +54,23 @@ const AddTeam = ({ setData, setOpen, isEdit, editData }: Props) => {
 
     // Handle blob URL creation and cleanup for image preview
     useEffect(() => {
+        // Clean up any existing blob URL first
+        if (blobUrl) {
+            URL.revokeObjectURL(blobUrl)
+        }
+
+        // Create new blob URL if image is a File
         if (value.image instanceof File) {
             const url = URL.createObjectURL(value.image)
             setBlobUrl(url)
-            
-            // Cleanup function
-            return () => {
-                URL.revokeObjectURL(url)
-                setBlobUrl(null)
-            }
         } else {
-            // Clean up any existing blob URL
+            setBlobUrl(null)
+        }
+
+        // Cleanup function
+        return () => {
             if (blobUrl) {
                 URL.revokeObjectURL(blobUrl)
-                setBlobUrl(null)
             }
         }
     }, [value.image, blobUrl])
@@ -215,30 +218,36 @@ const AddTeam = ({ setData, setOpen, isEdit, editData }: Props) => {
                         <div className="flex flex-col lg:flex-row gap-6 items-start">
                             {/* Image Preview */}
                             <div className="flex-shrink-0">
-                                {value.image ? (
+                                {(value.image || blobUrl) ? (
                                     <div className="relative group">
-                                        {value.image instanceof File && blobUrl ? (
+                                        {blobUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img
                                                 src={blobUrl}
                                                 alt="Preview"
                                                 className="w-30 h-30 rounded-xl object-cover shadow-lg border-4 border-white"
                                             />
-                                        ) : (
+                                        ) : value.image && typeof value.image === 'string' ? (
                                             <Image
-                                                src={value.image as string}
+                                                src={value.image}
                                                 alt="Current image"
                                                 width={120}
                                                 height={120}
                                                 className="w-30 h-30 rounded-xl object-cover shadow-lg border-4 border-white"
                                             />
-                                        )}
+                                        ) : null}
                                         <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
                                             <FaCheckCircle className="text-white text-sm" />
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => setValue({ ...value, image: '' })}
+                                            onClick={() => {
+                                                setValue({ ...value, image: '' })
+                                                if (blobUrl) {
+                                                    URL.revokeObjectURL(blobUrl)
+                                                    setBlobUrl(null)
+                                                }
+                                            }}
                                             className="absolute -top-1 -left-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
                                             <FaTimes className="text-white text-xs" />
@@ -264,9 +273,11 @@ const AddTeam = ({ setData, setOpen, isEdit, editData }: Props) => {
                         accept="image/*"
                         id="image"
                         name="image"
-                        onChange={(e) =>
-                            e.target.files && setValue({ ...value, image: e.target.files[0] })
-                        }
+                        onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                                setValue({ ...value, image: e.target.files[0] })
+                            }
+                        }}
                                     className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                     />
                                 <p className="text-xs text-gray-500 mt-2">

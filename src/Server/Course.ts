@@ -92,3 +92,15 @@ export const searchAllCourses = async (searchTerm: string): Promise<Course[]> =>
 
     return JSON.parse(JSON.stringify(list));
 }
+
+export const getCoursesByType = async (type: string): Promise<Course[]> => {
+    if (!type || type.trim() === '') {
+        return [];
+    }
+
+    const list = await Courses.find({ type: type }).toArray();
+
+    if (!list) return [];
+
+    return JSON.parse(JSON.stringify(list));
+}
