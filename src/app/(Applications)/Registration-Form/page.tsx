@@ -693,17 +693,7 @@ const RegistrationForm = () => {
                             <input type="text" value={value.signature} onChange={e => setValue({ ...value, signature: e.target.value })} disabled={loading} placeholder="Type your name as signature" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base bg-white shadow-sm hover:shadow-md" />
                         </div>
                     </div>
-                    {!validateFields() && (
-                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-700">
-                            <AlertCircle className="inline-block mr-2 text-amber-600" />
-                            <div className="font-semibold mb-1">Please complete all required fields:</div>
-                            <ul className="list-disc list-inside ml-6">
-                                {getMissingFields().map(field => (
-                                    <li key={field}>{fieldLabels[field] || field}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+
                     <button type="button" onClick={handleSubmit} disabled={loading || !validateFields()} className="w-full h-12 px-6 text-base bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl font-semibold">
                         {loading ? (
                             <>
