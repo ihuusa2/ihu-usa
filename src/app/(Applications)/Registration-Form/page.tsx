@@ -425,22 +425,22 @@ const RegistrationForm = () => {
                     {/* Simple Content */}
                     <div className="space-y-4 mb-10">
                         <div className="bg-blue-50 rounded-lg p-4">
-                            <p className="text-gray-700 text-sm leading-relaxed text-center">
+                            <p className="text-gray-700 text-sm leading-relaxed text-left">
                                 <strong>Thank you for considering International Hindu University, USA, as your academic institution of choice.</strong> <br /> We invite you to complete this application form with utmost diligence and accuracy. Once you are granted admission, you will be eligible to register for your preferred courses and choose subjects in consultation with an assigned academic advisor at IHU. Information regarding tuition and associated fees is available on our official website or may be obtained by contacting the university directly at <strong> contact@ihu-usa.org.</strong> At International Hindu University, we are committed to a timely admissions process. Applicants will be notified of the admission and acceptance decision within two weeks of the receipt of a complete application and all requisite documentation. <strong>A one-time, non-refundable application fee</strong> is applicable as follows:
                             </p>
-                            <div className="mt-4 text-center">
+                            <div className="mt-4 text-left">
                                 <ul className="text-gray-700 text-sm space-y-1">
-                                    <li className="flex items-center justify-center">
+                                    <li className="flex items-center">
                                         <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
                                         <strong>$20 USD</strong> for applicants residing outside India
                                     </li>
-                                    <li className="flex items-center justify-center">
+                                    <li className="flex items-center">
                                         <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
                                         <strong>INR xxxx</strong> for applicants residing within India
                                     </li>
                                 </ul>
                             </div>
-                            <p className="text-gray-700 text-sm leading-relaxed text-center mt-4">
+                            <p className="text-gray-700 text-sm leading-relaxed text-left mt-4">
                                 Once the application form is submitted and the registration fee is successfully processed, your <strong>IHU Student ID </strong>will be activated, allowing you to proceed with course registration. We look forward to welcoming you into the IHU academic community and supporting you in your pursuit of knowledge rooted in Sanatana Dharma, Hindu philosophy, Vedic Sciences and Global Excellence.
                             </p>
                         </div>                      
