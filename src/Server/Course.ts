@@ -17,11 +17,21 @@ export const getAllCourses = async ({ params, searchParams }: {
     searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<{ list: Course[]; count: number } | null> => {
 
-    const { page = 0, pageSize = 10, ...query } = parseQuery(searchParams) as { page: string; pageSize: string;[key: string]: unknown };
+    const { page = 0, pageSize = 10, sort, ...query } = parseQuery(searchParams) as { page: string; pageSize: string; sort?: string; [key: string]: unknown };
     const pageNumber: number = Number(page);
     const pageSizeNumber: number = Number(pageSize);
 
+    // Determine sort object for MongoDB
+    let sortObj: Record<string, 1 | -1> = { createdAt: -1 }; // Default: newest first
+    if (typeof sort === 'string') {
+        if (sort === 'newest') sortObj = { createdAt: -1 };
+        else if (sort === 'oldest') sortObj = { createdAt: 1 };
+        else if (sort === 'title-asc') sortObj = { title: 1 };
+        else if (sort === 'title-desc') sortObj = { title: -1 };
+    }
+
     const list = await Courses.find({ ...params, ...query })
+        .sort(sortObj)
         .skip(pageNumber * pageSizeNumber)
         .limit(pageSizeNumber)
         .toArray();

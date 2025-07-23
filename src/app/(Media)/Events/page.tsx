@@ -5,6 +5,7 @@ import type { Events } from '@/Types/Gallery'
 import React from 'react'
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaExternalLinkAlt } from 'react-icons/fa'
 import Link from 'next/link'
+import Image from 'next/image'
 import { formatDate } from '@/utils/dateFormatter'
 
 import { Metadata } from 'next'
@@ -136,113 +137,223 @@ const Events = async({ searchParams }: Props) => {
             {/* Events List Section */}
             <Container className='py-16'>
                 <div className='max-w-6xl mx-auto'>
-                    {/* Section Header */}
-                    <div className='text-center mb-12'>
-                        <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
-                            Upcoming Events
-                        </h2>
-                        <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
-                            Explore our calendar of events and join us for memorable experiences
-                        </p>
-                    </div>
-
-                    {/* Events Grid */}
-                    <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                        {data.list.map((event) => {
-                            const eventDate = new Date(event.date)
-                            const isUpcoming = eventDate >= new Date()
-                            
-                            return (
-                                <div
-                                    key={event._id as string}
-                                    className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 ${
-                                        isUpcoming ? 'ring-2 ring-orange-200' : ''
-                                    }`}
-                                >
-                                    {/* Event Image */}
-                                    {event.image && (
-                                        <div className='relative h-48 bg-gradient-to-br from-orange-100 to-pink-100'>
-                                            <img
-                                                src={event.image as string}
-                                                alt={event.title}
-                                                className='w-full h-full object-cover'
-                                            />
-                                            {isUpcoming && (
-                                                <div className='absolute top-4 left-4'>
-                                                    <span className='px-3 py-1 bg-orange-500 text-white text-xs font-medium rounded-full'>
-                                                        Upcoming
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Event Content */}
-                                    <div className='p-6'>
-                                        <h3 className='text-xl font-bold text-gray-900 mb-3 line-clamp-2'>
-                                            {event.title}
-                                        </h3>
-                                        
-                                        <p className='text-gray-600 text-sm mb-4 line-clamp-3'>
-                                            {event.description}
-                                        </p>
-
-                                        {/* Event Details */}
-                                        <div className='space-y-2 mb-4'>
-                                            <div className='flex items-center gap-2 text-sm text-gray-600'>
-                                                <FaCalendarAlt className='w-4 h-4 text-orange-500' />
-                                                <span>{formatDate(eventDate)}</span>
-                                            </div>
-                                            
-                                            {event.location && (
-                                                <div className='flex items-center gap-2 text-sm text-gray-600'>
-                                                    <FaMapMarkerAlt className='w-4 h-4 text-red-500' />
-                                                    <span>{event.location}</span>
-                                                </div>
-                                            )}
-
-                                            {event.attendees && event.attendees.length > 0 && (
-                                                <div className='flex items-center gap-2 text-sm text-gray-600'>
-                                                    <FaClock className='w-4 h-4 text-green-500' />
-                                                    <span>{event.attendees.length} attendees</span>
-                                                </div>
-                                            )}
+                    {/* Separate upcoming and past events */}
+                    {(() => {
+                        const upcomingEvents = data.list.filter(event => new Date(event.date) >= new Date())
+                        const pastEvents = data.list.filter(event => new Date(event.date) < new Date())
+                        
+                        return (
+                            <>
+                                {/* Upcoming Events Section */}
+                                {upcomingEvents.length > 0 && (
+                                    <div className='mb-16'>
+                                        <div className='text-center mb-12'>
+                                            <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
+                                                Upcoming Events
+                                            </h2>
+                                            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+                                                Join us for these exciting upcoming events and activities
+                                            </p>
                                         </div>
 
-                                        {/* Action Buttons */}
-                                        <div className='flex items-center gap-3'>
-                                            {event.link && (
-                                                <Link
-                                                    href={event.link}
-                                                    target='_blank'
-                                                    rel='noopener noreferrer'
-                                                    className='flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors duration-200'
-                                                >
-                                                    <FaExternalLinkAlt className='w-4 h-4' />
-                                                    Learn More
-                                                </Link>
-                                            )}
-                                            
-                                            <button className='px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200'>
-                                                Register
-                                            </button>
+                                        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                                            {upcomingEvents.map((event) => {
+                                                const eventDate = new Date(event.date)
+                                                
+                                                return (
+                                                    <div
+                                                        key={event._id as string}
+                                                        className='bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 ring-2 ring-orange-200'
+                                                    >
+                                                        {/* Event Image */}
+                                                        {event.image && (
+                                                            <div className='relative h-64 bg-gradient-to-br from-orange-100 to-pink-100'>
+                                                                <Image
+                                                                    src={event.image as string}
+                                                                    alt={event.title}
+                                                                    fill
+                                                                    className='object-contain'
+                                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                                />
+                                                                <div className='absolute top-4 left-4'>
+                                                                    <span className='px-3 py-1 bg-orange-500 text-white text-xs font-medium rounded-full'>
+                                                                        Upcoming
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Event Content */}
+                                                        <div className='p-6'>
+                                                            <h3 className='text-xl font-bold text-gray-900 mb-3 line-clamp-2'>
+                                                                {event.title}
+                                                            </h3>
+                                                            
+                                                            <p className='text-gray-600 text-sm mb-4 line-clamp-3'>
+                                                                {event.description}
+                                                            </p>
+
+                                                            {/* Event Details */}
+                                                            <div className='space-y-2 mb-4'>
+                                                                <div className='flex items-center gap-2 text-sm text-gray-600'>
+                                                                    <FaCalendarAlt className='w-4 h-4 text-orange-500' />
+                                                                    <span>{formatDate(eventDate)}</span>
+                                                                </div>
+                                                                
+                                                                {event.location && (
+                                                                    <div className='flex items-center gap-2 text-sm text-gray-600'>
+                                                                        <FaMapMarkerAlt className='w-4 h-4 text-red-500' />
+                                                                        <span>{event.location}</span>
+                                                                    </div>
+                                                                )}
+
+                                                                {event.attendees && event.attendees.length > 0 && (
+                                                                    <div className='flex items-center gap-2 text-sm text-gray-600'>
+                                                                        <FaClock className='w-4 h-4 text-green-500' />
+                                                                        <span>{event.attendees.length} attendees</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Action Buttons */}
+                                                            <div className='flex items-center gap-3'>
+                                                                {event.link && (
+                                                                    <Link
+                                                                        href={event.link}
+                                                                        target='_blank'
+                                                                        rel='noopener noreferrer'
+                                                                        className='flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors duration-200'
+                                                                    >
+                                                                        <FaExternalLinkAlt className='w-4 h-4' />
+                                                                        Learn More
+                                                                    </Link>
+                                                                )}
+                                                                
+                                                                <Link
+                                                                    href={`/Events/Register/${event._id}`}
+                                                                    className='px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200'
+                                                                >
+                                                                    Register
+                                                                </Link>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
-                                </div>
-                            )
-                        })}
-                    </div>
+                                )}
 
-                    {/* No Events Message */}
-                    {data.list.length === 0 && (
-                        <div className='text-center py-12'>
-                            <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-                                <FaCalendarAlt className='w-8 h-8 text-gray-400' />
-                            </div>
-                            <h3 className='text-lg font-medium text-gray-900 mb-2'>No events found</h3>
-                            <p className='text-gray-600'>Check back soon for upcoming events and activities.</p>
-                        </div>
-                    )}
+                                {/* Past Events Section */}
+                                {pastEvents.length > 0 && (
+                                    <div>
+                                        <div className='text-center mb-12'>
+                                            <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
+                                                Past Events
+                                            </h2>
+                                            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+                                                Relive the memories from our previous events and activities
+                                            </p>
+                                        </div>
+
+                                        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                                            {pastEvents.map((event) => {
+                                                const eventDate = new Date(event.date)
+                                                
+                                                return (
+                                                    <div
+                                                        key={event._id as string}
+                                                        className='bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 opacity-75 hover:opacity-100'
+                                                    >
+                                                        {/* Event Image */}
+                                                        {event.image && (
+                                                            <div className='relative h-64 bg-gradient-to-br from-gray-100 to-gray-200'>
+                                                                <Image
+                                                                    src={event.image as string}
+                                                                    alt={event.title}
+                                                                    fill
+                                                                    className='object-contain'
+                                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                                />
+                                                                <div className='absolute top-4 left-4'>
+                                                                    <span className='px-3 py-1 bg-gray-500 text-white text-xs font-medium rounded-full'>
+                                                                        Past Event
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Event Content */}
+                                                        <div className='p-6'>
+                                                            <h3 className='text-xl font-bold text-gray-900 mb-3 line-clamp-2'>
+                                                                {event.title}
+                                                            </h3>
+                                                            
+                                                            <p className='text-gray-600 text-sm mb-4 line-clamp-3'>
+                                                                {event.description}
+                                                            </p>
+
+                                                            {/* Event Details */}
+                                                            <div className='space-y-2 mb-4'>
+                                                                <div className='flex items-center gap-2 text-sm text-gray-600'>
+                                                                    <FaCalendarAlt className='w-4 h-4 text-gray-500' />
+                                                                    <span>{formatDate(eventDate)}</span>
+                                                                </div>
+                                                                
+                                                                {event.location && (
+                                                                    <div className='flex items-center gap-2 text-sm text-gray-600'>
+                                                                        <FaMapMarkerAlt className='w-4 h-4 text-gray-500' />
+                                                                        <span>{event.location}</span>
+                                                                    </div>
+                                                                )}
+
+                                                                {event.attendees && event.attendees.length > 0 && (
+                                                                    <div className='flex items-center gap-2 text-sm text-gray-600'>
+                                                                        <FaClock className='w-4 h-4 text-gray-500' />
+                                                                        <span>{event.attendees.length} attendees</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Action Buttons */}
+                                                            <div className='flex items-center gap-3'>
+                                                                {event.link && (
+                                                                    <Link
+                                                                        href={event.link}
+                                                                        target='_blank'
+                                                                        rel='noopener noreferrer'
+                                                                        className='flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-200'
+                                                                    >
+                                                                        <FaExternalLinkAlt className='w-4 h-4' />
+                                                                        View Details
+                                                                    </Link>
+                                                                )}
+                                                                
+                                                                <button className='px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200'>
+                                                                    View Photos
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* No Events Message */}
+                                {data.list.length === 0 && (
+                                    <div className='text-center py-12'>
+                                        <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+                                            <FaCalendarAlt className='w-8 h-8 text-gray-400' />
+                                        </div>
+                                        <h3 className='text-lg font-medium text-gray-900 mb-2'>No events found</h3>
+                                        <p className='text-gray-600'>Check back soon for upcoming events and activities.</p>
+                                    </div>
+                                )}
+                            </>
+                        )
+                    })()}
                 </div>
             </Container>
         </div>

@@ -22,12 +22,42 @@ const AddPhotoGallery = ({ setData, isEdit, editData, setOpen }: Props) => {
     })
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
+    const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
     useEffect(() => {
         if (isEdit) {
             setValue(editData as PhotoGallery)
         }
     }, [isEdit, editData])
+
+    // Handle blob URL creation and cleanup for image preview
+    useEffect(() => {
+        if (value.image instanceof File) {
+            const url = URL.createObjectURL(value.image)
+            setBlobUrl(url)
+            
+            // Cleanup function
+            return () => {
+                URL.revokeObjectURL(url)
+                setBlobUrl(null)
+            }
+        } else {
+            // Clean up any existing blob URL
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+                setBlobUrl(null)
+            }
+        }
+    }, [value.image])
+
+    // Cleanup blob URL on component unmount
+    useEffect(() => {
+        return () => {
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+            }
+        }
+    }, [blobUrl])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -191,12 +221,9 @@ const AddPhotoGallery = ({ setData, isEdit, editData, setOpen }: Props) => {
                             <div className="mt-6">
                                 <p className="text-sm font-medium text-gray-700 mb-3">Image Preview:</p>
                                 <div className="relative inline-block">
-                                    {value.image instanceof File ? (
-                                        <Image
-                                            width={0}
-                                            height={0}
-                                            sizes="100vw"
-                                            src={URL.createObjectURL(value.image)}
+                                    {value.image instanceof File && blobUrl ? (
+                                        <img
+                                            src={blobUrl}
                                             alt="photo gallery preview"
                                             className="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-lg"
                                         />

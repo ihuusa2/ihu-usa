@@ -6,12 +6,14 @@ import React, { useEffect, useState } from 'react'
 
 import Spinner from '@/components/Spinner' 
 import { deleteCourse, getAllCourses, searchAllCourses } from '@/Server/Course' 
+import { getAllCourseTypesForSelect } from '@/Server/CourseType'
 
 import Pagination from '@/components/Pagination' 
 import { useSearchParams } from 'next/navigation'
 import Image from "next/image";
 import Link from "next/link";
 import { Search, Eye, Edit, Trash2, Plus, BookOpen, Image as ImageIcon, X } from "lucide-react";
+import type { CourseType } from '@/Types/Courses'
 
 const AdminCourse = () => {
     const searchParams = useSearchParams()
@@ -23,20 +25,33 @@ const AdminCourse = () => {
     const [isSearching, setIsSearching] = useState(false)
     const [selectedImageModal, setSelectedImageModal] = useState<{ images: string[], title: string } | null>(null)
     const [selectedDescriptionModal, setSelectedDescriptionModal] = useState<{ description: string, title: string } | null>(null)
+    const [sort, setSort] = useState<'newest' | 'oldest' | 'title-asc' | 'title-desc'>('newest')
+    const [category, setCategory] = useState<string>('')
+    const [courseTypes, setCourseTypes] = useState<CourseType[]>([])
+
+    // Fetch course types for category filter
+    useEffect(() => {
+        getAllCourseTypesForSelect().then((types) => {
+            setCourseTypes(types || [])
+        })
+    }, [])
 
     useEffect(() => {
         (async () => {
             setLoading(true)
-            await getAllCourses({ searchParams: Object.fromEntries(searchParams.entries()) }).then((courses) => {
+            const params: { [key: string]: string | string[] | undefined } = Object.fromEntries(searchParams.entries())
+            if (sort) params.sort = sort
+            if (category) params.type = category
+            await getAllCourses({ searchParams: params }).then((courses) => {
                 if (courses) {
                     setData(courses.list)
-                    setCount(courses.count) 
+                    setCount(courses.count)
                 }
             }).finally(() => {
                 setLoading(false)
             })
         })()
-    }, [searchParams])
+    }, [searchParams, sort, category])
 
     // Handle search with debouncing
     useEffect(() => {
@@ -86,7 +101,7 @@ const AdminCourse = () => {
                     </div>
                 </div>
 
-                {/* Search and Stats */}
+                {/* Search, Sort, and Stats */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                         <div className="relative flex-1 max-w-md">
@@ -103,6 +118,30 @@ const AdminCourse = () => {
                                     <Spinner size="1rem" />
                                 </div>
                             )}
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                            {/* Sort Dropdown */}
+                            <select
+                                value={sort}
+                                onChange={e => setSort(e.target.value as 'newest' | 'oldest' | 'title-asc' | 'title-desc')}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="newest">Newest</option>
+                                <option value="oldest">Oldest</option>
+                                <option value="title-asc">Title A-Z</option>
+                                <option value="title-desc">Title Z-A</option>
+                            </select>
+                            {/* Category Dropdown */}
+                            <select
+                                value={category}
+                                onChange={e => setCategory(e.target.value)}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">All Categories</option>
+                                {courseTypes.map((ct) => (
+                                    <option key={ct._id} value={ct.title}>{ct.title}</option>
+                                ))}
+                            </select>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-gray-600">
                             <div className="flex items-center gap-2">

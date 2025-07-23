@@ -146,6 +146,15 @@ const AdminSidebar = () => {
       hoverColor: 'hover:bg-pink-50'
     },
     {
+      title: 'Event Registrations',
+      href: '/admin/Event-Registrations',
+      icon: FaClipboardList,
+      color: 'text-pink-500',
+      bgColor: 'bg-pink-50',
+      borderColor: 'border-pink-200',
+      hoverColor: 'hover:bg-pink-50'
+    },
+    {
       title: 'Photo Gallery',
       href: '/admin/Photo-Gallery',
       icon: FaImages,
@@ -377,7 +386,7 @@ const AdminSidebar = () => {
                 
                 {/* Tooltip for collapsed state */}
                 {isCollapsed && !isMobile && (
-                  <div className="absolute left-full ml-3 top-1/2 transform -translate-y-1/2 
+                  <div className="absolute left-full ml-3 top-1/2  -translate-y-1/2 
                                 bg-gray-900 text-white text-sm rounded-xl px-3 py-2
                                 opacity-0 group-hover:opacity-100 transition-all duration-300
                                 pointer-events-none whitespace-nowrap z-50 shadow-2xl
@@ -421,7 +430,7 @@ const AdminSidebar = () => {
             
             {/* Tooltip for collapsed sign out */}
             {isCollapsed && !isMobile && (
-              <div className="absolute left-full ml-3 top-1/2 transform -translate-y-1/2 
+              <div className="absolute left-full ml-3 top-1/2  -translate-y-1/2 
                             bg-gray-900 text-white text-sm rounded-xl px-3 py-2
                             opacity-0 group-hover:opacity-100 transition-all duration-300
                             pointer-events-none whitespace-nowrap z-50 shadow-2xl

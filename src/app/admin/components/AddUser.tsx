@@ -27,12 +27,42 @@ const AddUser = ({ setData, setOpen, isEdit, editData }: Props) => {
     })
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
+    const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
     useEffect(() => {
         if (isEdit && editData) {
             setValue(editData as User)
         }
     }, [isEdit, editData])
+
+    // Handle blob URL creation and cleanup for image preview
+    useEffect(() => {
+        if (value.image instanceof File) {
+            const url = URL.createObjectURL(value.image)
+            setBlobUrl(url)
+            
+            // Cleanup function
+            return () => {
+                URL.revokeObjectURL(url)
+                setBlobUrl(null)
+            }
+        } else {
+            // Clean up any existing blob URL
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+                setBlobUrl(null)
+            }
+        }
+    }, [value.image])
+
+    // Cleanup blob URL on component unmount
+    useEffect(() => {
+        return () => {
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+            }
+        }
+    }, [blobUrl])
 
     console.log(editData)
 
@@ -138,12 +168,10 @@ const AddUser = ({ setData, setOpen, isEdit, editData }: Props) => {
                                 {/* Image Preview */}
                                 {value.image && (
                                     <div className="flex-shrink-0">
-                                        {value.image instanceof File ? (
+                                        {value.image instanceof File && blobUrl ? (
                                             <div className="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200">
-                                                <Image
-                                                    width={80}
-                                                    height={80}
-                                                    src={URL.createObjectURL(value.image)}
+                                                <img
+                                                    src={blobUrl}
                                                     alt="Profile preview"
                                                     className="w-full h-full object-cover"
                                                 />

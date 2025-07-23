@@ -29,6 +29,7 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
     const [message, setMessage] = useState('')
     const [success, setSuccess] = useState('')
     const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null)
+    const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
     useEffect(() => {
         if (isEdit) {
@@ -46,6 +47,35 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
             })
         }
     }, [value.slug, isEdit, editData?._id])
+
+    // Handle blob URL creation and cleanup for image preview
+    useEffect(() => {
+        if (value.image instanceof File) {
+            const url = URL.createObjectURL(value.image)
+            setBlobUrl(url)
+            
+            // Cleanup function
+            return () => {
+                URL.revokeObjectURL(url)
+                setBlobUrl(null)
+            }
+        } else {
+            // Clean up any existing blob URL
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+                setBlobUrl(null)
+            }
+        }
+    }, [value.image, blobUrl])
+
+    // Cleanup blob URL on component unmount
+    useEffect(() => {
+        return () => {
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+            }
+        }
+    }, [blobUrl])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -199,7 +229,7 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
                         </div>
 
                         <div>
-                            <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                            <label htmlFor="author" className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                                 <FaUser className="text-blue-500" />
                                 Author
                             </label>
@@ -289,13 +319,23 @@ const AddBlog = ({ setData, setOpen, isEdit, editData }: Props) => {
                         {value.image && (
                             <div className="flex items-center gap-4 p-4 bg-white rounded-lg border border-purple-200">
                                 <div className="flex-shrink-0">
-                                    <SafeImage
-                                        width={120}
-                                        height={80}
-                                        src={value.image instanceof File ? URL.createObjectURL(value.image) : value.image as string}
-                                        alt="Blog featured image"
-                                        className="w-30 h-20 object-cover rounded-lg border-2 border-purple-200"
-                                    />
+                                    {value.image instanceof File && blobUrl ? (
+                                        <SafeImage
+                                            width={120}
+                                            height={80}
+                                            src={blobUrl}
+                                            alt="Blog featured image"
+                                            className="w-30 h-20 object-cover rounded-lg border-2 border-purple-200"
+                                        />
+                                    ) : (
+                                        <SafeImage
+                                            width={120}
+                                            height={80}
+                                            src={value.image as string}
+                                            alt="Blog featured image"
+                                            className="w-30 h-20 object-cover rounded-lg border-2 border-purple-200"
+                                        />
+                                    )}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-900 truncate">

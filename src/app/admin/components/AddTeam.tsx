@@ -44,12 +44,33 @@ const AddTeam = ({ setData, setOpen, isEdit, editData }: Props) => {
     const [messageType, setMessageType] = useState<'success' | 'error'>('error')
     const [teamTypes, setTeamTypes] = useState<TeamType[]>()
     const [formErrors, setFormErrors] = useState<{[key: string]: string}>({})
+    const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
     useEffect(() => {
         if (isEdit) {
             setValue(editData as Team)
         }
     }, [isEdit, editData])
+
+    // Handle blob URL creation and cleanup for image preview
+    useEffect(() => {
+        if (value.image instanceof File) {
+            const url = URL.createObjectURL(value.image)
+            setBlobUrl(url)
+            
+            // Cleanup function
+            return () => {
+                URL.revokeObjectURL(url)
+                setBlobUrl(null)
+            }
+        } else {
+            // Clean up any existing blob URL
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+                setBlobUrl(null)
+            }
+        }
+    }, [value.image, blobUrl])
 
     const validateForm = () => {
         const errors: {[key: string]: string} = {}
@@ -196,11 +217,10 @@ const AddTeam = ({ setData, setOpen, isEdit, editData }: Props) => {
                             <div className="flex-shrink-0">
                                 {value.image ? (
                                     <div className="relative group">
-                                        {value.image instanceof File ? (
-                                            <Image
-                                                width={120}
-                                                height={120}
-                                                src={URL.createObjectURL(value.image)}
+                                        {value.image instanceof File && blobUrl ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                src={blobUrl}
                                                 alt="Preview"
                                                 className="w-30 h-30 rounded-xl object-cover shadow-lg border-4 border-white"
                                             />
@@ -234,7 +254,7 @@ const AddTeam = ({ setData, setOpen, isEdit, editData }: Props) => {
 
                             {/* Upload Input */}
                             <div className="flex-1">
-                                <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                <label htmlFor="image" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                                     <FaCloudUploadAlt className="w-4 h-4" />
                                     Choose Image File
                                 </label>

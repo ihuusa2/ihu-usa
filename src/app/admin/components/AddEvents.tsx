@@ -31,6 +31,7 @@ const AddEvents = ({ setData, isEdit, editData, setOpen }: Props) => {
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
     const [imageError, setImageError] = useState(false)
+    const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
     useEffect(() => {
         if (isEdit && editData) {
@@ -46,6 +47,36 @@ const AddEvents = ({ setData, isEdit, editData, setOpen }: Props) => {
     useEffect(() => {
         setImageError(false)
     }, [value.image])
+
+    // Handle blob URL creation and cleanup for image preview
+    useEffect(() => {
+        if (value.image instanceof File) {
+            const url = URL.createObjectURL(value.image)
+            setBlobUrl(url)
+            
+            // Cleanup function
+            return () => {
+                URL.revokeObjectURL(url)
+            }
+        } else {
+            // Clean up any existing blob URL
+            setBlobUrl((prevBlobUrl) => {
+                if (prevBlobUrl) {
+                    URL.revokeObjectURL(prevBlobUrl)
+                }
+                return null
+            })
+        }
+    }, [value.image])
+
+    // Cleanup blob URL on component unmount
+    useEffect(() => {
+        return () => {
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+            }
+        }
+    }, [blobUrl])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -278,9 +309,9 @@ const AddEvents = ({ setData, isEdit, editData, setOpen }: Props) => {
                             <div className="mt-4">
                                 <p className="text-sm font-medium text-gray-700 mb-3">Image Preview:</p>
                                 <div className="relative inline-block">
-                                    {value.image instanceof File ? (
+                                    {value.image instanceof File && blobUrl ? (
                                         <Image
-                                            src={URL.createObjectURL(value.image)}
+                                            src={blobUrl}
                                             alt="event image preview"
                                             width={128}
                                             height={128}
@@ -292,17 +323,23 @@ const AddEvents = ({ setData, isEdit, editData, setOpen }: Props) => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </div>
-                                    ) : (
+                                    ) : typeof value.image === 'string' && value.image.trim() !== '' ? (
                                         <Image
-                                            src={value.image as string}
+                                            src={value.image}
                                             alt="event image preview"
                                             width={128}
                                             height={128}
                                             className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
                                             onError={() => setImageError(true)}
                                         />
+                                    ) : (
+                                        <div className="w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg border-2 border-gray-200 shadow-sm flex items-center justify-center">
+                                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
                                     )}
-                                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 rounded-lg"></div>
+                                    <div className="absolute inset-0 bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 rounded-lg"></div>
                                 </div>
                             </div>
                         )}

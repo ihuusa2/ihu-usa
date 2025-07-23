@@ -28,6 +28,7 @@ const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
     const [success, setSuccess] = useState('')
+    const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
     useEffect(() => {
         if (isEdit && editData) {
@@ -44,6 +45,26 @@ const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
             }
         }
     }, [isEdit, editData])
+
+    // Handle blob URL creation and cleanup for image preview
+    useEffect(() => {
+        if (value.image instanceof File) {
+            const url = URL.createObjectURL(value.image)
+            setBlobUrl(url)
+            
+            // Cleanup function
+            return () => {
+                URL.revokeObjectURL(url)
+                setBlobUrl(null)
+            }
+        } else {
+            // Clean up any existing blob URL
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl)
+                setBlobUrl(null)
+            }
+        }
+    }, [value.image, blobUrl])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -191,7 +212,7 @@ const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
                         </div>
 
                         <div>
-                            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2 items-center gap-2">
                                 <FaMapMarkerAlt className="text-blue-500" />
                                 Location *
                             </label>
@@ -221,7 +242,7 @@ const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label htmlFor="attendees" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                            <label htmlFor="attendees" className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                                 <FaUsers className="text-purple-500" />
                                 Attendees
                             </label>
@@ -239,7 +260,7 @@ const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
                         </div>
 
                         <div>
-                            <label htmlFor="link" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                            <label htmlFor="link" className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                                 <FaLink className="text-indigo-500" />
                                 Webinar Link
                             </label>
@@ -299,13 +320,22 @@ const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
                         {value.image && (
                             <div className="flex items-center gap-4 p-4 bg-white rounded-lg border border-purple-200">
                                 <div className="flex-shrink-0">
-                                    <Image
-                                        width={80}
-                                        height={80}
-                                        src={value.image instanceof File ? URL.createObjectURL(value.image) : value.image as string}
-                                        alt="Webinar preview"
-                                        className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200"
-                                    />
+                                    {value.image instanceof File && blobUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={blobUrl}
+                                            alt="Webinar preview"
+                                            className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200"
+                                        />
+                                    ) : (
+                                        <Image
+                                            width={80}
+                                            height={80}
+                                            src={value.image as string}
+                                            alt="Webinar preview"
+                                            className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200"
+                                        />
+                                    )}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-900 truncate">

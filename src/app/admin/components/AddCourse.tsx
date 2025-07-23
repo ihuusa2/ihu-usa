@@ -461,7 +461,7 @@ const AddCourse = ({ setData, setOpen, onSuccess, isEdit, editData }: Props) => 
                                         <div className="space-y-2">
                                             <label htmlFor="instructor" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                                                 <span className="w-2 h-2 bg-teal-500 rounded-full"></span>
-                                                Instructor
+                                                Meet the Dean
                                             </label>
                                             <input
                                                 disabled={loading}

@@ -315,7 +315,7 @@ const SingleCourse = async ({ params }: Props) => {
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-[var(--spiritual-blue)]">Instructor</h4>
+                                        <h4 className="font-bold text-[var(--spiritual-blue)]">Meet the Dean</h4>
                                         <p className="text-gray-600 text-sm">{data.instructor}</p>
                                     </div>
                                 </div>
@@ -414,10 +414,10 @@ const SingleCourse = async ({ params }: Props) => {
                                     href="/Contact"
                                     className="block w-full py-3 border-2 border-[var(--spiritual-blue)] text-[var(--spiritual-blue)] font-semibold rounded-xl text-center hover:bg-[var(--spiritual-blue)] hover:text-white transition-all duration-300"
                                 >
-                                    Contact Instructor
+                                    Contact Dean
                                 </Link>
                                 <Link 
-                                    href="/Courses"
+                                    href="/Courses/certificate"
                                     className="block w-full py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-xl text-center hover:bg-gray-50 transition-all duration-300"
                                 >
                                     Browse More Courses
@@ -427,21 +427,6 @@ const SingleCourse = async ({ params }: Props) => {
                     </div>
                 </div>
             </Container>
-
-            {/* Sticky Registration CTA */}
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-5 w-full max-w-md px-4 pointer-events-auto">
-                <Link 
-                    href={registrationUrl} 
-                    className="block w-full py-4 bg-gradient-to-r from-[var(--orange-saffron)] to-[var(--amber-gold)] text-white text-xl font-bold rounded-2xl shadow-2xl text-center hover:from-[var(--amber-gold)] hover:to-[var(--orange-saffron)] transition-all duration-300 animate-glow hover:scale-105 transform hover:-translate-y-1 cursor-pointer"
-                >
-                    <span className="flex items-center justify-center gap-2">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        Register for this Course
-                    </span>
-                </Link>
-            </div>
         </div>
     )
 }
