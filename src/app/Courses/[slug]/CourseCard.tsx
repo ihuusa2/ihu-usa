@@ -20,14 +20,15 @@ const CourseCard = async ({ item, className = '', isHighlighted = false }: Props
             )}
 
             {/* Image Section */}
-            <div className='relative w-full h-48 sm:h-52 md:h-56 lg:h-60 xl:h-64 overflow-hidden'>
+            <div className='relative w-full h-48 sm:h-56 md:h-64 lg:h-72 overflow-hidden'>
                 <Image 
                     src={item.images?.[0] as string} 
                     alt={item.title}
                     fill
-                    sizes='(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw'
-                    className='object-cover object-center group-hover:scale-110 transition-transform duration-700'
+                    className='object-cover object-center group-hover:scale-105 transition-transform duration-700'
                     priority={isHighlighted}
+                    unoptimized
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
                 
                 {/* Gradient Overlay */}

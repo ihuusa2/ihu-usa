@@ -1,76 +1,74 @@
 const cloudinaryImageUploadMethod = async (file: File) => {
-  // Check if API key is configured
-  if (!process.env.CLOUDINARY_API_KEY) {
-    console.error('CLOUDINARY_API_KEY is not configured');
-    throw new Error('Cloudinary API key is not configured. Please add CLOUDINARY_API_KEY to your environment variables.');
-  }
+  const formData = new FormData();
+  formData.append('files', file);
 
-  const fileFormData = new FormData();
-  fileFormData.append("file", file);
-  fileFormData.append("upload_preset", "ihuusa");
-  fileFormData.append("api_key", process.env.CLOUDINARY_API_KEY);
-
-  console.log('Uploading to Cloudinary:', {
+  console.log('Uploading image:', {
     fileName: file.name,
     fileSize: file.size,
-    fileType: file.type,
-    uploadPreset: 'ihuusa',
-    hasApiKey: !!process.env.CLOUDINARY_API_KEY
+    fileType: file.type
   });
 
   try {
-    const response = await fetch(
-      "https://api.cloudinary.com/v1_1/df2vybyev/auto/upload",
-      {
-        method: "POST",
-        body: fileFormData,
-      }
-    );
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
 
-    console.log('Cloudinary response status:', response.status);
+    console.log('Upload API response status:', response.status);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Cloudinary error response:', errorText);
-      throw new Error(`Cloudinary upload failed: ${response.status} ${response.statusText}`);
+      const errorData = await response.json();
+      console.error('Upload API error response:', errorData);
+      throw new Error(`Upload failed: ${errorData.error || response.statusText}`);
     }
 
     const data = await response.json();
-    console.log('Cloudinary upload successful:', {
-      secure_url: data.secure_url,
-      public_id: data.public_id,
-      format: data.format
-    });
+    console.log('Upload successful:', data);
     
-    if (data.error) {
-      throw new Error(`Cloudinary error: ${data.error.message}`);
+    if (!data.success || !data.urls || data.urls.length === 0) {
+      throw new Error('Upload response is missing URLs');
     }
 
-    return data;
+    return { secure_url: data.urls[0] };
   } catch (error) {
-    console.error('Cloudinary upload error:', error);
+    console.error('Upload error:', error);
     throw error;
   }
 };
 
 const cloudinaryVideoUploadMethod = async (file: File) => {
-  const fileFormData = new FormData();
-  fileFormData.append("file", file);
-  fileFormData.append("upload_preset", "ihuusa");
-  fileFormData.append("resource_type", "video");
-  fileFormData.append("api_key", process.env.CLOUDINARY_API_KEY as string);
+  const formData = new FormData();
+  formData.append('files', file);
+  formData.append('resource_type', 'video');
 
-  const data = await fetch(
-    "https://api.cloudinary.com/v1_1/df2vybyev/video/upload",
-    {
-      method: "POST",
-      body: fileFormData,
+  console.log('Uploading video:', {
+    fileName: file.name,
+    fileSize: file.size,
+    fileType: file.type
+  });
+
+  try {
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Video upload failed: ${errorData.error || response.statusText}`);
     }
-  )
-    .then((res) => res.json())
-    .catch((error) => error);
 
-  return data;
+    const data = await response.json();
+    
+    if (!data.success || !data.urls || data.urls.length === 0) {
+      throw new Error('Video upload response is missing URLs');
+    }
+
+    return { secure_url: data.urls[0] };
+  } catch (error) {
+    console.error('Video upload error:', error);
+    throw error;
+  }
 };
 
 export default cloudinaryImageUploadMethod;

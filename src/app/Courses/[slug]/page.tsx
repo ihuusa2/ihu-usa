@@ -20,8 +20,46 @@ const Container = ({ children, className = '' }: { children: React.ReactNode, cl
 
 // Custom Pagination Component
 const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
+    // Generate page numbers to show
+    const getPageNumbers = () => {
+        const pages = []
+        const maxVisiblePages = 5
+        
+        if (totalPages <= maxVisiblePages) {
+            // Show all pages if total is small
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i)
+            }
+        } else {
+            // Show smart pagination with ellipsis
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) {
+                    pages.push(i)
+                }
+                pages.push('...')
+                pages.push(totalPages)
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1)
+                pages.push('...')
+                for (let i = totalPages - 3; i <= totalPages; i++) {
+                    pages.push(i)
+                }
+            } else {
+                pages.push(1)
+                pages.push('...')
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pages.push(i)
+                }
+                pages.push('...')
+                pages.push(totalPages)
+            }
+        }
+        
+        return pages
+    }
+
     return (
-        <div className="flex justify-center items-center gap-4 mt-12">
+        <div className="flex justify-center items-center gap-2 mt-12 mb-16">
             <button
                 className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => onPageChange(currentPage - 1)}
@@ -29,11 +67,26 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: nu
             >
                 Previous
             </button>
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">
-                    Page {currentPage} of {totalPages}
-                </span>
+            
+            <div className="flex items-center gap-1">
+                {getPageNumbers().map((page, index) => (
+                    <button
+                        key={index}
+                        onClick={() => typeof page === 'number' ? onPageChange(page) : null}
+                        disabled={page === '...'}
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                            page === currentPage
+                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
+                                : page === '...'
+                                ? 'text-gray-400 cursor-default'
+                                : 'text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+                        }`}
+                    >
+                        {page}
+                    </button>
+                ))}
             </div>
+            
             <button
                 className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 border border-transparent rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => onPageChange(currentPage + 1)}
@@ -57,14 +110,15 @@ const CourseCard = ({ item, isHighlighted = false }: { item: Course, isHighlight
             )}
 
             {/* Image Section */}
-            <div className="relative w-full h-48 sm:h-52 md:h-56 lg:h-60 xl:h-64 overflow-hidden">
+            <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[3/2] overflow-hidden">
                 <Image 
                     src={item.images?.[0] as string} 
                     alt={item.title}
                     fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                    className="object-cover object-center group-hover:scale-110 transition-transform duration-700"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                     priority={isHighlighted}
+                    unoptimized
                 />
                 
                 {/* Gradient Overlay */}
@@ -331,9 +385,10 @@ const Courses = ({ params, searchParams }: Props) => {
                 const searchParamsList = await searchParams
                 const data: { list: Course[], count: number } = await getAllCourses({ 
                     params: { type: slug }, 
-                    searchParams: searchParamsList 
+                    searchParams: { ...searchParamsList, pageSize: '100' } // Fetch all courses
                 }) as { list: Course[], count: number }
                 
+                console.log(`Fetched ${data.list?.length || 0} courses out of ${data.count || 0} total for type: ${slug}`)
                 setCourses(data.list || [])
                 setOriginalCount(data.count || 0)
             } catch (error) {
@@ -539,16 +594,32 @@ const Courses = ({ params, searchParams }: Props) => {
 
                 {/* Course Grid */}
                 {filteredCourses.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-16">
-                        {paginatedCourses.map((item, index) => (
-                            <div key={item._id?.toString()} className="group">
-                                <CourseCard 
-                                    item={item} 
-                                    isHighlighted={index < 3 && currentPage === 1} // Highlight first 3 courses on first page only
-                                />
-                            </div>
-                        ))}
-                    </div>
+                    <>
+                        {/* Pagination Info */}
+                        <div className="text-center mb-6 text-gray-600">
+                            Showing {paginatedCourses.length} of {filteredCourses.length} courses 
+                            {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-8">
+                            {paginatedCourses.map((item, index) => (
+                                <div key={item._id?.toString()} className="group">
+                                    <CourseCard 
+                                        item={item} 
+                                        isHighlighted={index < 3 && currentPage === 1} // Highlight first 3 courses on first page only
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <Pagination 
+                                currentPage={currentPage} 
+                                totalPages={totalPages} 
+                                onPageChange={setCurrentPage} 
+                            />
+                        )}
+                    </>
                 ) : (
                     <NoResults searchQuery={searchQuery} selectedLevel={selectedLevel} />
                 )}
@@ -618,13 +689,6 @@ const Courses = ({ params, searchParams }: Props) => {
                         ))}
                     </div>
                 </div>
-
-                {/* Pagination */}
-                <Pagination 
-                    currentPage={currentPage} 
-                    totalPages={totalPages} 
-                    onPageChange={setCurrentPage} 
-                />
             </Container>
         </div>
     )
