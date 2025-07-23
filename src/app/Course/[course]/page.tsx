@@ -414,7 +414,7 @@ const SingleCourse = async ({ params }: Props) => {
                                     href="/Contact"
                                     className="block w-full py-3 border-2 border-[var(--spiritual-blue)] text-[var(--spiritual-blue)] font-semibold rounded-xl text-center hover:bg-[var(--spiritual-blue)] hover:text-white transition-all duration-300"
                                 >
-                                    Contact Dean
+                                    Contact
                                 </Link>
                                 <Link 
                                     href="/Courses/certificate"

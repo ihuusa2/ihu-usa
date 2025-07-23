@@ -53,7 +53,7 @@ const AddUser = ({ setData, setOpen, isEdit, editData }: Props) => {
                 setBlobUrl(null)
             }
         }
-    }, [value.image])
+    }, [value.image, blobUrl])
 
     // Cleanup blob URL on component unmount
     useEffect(() => {
@@ -170,9 +170,11 @@ const AddUser = ({ setData, setOpen, isEdit, editData }: Props) => {
                                     <div className="flex-shrink-0">
                                         {value.image instanceof File && blobUrl ? (
                                             <div className="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200">
-                                                <img
+                                                <Image
                                                     src={blobUrl}
                                                     alt="Profile preview"
+                                                    width={80}
+                                                    height={80}
                                                     className="w-full h-full object-cover"
                                                 />
                                             </div>

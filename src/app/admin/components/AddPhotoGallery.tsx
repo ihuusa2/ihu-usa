@@ -48,7 +48,7 @@ const AddPhotoGallery = ({ setData, isEdit, editData, setOpen }: Props) => {
                 setBlobUrl(null)
             }
         }
-    }, [value.image])
+    }, [value.image, blobUrl])
 
     // Cleanup blob URL on component unmount
     useEffect(() => {
@@ -222,9 +222,11 @@ const AddPhotoGallery = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 <p className="text-sm font-medium text-gray-700 mb-3">Image Preview:</p>
                                 <div className="relative inline-block">
                                     {value.image instanceof File && blobUrl ? (
-                                        <img
+                                        <Image
                                             src={blobUrl}
                                             alt="photo gallery preview"
+                                            width={192}
+                                            height={192}
                                             className="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-lg"
                                         />
                                     ) : (

@@ -319,7 +319,7 @@ const AdminUsers = () => {
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center gap-3">
                                                             <div className="relative">
-                                                                {user.image ? (
+                                                                {typeof user.image === "string" && user.image.trim() !== "" ? (
                                                                     <Image
                                                                         src={user.image as string} 
                                                                         alt={user.name}
