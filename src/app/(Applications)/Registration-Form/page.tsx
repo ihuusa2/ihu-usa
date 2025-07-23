@@ -222,31 +222,59 @@ const RegistrationForm = () => {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
             <div className="w-full px-4 md:px-12 lg:px-32 pt-8 pb-4">
-                <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 border border-orange-200 rounded-2xl shadow-lg p-8 mb-8 w-full flex flex-col items-center">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-center mb-3 text-orange-700 flex items-center gap-2">
-                        <span role="img" aria-label="Namaste">🙏</span> Namaste!
-                    </h1>
-                    <p className="text-gray-800 text-base md:text-lg text-center mb-4 max-w-2xl">
-                        Thank you for choosing <span className="font-semibold text-orange-700">International Hindu University</span> for your learning journey!
-                    </p>
-                    <ul className="text-gray-700 text-sm md:text-base text-left mb-4 max-w-2xl space-y-2 list-disc list-inside">
-                        <li>Please fill out this application to the best of your ability.</li>
-                        <li>Once admission is granted, you may register for desired courses in consultation with your academic advisor at IHU.</li>
-                        <li>Details of tuition and other fees are available on our website or can be obtained from the IHU office.</li>
-                        <li>Contact us at <a href="mailto:contact@ihu-usa.org" className="text-blue-600 underline font-medium">contact@ihu-usa.org</a></li>
-                    </ul>
-                    <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
-                        <div className="bg-green-100 border border-green-300 rounded-lg px-4 py-2 text-green-800 font-semibold text-sm flex items-center gap-2">
-                            <span>One-time non-refundable application fee:</span>
-                            <span className="bg-green-200 rounded px-2 py-1">$20</span>
-                            {/* <span className="bg-green-200 rounded px-2 py-1">INR 750 (India)</span> */}
+                                <div className="bg-white border border-orange-200 rounded-xl shadow-lg p-6 mb-8 w-full">
+                    {/* Simple Header */}
+                    <div className="text-center mb-6">
+                        <h1 className="text-3xl font-bold text-orange-600 mb-2">Namaste!</h1>
+                        <p className="text-lg text-gray-700">
+                            Welcome to <span className="font-semibold text-orange-600">International Hindu University</span>
+                        </p>
+                    </div>
+
+                    {/* Simple Content */}
+                    <div className="space-y-4 mb-6">
+                        <div className="bg-orange-50 rounded-lg p-4">
+                            <h3 className="font-semibold text-gray-800 mb-2">Getting Started</h3>
+                            <ul className="text-gray-700 space-y-1 text-sm">
+                                <li>• Please fill out this application to the best of your ability</li>
+                                <li>• Once admitted, register for courses with your academic advisor</li>
+                                <li>• Tuition details available on our website or IHU office</li>
+                            </ul>
+                        </div>
+
+                        <div className="bg-green-50 rounded-lg p-4">
+                            <div className="flex justify-between items-center">
+                                <span className="font-semibold text-gray-800">Application Fee:</span>
+                                <span className="text-xl font-bold text-green-600">$20</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">One-time non-refundable fee</p>
+                        </div>
+
+                        <div className="bg-blue-50 rounded-lg p-4">
+                            <h3 className="font-semibold text-gray-800 mb-2">Quick Response</h3>
+                            <p className="text-sm text-gray-700">
+                                We&apos;ll notify you within <span className="font-semibold">two weeks</span> of receiving your application.
+                            </p>
+                        </div>
+
+                        <div className="bg-purple-50 rounded-lg p-4">
+                            <h3 className="font-semibold text-gray-800 mb-2">Instant Access</h3>
+                            <p className="text-sm text-gray-700">
+                                Your <span className="font-semibold">IHU ID</span> will be activated after payment and form submission.
+                            </p>
                         </div>
                     </div>
-                    <ul className="text-gray-700 text-sm md:text-base text-left mb-4 max-w-2xl space-y-2 list-disc list-inside">
-                        <li className="flex items-start gap-2"><span className="mt-1">⏱️</span> No need to wait months after applying. We will notify you of the acceptance decision within <span className="font-semibold text-orange-700">two weeks</span> of receiving your application and required material.</li>
-                        <li className="flex items-start gap-2"><span className="mt-1">✅</span> After payment of registration fees and submission of your application form, your <span className="font-semibold text-orange-700">IHU ID</span> will be activated.</li>
-                    </ul>
-                    <p className="text-gray-600 text-xs text-center max-w-xl mt-2">Looking forward to having you become a part of the IHU family!</p>
+
+                    {/* Simple Contact */}
+                    <div className="text-center">
+                        <p className="text-gray-600 text-sm mb-2">Need help? Contact us at</p>
+                        <a 
+                            href="mailto:contact@ihu-usa.org" 
+                            className="text-orange-600 font-semibold hover:underline"
+                        >
+                            contact@ihu-usa.org
+                        </a>
+                    </div>
                 </div>
             </div>
             <div className="w-full px-4 md:px-12 lg:px-32 bg-white border border-gray-200 rounded-xl shadow-xl p-8 pb-16">

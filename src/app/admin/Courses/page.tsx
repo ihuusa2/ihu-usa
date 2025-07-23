@@ -512,7 +512,7 @@ const Action = ({ course, setData }: ActionProps) => {
             {/* Delete Modal */}
             {deletePopup && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-md w-full">
+                    <div className="bg-white rounded-xl max-w-lg w-full">
                         <div className="p-6 border-b border-gray-200">
                             <div className="flex items-center gap-2 text-red-600">
                                 <Trash2 size={20} />
@@ -521,8 +521,11 @@ const Action = ({ course, setData }: ActionProps) => {
                         </div>
                         <div className="p-6 space-y-4">
                             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                <p className="text-sm text-red-800">
-                                    Are you sure you want to delete <strong>&ldquo;{course.title}&rdquo;</strong>? 
+                                <p className="text-sm text-red-800 break-words whitespace-normal w-full break-all">
+                                    Are you sure you want to delete?
+                                    <strong className="break-words whitespace-normal w-full max-w-full block break-all">
+                                        &ldquo;{course.title}&rdquo;
+                                    </strong>
                                     This action cannot be undone.
                                 </p>
                             </div>
