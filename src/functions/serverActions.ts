@@ -12,8 +12,8 @@ export function parseQuery(searchParams: { [key: string]: string | string[] | un
                 let parsedValue: string | ObjectId | RegExp | number | Date;
                 if (key === 'sortBy' || key === 'sortOrder' || key === 'page' || key === 'pageSize') {
                     parsedValue = value as string;
-                } else if (key === 'search') {
-                    // We'll handle this in the server (convert to $or regex)
+                } else if (key === 'search' || key === 'type') {
+                    // Keep these as strings for manual handling
                     parsedValue = value as string;
                 } else if (ObjectId.isValid(value as string)) {
                     parsedValue = new ObjectId(value as string);

@@ -5,11 +5,11 @@ import { H1 } from '@/components/Headings/index'
 import React, { useEffect, useState } from 'react' 
 
 import Spinner from '@/components/Spinner' 
-import { deleteCourse, getAllCourses, searchAllCourses } from '@/Server/Course' 
+import { deleteCourse, getAllCourses } from '@/Server/Course' 
 import { getAllCourseTypesForSelect } from '@/Server/CourseType'
 
 import Pagination from '@/components/Pagination' 
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Image from "next/image";
 import Link from "next/link";
 import { Search, Eye, Edit, Trash2, Plus, BookOpen, Image as ImageIcon, X } from "lucide-react";
@@ -17,17 +17,29 @@ import type { CourseType } from '@/Types/Courses'
 
 const AdminCourse = () => {
     const searchParams = useSearchParams()
+    const router = useRouter()
+    const pathname = usePathname()
     const [data, setData] = useState<Course[]>([])
     const [loading, setLoading] = useState(true)
     const [count, setCount] = useState(0)
-    const [searchTerm, setSearchTerm] = useState('')
-    const [searchResults, setSearchResults] = useState<Course[]>([])
-    const [isSearching, setIsSearching] = useState(false)
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
     const [selectedImageModal, setSelectedImageModal] = useState<{ images: string[], title: string } | null>(null)
     const [selectedDescriptionModal, setSelectedDescriptionModal] = useState<{ description: string, title: string } | null>(null)
-    const [sort, setSort] = useState<'newest' | 'oldest' | 'title-asc' | 'title-desc'>('newest')
-    const [category, setCategory] = useState<string>('')
+    const [sort, setSort] = useState<'newest' | 'oldest' | 'title-asc' | 'title-desc'>(searchParams.get('sort') as 'newest' | 'oldest' | 'title-asc' | 'title-desc' || 'newest')
+    const [category, setCategory] = useState<string>(searchParams.get('type') || '')
     const [courseTypes, setCourseTypes] = useState<CourseType[]>([])
+
+    // Update URL params when search, sort, or category changes
+    useEffect(() => {
+        const params = new URLSearchParams(Array.from(searchParams.entries()))
+        if (searchTerm) params.set('search', searchTerm)
+        else params.delete('search')
+        if (sort) params.set('sort', sort)
+        else params.delete('sort')
+        if (category) params.set('type', category)
+        else params.delete('type')
+        router.replace(`${pathname}?${params.toString()}`)
+    }, [searchTerm, sort, category, router, pathname, searchParams])
 
     // Fetch course types for category filter
     useEffect(() => {
@@ -40,8 +52,6 @@ const AdminCourse = () => {
         (async () => {
             setLoading(true)
             const params: { [key: string]: string | string[] | undefined } = Object.fromEntries(searchParams.entries())
-            if (sort) params.sort = sort
-            if (category) params.type = category
             await getAllCourses({ searchParams: params }).then((courses) => {
                 if (courses) {
                     setData(courses.list)
@@ -51,33 +61,10 @@ const AdminCourse = () => {
                 setLoading(false)
             })
         })()
-    }, [searchParams, sort, category])
+    }, [searchParams])
 
-    // Handle search with debouncing
-    useEffect(() => {
-        const timeoutId = setTimeout(async () => {
-            if (searchTerm.trim()) {
-                setIsSearching(true)
-                try {
-                    const results = await searchAllCourses(searchTerm)
-                    setSearchResults(results)
-                } catch (error) {
-                    console.error('Search error:', error)
-                    setSearchResults([])
-                } finally {
-                    setIsSearching(false)
-                }
-            } else {
-                setSearchResults([])
-                setIsSearching(false)
-            }
-        }, 300) // 300ms debounce
-
-        return () => clearTimeout(timeoutId)
-    }, [searchTerm])
-
-    // Use search results when searching, otherwise use paginated data
-    const displayData = searchTerm.trim() ? searchResults : data
+    // Use data directly since server-side filtering handles the search
+    const displayData = data
 
     return (
         <div className="w-full min-h-full bg-gray-50">
@@ -113,11 +100,7 @@ const AdminCourse = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                             />
-                            {isSearching && (
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                    <Spinner size="1rem" />
-                                </div>
-                            )}
+
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                             {/* Sort Dropdown */}
@@ -146,7 +129,7 @@ const AdminCourse = () => {
                         <div className="flex items-center gap-4 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                <span>Total: {searchTerm.trim() ? searchResults.length : count}</span>
+                                <span>Total: {count}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -357,7 +340,11 @@ const AdminCourse = () => {
                             <p className="text-gray-600">Try adjusting your search criteria</p>
                             <button 
                                 className="mt-4 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                                onClick={() => setSearchTerm('')}
+                                onClick={() => {
+                                    setSearchTerm('')
+                                    setSort('newest')
+                                    setCategory('')
+                                }}
                             >
                                 Clear search
                             </button>
@@ -365,8 +352,8 @@ const AdminCourse = () => {
                     )}
                 </div>
 
-                {/* Pagination - Only show when not searching */}
-                {!searchTerm && <Pagination count={count} />}
+                {/* Pagination */}
+                <Pagination count={count} />
             </div>
 
             {/* Image Modal */}
@@ -437,7 +424,6 @@ const AdminCourse = () => {
 type ActionProps = {
     course: Course
     setData: React.Dispatch<React.SetStateAction<Course[]>>
-    setSearchResults?: React.Dispatch<React.SetStateAction<Course[]>>
 }
 
 const Action = ({ course, setData }: ActionProps) => {
@@ -447,7 +433,7 @@ const Action = ({ course, setData }: ActionProps) => {
     const handleDelete = async () => {
         setLoading(true)
         await deleteCourse(course._id as string).then(() => {
-            // Remove from both data and searchResults
+            // Remove from data
             setData((prev) => prev.filter((c) => c._id !== course._id))
             setDeletePopup(false)
         }).finally(() => setLoading(false))

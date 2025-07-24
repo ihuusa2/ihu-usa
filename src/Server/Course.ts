@@ -17,7 +17,7 @@ export const getAllCourses = async ({ params, searchParams }: {
     searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<{ list: Course[]; count: number } | null> => {
 
-    const { page = 0, pageSize = 10, sort, ...query } = parseQuery(searchParams) as { page: string; pageSize: string; sort?: string; [key: string]: unknown };
+    const { page = 0, pageSize = 10, sort, search, ...query } = parseQuery(searchParams) as { page: string; pageSize: string; sort?: string; search?: string; [key: string]: unknown };
     const pageNumber: number = Number(page);
     const pageSizeNumber: number = Number(pageSize);
 
@@ -30,13 +30,30 @@ export const getAllCourses = async ({ params, searchParams }: {
         else if (sort === 'title-desc') sortObj = { title: -1 };
     }
 
-    const list = await Courses.find({ ...params, ...query })
+    // Build the query object
+    let mongoQuery: Record<string, unknown> = { ...params, ...query };
+    
+    // If search parameter exists, create a $or query to search across multiple fields
+    if (search && typeof search === 'string' && search.trim()) {
+        const searchRegex = new RegExp(search, 'i');
+        mongoQuery = {
+            ...mongoQuery,
+            $or: [
+                { title: searchRegex },
+                { slug: searchRegex },
+                { description: searchRegex },
+                { type: searchRegex }
+            ]
+        };
+    }
+
+    const list = await Courses.find(mongoQuery)
         .sort(sortObj)
         .skip(pageNumber * pageSizeNumber)
         .limit(pageSizeNumber)
         .toArray();
 
-    const count = await Courses.countDocuments({ ...params, ...query });
+    const count = await Courses.countDocuments(mongoQuery);
 
     if (!list) return null;
 
