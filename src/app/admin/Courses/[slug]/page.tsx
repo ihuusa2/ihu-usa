@@ -25,7 +25,11 @@ const AdminSubject = () => {
     useEffect(() => {
         (async () => {
             setLoading(true)
-            await getAllSubjects({ courseSlug: params.slug as string, searchParams: Object.fromEntries(searchParams.entries()) }).then((subjects) => {
+            const page = parseInt(searchParams.get('page') || '1', 10);
+            await getAllSubjects({
+                courseSlug: params.slug as string,
+                searchParams: { ...Object.fromEntries(searchParams.entries()), page: page.toString() }
+            }).then((subjects) => {
                 if (subjects) {
                     setData(subjects.list)
                     setCount(subjects.count)
@@ -48,6 +52,8 @@ const AdminSubject = () => {
         
         return matchesSearch && matchesFilter
     })
+
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">

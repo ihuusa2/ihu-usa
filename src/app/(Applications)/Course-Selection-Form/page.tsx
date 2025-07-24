@@ -176,7 +176,7 @@ const CourseSelectionForm = () => {
                                     <select
                                         value={value.course}
                                         onChange={async (e) => {
-                                            setValue(prev => ({ ...prev, course: e.target.value, program: '', subjects: [] }))
+                                            setValue(prev => ({ ...prev, course: e.target.value, subjects: [] }))
                                             if (e.target.value) {
                                                 await getAllCourses({
                                                     params: { type: e.target.value }, searchParams: {
