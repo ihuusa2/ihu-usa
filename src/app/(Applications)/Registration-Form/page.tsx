@@ -436,7 +436,7 @@ const RegistrationForm = () => {
                                     </li>
                                     <li className="flex items-center">
                                         <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
-                                        <strong>INR xxxx</strong> for applicants residing within India
+                                        <strong>INR 850</strong> for applicants residing within India
                                     </li>
                                 </ul>
                             </div>
