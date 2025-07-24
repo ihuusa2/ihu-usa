@@ -355,74 +355,10 @@ const AddCourse = ({ setData, setOpen, onSuccess, isEdit, editData }: Props) => 
                                         </div>
                                     </div>
 
-                                    {/* Pricing Section */}
-                                    <div className="mt-6">
-                                        <label className="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-4">
-                                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                                            Course Pricing
-                                        </label>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <label htmlFor="inr-price" className="block text-sm font-medium text-gray-700">
-                                                    INR Price (₹)
-                                                </label>
-                                                <div className="relative">
-                                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
-                                                        ₹
-                                                    </span>
-                                                    <input
-                                                        disabled={loading}
-                                                        type="number"
-                                                        id="inr-price"
-                                                        name="inr-price"
-                                                        value={value.price?.[0]?.amount || 0}
-                                                        onChange={(e) => setValue({ 
-                                                            ...value, 
-                                                            price: [
-                                                                { type: 'INR', amount: parseFloat(e.target.value) || 0 }, 
-                                                                { type: 'USD', amount: value.price?.[1]?.amount || 0 }
-                                                            ] 
-                                                        })}
-                                                        min="0"
-                                                        step="0.01"
-                                                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                                                        placeholder="0.00"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label htmlFor="usd-price" className="block text-sm font-medium text-gray-700">
-                                                    USD Price ($)
-                                                </label>
-                                                <div className="relative">
-                                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
-                                                        $
-                                                    </span>
-                                                    <input
-                                                        disabled={loading}
-                                                        type="number"
-                                                        id="usd-price"
-                                                        name="usd-price"
-                                                        value={value.price?.[1]?.amount || 0}
-                                                        onChange={(e) => setValue({ 
-                                                            ...value, 
-                                                            price: [
-                                                                { type: 'INR', amount: value.price?.[0]?.amount || 0 }, 
-                                                                { type: 'USD', amount: parseFloat(e.target.value) || 0 }
-                                                            ] 
-                                                        })}
-                                                        min="0"
-                                                        step="0.01"
-                                                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                                                        placeholder="0.00"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+
 
                                     {/* Course Details Section */}
-                                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label htmlFor="duration" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                                                 <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
@@ -438,25 +374,6 @@ const AddCourse = ({ setData, setOpen, onSuccess, isEdit, editData }: Props) => 
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
                                                 placeholder="e.g., 8 weeks, 3 months"
                                             />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label htmlFor="level" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                                                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                                                Level
-                                            </label>
-                                            <select
-                                                disabled={loading}
-                                                id="level"
-                                                name="level"
-                                                value={value.level || 'Beginner'}
-                                                onChange={(e) => setValue({ ...value, level: e.target.value })}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                                            >
-                                                <option value="Beginner">Beginner</option>
-                                                <option value="Intermediate">Intermediate</option>
-                                                <option value="Advanced">Advanced</option>
-                                                <option value="All Levels">All Levels</option>
-                                            </select>
                                         </div>
                                         <div className="space-y-2">
                                             <label htmlFor="instructor" className="text-sm font-semibold text-gray-700 flex items-center gap-2">

@@ -172,7 +172,6 @@ const AdminCourse = () => {
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Preview</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Course Details</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
-                                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Pricing</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Description</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
                                         </tr>
@@ -219,21 +218,6 @@ const AdminCourse = () => {
                                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-300">
                                                         {course.type || 'No Type'}
                                                     </span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    {course.price && course.price.length > 0 && course.price.some(p => p && p.amount > 0) ? (
-                                                        <div className="space-y-1">
-                                                            {course.price.filter(p => p && p.amount > 0).map((p, idx) => (
-                                                                <span key={idx} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                    {p.type === 'INR' ? '₹' : '$'}{p.amount}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                            Free
-                                                        </span>
-                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="max-w-xs">
@@ -310,22 +294,6 @@ const AdminCourse = () => {
                                                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-300">
                                                             {course.type || 'No Type'}
                                                         </span>
-                                                    </div>
-
-                                                    <div>
-                                                        {course.price && course.price.length > 0 && course.price.some(p => p && p.amount > 0) ? (
-                                                            <div className="flex flex-wrap gap-1">
-                                                                {course.price.filter(p => p && p.amount > 0).map((p, idx) => (
-                                                                    <span key={idx} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                        {p.type === 'INR' ? '₹' : '$'}{p.amount}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        ) : (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                                Free
-                                                            </span>
-                                                        )}
                                                     </div>
 
                                                     <div>
