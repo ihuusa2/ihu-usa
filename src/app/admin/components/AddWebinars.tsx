@@ -51,20 +51,13 @@ const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
         if (value.image instanceof File) {
             const url = URL.createObjectURL(value.image)
             setBlobUrl(url)
-            
-            // Cleanup function
             return () => {
                 URL.revokeObjectURL(url)
-                setBlobUrl(null)
             }
         } else {
-            // Clean up any existing blob URL
-            if (blobUrl) {
-                URL.revokeObjectURL(blobUrl)
-                setBlobUrl(null)
-            }
+            setBlobUrl(null)
         }
-    }, [value.image, blobUrl])
+    }, [value.image])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -328,13 +321,15 @@ const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
                                             className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200"
                                         />
                                     ) : (
-                                        <Image
-                                            width={80}
-                                            height={80}
-                                            src={value.image as string}
-                                            alt="Webinar preview"
-                                            className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200"
-                                        />
+                                        typeof value.image === "string" && value.image !== "" && (
+                                            <Image
+                                                width={80}
+                                                height={80}
+                                                src={value.image}
+                                                alt="Webinar preview"
+                                                className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200"
+                                            />
+                                        )
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">

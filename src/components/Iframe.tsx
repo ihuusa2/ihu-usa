@@ -7,6 +7,17 @@ type Props = {
     data: { _id: string, title: string, description: string, link: string }[]
 }
 
+const getYouTubeVideoId = (url: string) => {
+    const regExp = /^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[1].length === 11) ? match[1] : null;
+};
+
+const getYouTubeEmbedUrl = (url: string) => {
+    const videoId = getYouTubeVideoId(url);
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+};
+
 const Iframe = ({ data }: Props) => {
 
     return (
@@ -70,22 +81,46 @@ const Iframe = ({ data }: Props) => {
                                             </div>
                                         </div>
 
-                                        {/* Video Iframe */}
-                                        <iframe
-                                            className='w-full h-full rounded-3xl'
-                                            src={item.link}
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                            onLoad={() => {
-                                                const loader = document.getElementById(`loader-${item._id}`);
-                                                if (loader) {
-                                                    loader.style.opacity = '0';
-                                                    loader.style.transform = 'scale(0.95)';
-                                                    setTimeout(() => loader.remove(), 400);
+                                        {/* Video Iframe or Video Tag */}
+                                        {/(\.mp4$|\.webm$|\.ogg$|\.mov$|\.m4v$|\.avi$|\.wmv$|\.flv$|\.mkv$)/i.test(item.link) ? (
+                                            <video
+                                                className='w-full h-full rounded-3xl'
+                                                src={item.link}
+                                                controls
+                                                poster={undefined}
+                                                onLoadedData={() => {
+                                                    const loader = document.getElementById(`loader-${item._id}`);
+                                                    if (loader) {
+                                                        loader.style.opacity = '0';
+                                                        loader.style.transform = 'scale(0.95)';
+                                                        setTimeout(() => loader.remove(), 400);
+                                                    }
+                                                }}
+                                                title={item.title || `Video ${item._id}`}
+                                            >
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        ) : (
+                                            <iframe
+                                                className='w-full h-full rounded-3xl'
+                                                src={
+                                                    item.link.includes('youtube.com') || item.link.includes('youtu.be')
+                                                        ? getYouTubeEmbedUrl(item.link)
+                                                        : item.link
                                                 }
-                                            }}
-                                            title={item.title || `Video ${item._id}`}
-                                        ></iframe>
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                                onLoad={() => {
+                                                    const loader = document.getElementById(`loader-${item._id}`);
+                                                    if (loader) {
+                                                        loader.style.opacity = '0';
+                                                        loader.style.transform = 'scale(0.95)';
+                                                        setTimeout(() => loader.remove(), 400);
+                                                    }
+                                                }}
+                                                title={item.title || `Video ${item._id}`}
+                                            ></iframe>
+                                        )}
 
                                         {/* Enhanced Video Overlay Info */}
                                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-8 transform translate-y-full group-hover:translate-y-0 transition-all duration-500 ease-out">

@@ -134,7 +134,7 @@ const AdminEvents = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [editingEvent, setEditingEvent] = useState<Events | null>(null)
     const [search, setSearch] = useState(searchParams.get('search') || '')
-    const [sortOrder, setSortOrder] = useState(searchParams.get('sortOrder') || 'desc')
+    const [sortOrder] = useState('desc') // Always descending
 
     // Update URL params when search or sort changes
     useEffect(() => {
@@ -336,17 +336,6 @@ const AdminEvents = () => {
                                 onChange={e => setSearch(e.target.value)}
                                 className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
                             />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <label className="text-sm text-gray-700 font-medium">Sort by date:</label>
-                            <select
-                                value={sortOrder}
-                                onChange={e => setSortOrder(e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                            >
-                                <option value="desc">Newest First</option>
-                                <option value="asc">Oldest First</option>
-                            </select>
                         </div>
                     </div>
                     {/* Statistics Cards */}

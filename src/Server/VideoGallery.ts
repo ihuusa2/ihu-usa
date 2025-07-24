@@ -22,6 +22,7 @@ export const getAllVideos = async ({ searchParams }: {
     const pageSizeNumber: number = Number(pageSize);
 
     const list = await VideoGallery.find({})
+        .sort({ _id: -1 }) // Sort by latest added first
         .skip(pageNumber * pageSizeNumber)
         .limit(pageSizeNumber)
         .toArray()
