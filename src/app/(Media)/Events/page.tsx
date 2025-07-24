@@ -217,18 +217,6 @@ const Events = async({ searchParams }: Props) => {
 
                                                             {/* Action Buttons */}
                                                             <div className='flex items-center gap-3'>
-                                                                {event.link && (
-                                                                    <Link
-                                                                        href={event.link}
-                                                                        target='_blank'
-                                                                        rel='noopener noreferrer'
-                                                                        className='flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors duration-200'
-                                                                    >
-                                                                        <FaExternalLinkAlt className='w-4 h-4' />
-                                                                        Learn More
-                                                                    </Link>
-                                                                )}
-                                                                
                                                                 <Link
                                                                     href={`/Events/Register/${event._id}`}
                                                                     className='px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200'
