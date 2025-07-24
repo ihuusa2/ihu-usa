@@ -80,12 +80,7 @@ export const searchAllCourses = async (searchTerm: string): Promise<Course[]> =>
     const searchRegex = new RegExp(searchTerm, 'i');
     
     const list = await Courses.find({
-        $or: [
-            { title: searchRegex },
-            { type: searchRegex },
-            { slug: searchRegex },
-            { description: searchRegex }
-        ]
+        title: searchRegex
     }).toArray();
 
     if (!list) return [];
