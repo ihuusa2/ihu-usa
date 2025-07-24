@@ -221,9 +221,9 @@ const AdminCourse = () => {
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    {course.price && course.price.length > 0 ? (
+                                                    {course.price && course.price.length > 0 && course.price.some(p => p && p.amount > 0) ? (
                                                         <div className="space-y-1">
-                                                            {course.price.map((p, idx) => (
+                                                            {course.price.filter(p => p && p.amount > 0).map((p, idx) => (
                                                                 <span key={idx} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                                     {p.type === 'INR' ? '₹' : '$'}{p.amount}
                                                                 </span>
@@ -313,9 +313,9 @@ const AdminCourse = () => {
                                                     </div>
 
                                                     <div>
-                                                        {course.price && course.price.length > 0 ? (
+                                                        {course.price && course.price.length > 0 && course.price.some(p => p && p.amount > 0) ? (
                                                             <div className="flex flex-wrap gap-1">
-                                                                {course.price.map((p, idx) => (
+                                                                {course.price.filter(p => p && p.amount > 0).map((p, idx) => (
                                                                     <span key={idx} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                                         {p.type === 'INR' ? '₹' : '$'}{p.amount}
                                                                     </span>
