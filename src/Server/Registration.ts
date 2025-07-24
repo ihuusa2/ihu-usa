@@ -53,7 +53,7 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
     // Send confirmation email to the user with BCC to admin for sent box copy
     try {
         await handleMail({
-            email: rest.emailAddress,
+            email: `${rest.emailAddress}, ${process.env.CONTACT_FORM_EMAIL}`,
             html: RegistrationMailTemplateForStudent({ data: { ...rest, registrationNumber } }),
             sub: "Application Received - IHU",
         })
