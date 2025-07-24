@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Connect to database
-        const db = client.db()
+        const db = client.db('test')
         
         // Check if user is already registered for this event
         const existingRegistration = await db.collection('eventRegistrations').findOne({
@@ -69,13 +69,14 @@ export async function POST(request: NextRequest) {
         // Insert the registration
         const result = await db.collection('eventRegistrations').insertOne({
             ...body,
-            registrationDate: new Date(),
+            registrationDate: body.registrationDate ? new Date(body.registrationDate) : new Date(),
             createdAt: new Date()
         })
 
-        // Update the event's attendees count
+        // Update the event's attendees count (events are in ihuusa database)
         interface EventDoc { attendees: string[] }
-        await db.collection<EventDoc>('events').updateOne(
+        const ihuusaDb = client.db('ihuusa')
+        await ihuusaDb.collection<EventDoc>('Events').updateOne(
             { _id: new ObjectId(body.eventId) },
             { $push: { attendees: body.email } }
         )
@@ -100,17 +101,15 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url)
         const eventId = searchParams.get('eventId')
         
-        if (!eventId) {
-            return NextResponse.json(
-                { success: false, error: 'Event ID is required' },
-                { status: 400 }
-            )
+        const db = client.db('test')
+        
+        let query = {}
+        if (eventId) {
+            query = { eventId }
         }
-
-        const db = client.db()
         
         const registrations = await db.collection('eventRegistrations')
-            .find({ eventId })
+            .find(query)
             .sort({ registrationDate: -1 })
             .toArray()
 

@@ -405,7 +405,7 @@ const Courses = ({ params, searchParams }: Props) => {
         return (
             <div className="min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-orange-50">
                 <Container>
-                    <div className="text-center space-y-6 max-w-2xl mx-auto">
+                    <div className="text-center space-y-6 max-w-2xl mx-auto mt-10">
                         <div className="w-32 h-32 mx-auto bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center">
                             <svg className="w-16 h-16 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -415,7 +415,7 @@ const Courses = ({ params, searchParams }: Props) => {
                         <p className="text-gray-600 text-lg leading-relaxed">
                             We&apos;re working on adding new courses in this category. Check back soon for exciting learning opportunities, or explore our other course categories.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12 mb-10 sm:mt-8 sm:mb-8">
                             <Link href="/Courses/Certificate" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                 Browse All Courses
                             </Link>
@@ -441,25 +441,24 @@ const Courses = ({ params, searchParams }: Props) => {
             <div className="bg-gradient-to-r from-orange-600 via-red-500 to-orange-700 text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-black/20"></div>
                 <div className="absolute inset-0 bg-[url('/Images/about1.png')] bg-cover bg-center opacity-10"></div>
-                <Container className="relative py-20 md:py-28">
+                <Container className="relative py-16 md:py-28 px-2 sm:px-4">
                     <div className="text-center max-w-4xl mx-auto space-y-6">
-                        <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
+                        <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-xs sm:text-sm font-medium">
                             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
                             {filteredCourses.length} of {originalCount} Courses Available
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+                        <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold leading-tight">
                             Master {slug} with <span className="text-yellow-300">Expert Guidance</span>
                         </h1>
-                        <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+                        <p className="text-base sm:text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
                             Transform your spiritual journey with our comprehensive {slug.toLowerCase()} courses designed by renowned experts and spiritual masters.
                         </p>
-                        
                         {/* Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-2xl mx-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8 sm:mt-12 max-w-2xl mx-auto">
                             {Object.entries(courseStats).map(([key, value]) => (
                                 <div key={key} className="text-center">
-                                    <div className="text-3xl md:text-4xl font-bold text-yellow-300">{value}</div>
-                                    <div className="text-white/80 capitalize font-medium mt-1">
+                                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-yellow-300">{value}</div>
+                                    <div className="text-white/80 capitalize font-medium mt-1 text-xs sm:text-base">
                                         {key === 'totalStudents' ? 'Students Enrolled' : 
                                          key === 'completionRate' ? 'Completion Rate' : 
                                          'Average Rating'}
@@ -472,8 +471,8 @@ const Courses = ({ params, searchParams }: Props) => {
             </div>
 
             {/* Features Section */}
-            <Container className="py-16">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <Container className="py-10 sm:py-16">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-16">
                     {[
                         {
                             icon: "🎓",
@@ -491,21 +490,21 @@ const Courses = ({ params, searchParams }: Props) => {
                             description: "Earn recognized certificates upon course completion"
                         }
                     ].map((feature, index) => (
-                        <div key={index} className="text-center p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
-                            <div className="text-4xl mb-4">{feature.icon}</div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                            <p className="text-gray-600">{feature.description}</p>
+                        <div key={index} className="text-center p-4 sm:p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                            <div className="text-3xl sm:text-4xl mb-2 sm:mb-4">{feature.icon}</div>
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">{feature.title}</h3>
+                            <p className="text-gray-600 text-sm sm:text-base">{feature.description}</p>
                         </div>
                     ))}
                 </div>
 
                 {/* Course Grid Header */}
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
-                    <div>
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6 mb-8 sm:mb-12 w-full">
+                    <div className="w-full lg:w-auto">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
                             Available {slug} Courses
                         </h2>
-                        <p className="text-gray-600 text-lg">
+                        <p className="text-gray-600 text-base sm:text-lg">
                             {searchQuery || selectedLevel ? (
                                 <>
                                     Found {filteredCourses.length} courses matching your criteria
@@ -526,25 +525,26 @@ const Courses = ({ params, searchParams }: Props) => {
                             )}
                         </p>
                     </div>
-                    
                     {/* Search and Filter */}
-                    <SearchAndFilter 
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        selectedLevel={selectedLevel}
-                        setSelectedLevel={setSelectedLevel}
-                    />
+                    <div className="w-full lg:w-auto">
+                        <SearchAndFilter 
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            selectedLevel={selectedLevel}
+                            setSelectedLevel={setSelectedLevel}
+                        />
+                    </div>
                 </div>
 
                 {/* Course Grid */}
                 {filteredCourses.length > 0 ? (
                     <>
                         {/* Pagination Info */}
-                        <div className="text-center mb-6 text-gray-600">
+                        <div className="text-center mb-4 sm:mb-6 text-gray-600 text-sm sm:text-base">
                             Showing {paginatedCourses.length} of {filteredCourses.length} courses 
                             {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
                             {paginatedCourses.map((item, index) => (
                                 <div key={item._id?.toString()} className="group">
                                     <CourseCard 
@@ -554,7 +554,6 @@ const Courses = ({ params, searchParams }: Props) => {
                                 </div>
                             ))}
                         </div>
-                        
                         {/* Pagination */}
                         {totalPages > 1 && (
                             <Pagination 
@@ -569,21 +568,21 @@ const Courses = ({ params, searchParams }: Props) => {
                 )}
 
                 {/* Call to Action Section */}
-                <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-8 md:p-12 text-white text-center relative overflow-hidden mb-16">
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 text-white text-center relative overflow-hidden mb-10 sm:mb-16">
                     <div className="absolute inset-0 bg-[url('/Images/mission.png')] bg-cover bg-center opacity-10"></div>
-                    <div className="relative space-y-6">
-                        <h2 className="text-3xl md:text-4xl font-bold">Ready to Begin Your Spiritual Journey?</h2>
-                        <p className="text-xl text-white/90 max-w-2xl mx-auto">
+                    <div className="relative space-y-4 sm:space-y-6">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Ready to Begin Your Spiritual Journey?</h2>
+                        <p className="text-base sm:text-xl text-white/90 max-w-2xl mx-auto">
                             Join thousands of students who have transformed their lives through our authentic spiritual education programs.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="/Registration-Form" className="inline-flex items-center justify-center px-8 py-4 bg-white text-orange-600 font-bold rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                            <a href="/Registration-Form" className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-orange-600 font-bold rounded-lg sm:rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm sm:text-base">
                                 <span>Start Your Application</span>
                                 <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
                             </a>
-                            <a href="/Contact" className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-medium rounded-xl hover:bg-white hover:text-orange-600 transition-all duration-300">
+                            <a href="/Contact" className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-medium rounded-lg sm:rounded-xl hover:bg-white hover:text-orange-600 transition-all duration-300 text-sm sm:text-base">
                                 Talk to an Advisor
                             </a>
                         </div>
@@ -591,11 +590,11 @@ const Courses = ({ params, searchParams }: Props) => {
                 </div>
 
                 {/* Testimonials Preview */}
-                <div className="mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">
+                <div className="mb-10 sm:mb-16">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center mb-8 sm:mb-12">
                         What Our Students Say
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                         {[
                             {
                                 quote: "The depth of knowledge and spiritual guidance I received transformed my understanding completely.",
@@ -616,18 +615,18 @@ const Courses = ({ params, searchParams }: Props) => {
                                 rating: 5
                             }
                         ].map((testimonial, index) => (
-                            <div key={index} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                                <div className="flex mb-4">
+                            <div key={index} className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                                <div className="flex mb-2 sm:mb-4">
                                     {[...Array(testimonial.rating)].map((_, i) => (
-                                        <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                         </svg>
                                     ))}
                                 </div>
-                                <p className="text-gray-700 mb-4 italic">&ldquo;{testimonial.quote}&rdquo;</p>
+                                <p className="text-gray-700 mb-2 sm:mb-4 italic text-sm sm:text-base">&ldquo;{testimonial.quote}&rdquo;</p>
                                 <div>
-                                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                                    <div className="text-sm text-gray-500">{testimonial.course} Student</div>
+                                    <div className="font-semibold text-gray-900 text-sm sm:text-base">{testimonial.name}</div>
+                                    <div className="text-xs sm:text-sm text-gray-500">{testimonial.course} Student</div>
                                 </div>
                             </div>
                         ))}

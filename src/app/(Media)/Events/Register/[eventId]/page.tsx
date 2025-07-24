@@ -128,7 +128,10 @@ const EventRegistrationPage = () => {
             const response = await fetch('/api/event-registrations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...value }),
+                body: JSON.stringify({ 
+                    ...value,
+                    registrationDate: new Date().toISOString()
+                }),
             })
             
             const result = await response.json()

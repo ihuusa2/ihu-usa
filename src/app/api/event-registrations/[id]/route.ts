@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/mongo'
+import client from '@/lib/mongo'
 import { ObjectId } from 'mongodb'
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -11,6 +11,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
                 { status: 400 }
             )
         }
+
+        const db = client.db('test')
 
         // Get the registration to find the event ID and email
         const registration = await db.collection('eventRegistrations').findOne({ _id: new ObjectId(id) })
@@ -25,9 +27,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
         // Delete the registration
         await db.collection('eventRegistrations').deleteOne({ _id: new ObjectId(id) })
 
-        // Remove the email from the event's attendees array
-        await db.collection('events').updateOne(
-            { _id: registration.eventId },
+        // Remove the email from the event's attendees array (events are in ihuusa database)
+        const ihuusaDb = client.db('ihuusa')
+        await ihuusaDb.collection('Events').updateOne(
+            { _id: new ObjectId(registration.eventId) },
             { $pull: { attendees: registration.email } }
         )
 
