@@ -17,16 +17,30 @@ export const getAllEvents = async ({ searchParams }: {
     searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<{ list: Events[]; count: number } | null> => {
 
-    const { page = 0, pageSize = 10, ...query } = parseQuery(searchParams) as { page: string; pageSize: string; [key: string]: unknown };
+    const { page = 0, pageSize = 10, sortBy = 'date', sortOrder = 'desc', search, ...query } = parseQuery(searchParams) as { page: string; pageSize: string; sortBy?: string; sortOrder?: string; search?: string; [key: string]: unknown };
     const pageNumber: number = Number(page);
     const pageSizeNumber: number = Number(pageSize);
+    const sortField = typeof sortBy === 'string' ? sortBy : 'date';
+    const sortDirection = sortOrder === 'asc' ? 1 : -1;
 
-    const list = await Events.find(query)
+    let mongoQuery = { ...query };
+    if (search && typeof search === 'string' && search.trim() !== '') {
+        mongoQuery = {
+            ...mongoQuery,
+            $or: [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ]
+        };
+    }
+
+    const list = await Events.find(mongoQuery)
+        .sort({ [sortField]: sortDirection })
         .skip(pageNumber * pageSizeNumber)
         .limit(pageSizeNumber)
         .toArray()
 
-    const count = await Events.countDocuments(query)
+    const count = await Events.countDocuments(mongoQuery)
 
     if (!list) return null
 

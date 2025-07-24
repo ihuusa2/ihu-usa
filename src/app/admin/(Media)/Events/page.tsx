@@ -12,6 +12,7 @@ import AddEvent from "../../components/AddEvents";
 import Image from "next/image";
 import { formatDate } from '@/utils/dateFormatter';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaPlus, FaEdit, FaTrash, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
+import { useRouter } from 'next/navigation'
 
 // Custom Modal Component
 interface ModalProps {
@@ -125,12 +126,27 @@ const CustomTable = <TData,>({ data, columns, loading = false }: CustomTableProp
 
 const AdminEvents = () => {
     const searchParams = useSearchParams()
+    const router = useRouter()
     const [data, setData] = useState<Events[]>([])
     const [loading, setLoading] = useState(true)
     const [count, setCount] = useState(0)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [editingEvent, setEditingEvent] = useState<Events | null>(null)
+    const [search, setSearch] = useState(searchParams.get('search') || '')
+    const [sortOrder, setSortOrder] = useState(searchParams.get('sortOrder') || 'desc')
+
+    // Update URL params when search or sort changes
+    useEffect(() => {
+        const params = new URLSearchParams(Array.from(searchParams.entries()))
+        if (search) params.set('search', search)
+        else params.delete('search')
+        if (sortOrder) params.set('sortOrder', sortOrder)
+        else params.delete('sortOrder')
+        params.set('sortBy', 'date')
+        router.replace(`?${params.toString()}`)
+        // eslint-disable-next-line
+    }, [search, sortOrder])
 
     useEffect(() => {
         (async () => {
@@ -139,6 +155,9 @@ const AdminEvents = () => {
                 if (events && events?.list?.length > 0) {
                     setData(events.list)
                     setCount(events.count)
+                } else {
+                    setData([])
+                    setCount(0)
                 }
             }).finally(() => {
                 setLoading(false)
@@ -150,6 +169,7 @@ const AdminEvents = () => {
     const totalEvents = data.length
     const pastEvents = data.filter(event => new Date(event.date) <= new Date()).length
     const eventsWithImages = data.filter(event => event.image && event.image !== '').length
+    const upcomingEvents = data.filter(event => new Date(event.date) > new Date())
 
     const columns: ColumnDef<Events>[] = [
         {
@@ -306,6 +326,29 @@ const AdminEvents = () => {
                         </div>
                     </div>
 
+                    {/* Search and Sort Controls */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <input
+                                type="text"
+                                placeholder="Search events..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-gray-700 font-medium">Sort by date:</label>
+                            <select
+                                value={sortOrder}
+                                onChange={e => setSortOrder(e.target.value)}
+                                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                            >
+                                <option value="desc">Newest First</option>
+                                <option value="asc">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
                     {/* Statistics Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                         <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-200 shadow-lg hover:shadow-xl transition-all duration-200">
@@ -320,7 +363,18 @@ const AdminEvents = () => {
                             </div>
                         </div>
 
-
+                        {/* Upcoming Event Box (moved here) */}
+                        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-green-200 shadow-lg hover:shadow-xl transition-all duration-200">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-green-600 mb-1">Upcoming Events</p>
+                                    <p className="text-2xl font-bold text-gray-900">{upcomingEvents.length}</p>
+                                </div>
+                                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                                    <FaCalendarAlt className="w-6 h-6 text-white" />
+                                </div>
+                            </div>
+                        </div>
 
                         <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-purple-200 shadow-lg hover:shadow-xl transition-all duration-200">
                             <div className="flex items-center justify-between">

@@ -9,19 +9,15 @@ export function parseQuery(searchParams: { [key: string]: string | string[] | un
         entries
             .filter(([_, value]) => value !== '') // Filter out empty string values
             .map(([key, value]) => {
-
                 let parsedValue: string | ObjectId | RegExp | number | Date;
-
-                if (ObjectId.isValid(value as string)) {
+                if (key === 'sortBy' || key === 'sortOrder' || key === 'page' || key === 'pageSize') {
+                    parsedValue = value as string;
+                } else if (key === 'search') {
+                    // We'll handle this in the server (convert to $or regex)
+                    parsedValue = value as string;
+                } else if (ObjectId.isValid(value as string)) {
                     parsedValue = new ObjectId(value as string);
-                } 
-                // else if (!isNaN(Number(value))) {
-                //     parsedValue = Number(value);
-                // } 
-                // else if (!isNaN(Date.parse(String(value)))) {
-                //     parsedValue = new Date(String(value));
-                // } 
-                else {
+                } else {
                     parsedValue = new RegExp(value as string, 'i');
                 }
                 return [key, parsedValue];
