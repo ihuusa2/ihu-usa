@@ -1,16 +1,17 @@
 'use client'
 
 import type { Subject } from "@/Types/Courses";
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import Spinner from '@/components/Spinner'
 import { deleteSubject, getAllSubjects } from '@/Server/Subjects'
 import Pagination from '@/components/Pagination'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import AddSubject from "../../components/AddSubject";
 
 const AdminSubject = () => {
     const params = useParams()
     const searchParams = useSearchParams()
+    const router = useRouter()
     const [data, setData] = useState<Subject[]>([])
     const [loading, setLoading] = useState(true)
     const [count, setCount] = useState(0)
@@ -18,17 +19,46 @@ const AdminSubject = () => {
     const [editSubject, setEditSubject] = useState<Subject | null>(null)
     const [deleteSubject, setDeleteSubject] = useState<Subject | null>(null)
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
-    const [searchTerm, setSearchTerm] = useState('')
-    const [filterBy, setFilterBy] = useState<'all' | 'free' | 'paid'>('all')
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
+    const [filterBy, setFilterBy] = useState<'all' | 'free' | 'paid'>(searchParams.get('filterBy') as 'all' | 'free' | 'paid' || 'all')
+
+    // Function to update URL parameters
+    const updateURLParams = useCallback((newSearchTerm: string, newFilterBy: string) => {
+        const params = new URLSearchParams(searchParams.toString())
+        if (newSearchTerm) {
+            params.set('search', newSearchTerm)
+        } else {
+            params.delete('search')
+        }
+        if (newFilterBy && newFilterBy !== 'all') {
+            params.set('filterBy', newFilterBy)
+        } else {
+            params.delete('filterBy')
+        }
+        params.delete('page') // Reset to first page when searching/filtering
+        router.push(`?${params.toString()}`)
+    }, [searchParams, router])
+
+    // Debounced search effect
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            updateURLParams(searchTerm, filterBy)
+        }, 500) // 500ms delay
+
+        return () => clearTimeout(timeoutId)
+    }, [searchTerm, filterBy, updateURLParams])
 
 
     useEffect(() => {
         (async () => {
             setLoading(true)
-            const page = parseInt(searchParams.get('page') || '1', 10);
+            const page = parseInt(searchParams.get('page') || '0', 10);
             await getAllSubjects({
                 courseSlug: params.slug as string,
-                searchParams: { ...Object.fromEntries(searchParams.entries()), page: page.toString() }
+                searchParams: { 
+                    ...Object.fromEntries(searchParams.entries()), 
+                    page: page.toString()
+                }
             }).then((subjects) => {
                 if (subjects) {
                     setData(subjects.list)
@@ -40,18 +70,8 @@ const AdminSubject = () => {
         })()
     }, [searchParams, params.slug])
 
-    // Filter data based on search and filter criteria
-    const filteredData = data.filter(subject => {
-        const matchesSearch = subject.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             subject.slug?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             subject.description?.toLowerCase().includes(searchTerm.toLowerCase())
-        
-        const matchesFilter = filterBy === 'all' || 
-                             (filterBy === 'free' && (!subject.price || subject.price.length === 0)) ||
-                             (filterBy === 'paid' && subject.price && subject.price.length > 0)
-        
-        return matchesSearch && matchesFilter
-    })
+    // Use data directly since filtering is now server-side
+    const filteredData = data
 
 
 
@@ -105,7 +125,7 @@ const AdminSubject = () => {
                             </div>
                             <div className="ml-4">
                                 <p className="text-sm font-medium text-gray-600">Total Subjects</p>
-                                <p className="text-2xl font-bold text-gray-900">{count}</p>
+                                <p className="text-2xl font-bold text-gray-900">{filteredData.length}</p>
                             </div>
                         </div>
                     </div>
@@ -119,7 +139,7 @@ const AdminSubject = () => {
                             </div>
                             <div className="ml-4">
                                 <p className="text-sm font-medium text-gray-600">Active Subjects</p>
-                                <p className="text-2xl font-bold text-gray-900">{data.filter(s => s.title).length}</p>
+                                <p className="text-2xl font-bold text-gray-900">{filteredData.filter(s => s.title).length}</p>
                             </div>
                         </div>
                     </div>
@@ -133,7 +153,7 @@ const AdminSubject = () => {
                             </div>
                             <div className="ml-4">
                                 <p className="text-sm font-medium text-gray-600">Paid Subjects</p>
-                                <p className="text-2xl font-bold text-gray-900">{data.filter(s => s.price && s.price.length > 0).length}</p>
+                                <p className="text-2xl font-bold text-gray-900">{filteredData.filter(s => s.price && s.price.length > 0).length}</p>
                             </div>
                         </div>
                     </div>
@@ -147,7 +167,7 @@ const AdminSubject = () => {
                             </div>
                             <div className="ml-4">
                                 <p className="text-sm font-medium text-gray-600">Free Subjects</p>
-                                <p className="text-2xl font-bold text-gray-900">{data.filter(s => !s.price || s.price.length === 0).length}</p>
+                                <p className="text-2xl font-bold text-gray-900">{filteredData.filter(s => !s.price || s.price.length === 0).length}</p>
                             </div>
                         </div>
                     </div>
