@@ -43,6 +43,12 @@ const CourseSelectionForm = () => {
     const [programType, setProgramType] = React.useState<Course[]>([])
     const [subjectType, setSubjectType] = React.useState<SelectSubject[]>([])
     const [showModal, setShowModal] = React.useState(false)
+    const [registrationValidation, setRegistrationValidation] = React.useState({
+        checking: false,
+        exists: false,
+        message: ''
+    })
+    const [validationTimeout, setValidationTimeout] = React.useState<NodeJS.Timeout | null>(null)
 
     useEffect(() => {
         (async () => {
@@ -53,6 +59,19 @@ const CourseSelectionForm = () => {
             })
         })()
     }, [])
+
+    useEffect(() => {
+        if (registrationNumber && registrationNumber.trim() !== '') {
+            validateRegistrationNumber(registrationNumber)
+        }
+        
+        // Cleanup timeout on unmount
+        return () => {
+            if (validationTimeout) {
+                clearTimeout(validationTimeout)
+            }
+        }
+    }, [registrationNumber, validationTimeout])
 
     const requiredFields: Array<keyof Cart> = [
         'course',
@@ -76,7 +95,43 @@ const CourseSelectionForm = () => {
         return isValid
     }
 
-    const isDisabled = loading || !validateFields() || registrationNumber === '' || selectedValue?.length === 0
+    const validateRegistrationNumber = async (regNumber: string) => {
+        if (!regNumber || regNumber.trim() === '') {
+            setRegistrationValidation({
+                checking: false,
+                exists: false,
+                message: ''
+            })
+            return
+        }
+
+        setRegistrationValidation(prev => ({ ...prev, checking: true, message: '' }))
+
+        try {
+            const response = await fetch(`/api/check-registration-number?registrationNumber=${encodeURIComponent(regNumber)}`)
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+            
+            const data = await response.json()
+
+            setRegistrationValidation({
+                checking: false,
+                exists: data.exists,
+                message: data.message
+            })
+        } catch (error) {
+            console.error('Error validating registration number:', error)
+            setRegistrationValidation({
+                checking: false,
+                exists: false,
+                message: 'Error checking registration number availability'
+            })
+        }
+    }
+
+    const isDisabled = loading || !validateFields() || registrationNumber === '' || selectedValue?.length === 0 || !registrationValidation.exists
 
     const customSelectStyles: StylesConfig<{ value: string; label: string }, true> = {
         container: (provided) => ({
@@ -151,17 +206,79 @@ const CourseSelectionForm = () => {
                             <label className='block text-sm font-medium mb-2 text-gray-700'>
                                 Registration Number *
                             </label>
-                            <input
-                                type='text'
-                                value={registrationNumber}
-                                onChange={(e) => {
-                                    setRegistrationNumber(e.target.value)
-                                }}
-                                disabled={loading}
-                                required
-                                className='w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed'
-                                placeholder='Enter your registration number'
-                            />
+                            <div className='relative'>
+                                <input
+                                    type='text'
+                                    value={registrationNumber}
+                                    onChange={(e) => {
+                                        const value = e.target.value
+                                        setRegistrationNumber(value)
+                                        
+                                        // Clear previous timeout
+                                        if (validationTimeout) {
+                                            clearTimeout(validationTimeout)
+                                        }
+                                        
+                                        // Clear validation when user starts typing
+                                        if (registrationValidation.message) {
+                                            setRegistrationValidation({
+                                                checking: false,
+                                                exists: false,
+                                                message: ''
+                                            })
+                                        }
+                                        
+                                        // Debounced validation after 500ms
+                                        if (value.trim() !== '') {
+                                            const timeout = setTimeout(() => {
+                                                validateRegistrationNumber(value)
+                                            }, 500)
+                                            setValidationTimeout(timeout)
+                                        }
+                                    }}
+                                    onBlur={(e) => {
+                                        validateRegistrationNumber(e.target.value)
+                                    }}
+                                    disabled={loading}
+                                    required
+                                    className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                                        registrationValidation.checking 
+                                            ? 'border-yellow-300 bg-yellow-50' 
+                                            : registrationValidation.exists 
+                                                ? 'border-green-300 bg-green-50' 
+                                                : registrationValidation.message && !registrationValidation.exists 
+                                                    ? 'border-red-300 bg-red-50' 
+                                                    : 'border-gray-300'
+                                    }`}
+                                    placeholder='Enter your registration number'
+                                />
+                                {registrationValidation.checking && (
+                                    <div className='absolute inset-y-0 right-0 flex items-center px-3'>
+                                        <Spinner />
+                                    </div>
+                                )}
+                                {!registrationValidation.checking && registrationValidation.exists && (
+                                    <div className='absolute inset-y-0 right-0 flex items-center px-3'>
+                                        <svg className='w-5 h-5 text-green-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+                                        </svg>
+                                    </div>
+                                )}
+                                {!registrationValidation.checking && registrationValidation.message && !registrationValidation.exists && (
+                                    <div className='absolute inset-y-0 right-0 flex items-center px-3'>
+                                        <svg className='w-5 h-5 text-red-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                                        </svg>
+                                    </div>
+                                )}
+                            </div>
+                            {registrationValidation.message && (
+                                <p className={`mt-2 text-sm ${
+                                    registrationValidation.exists ? 'text-green-600' : 'text-red-600'
+                                }`}>
+                                    {registrationValidation.message}
+                                </p>
+                            )}
                         </div>
 
                         {/* Form Grid */}
@@ -396,6 +513,13 @@ const CourseSelectionForm = () => {
                 >
                     {loading ? <Spinner /> : 'Proceed to Payment'}
                 </button>
+                
+                {!registrationValidation.exists && registrationNumber && (
+                    <div className='mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg'>
+                        <p className='font-medium'>Invalid Registration Number</p>
+                        <p className='text-sm mt-1'>Please register first before selecting courses. You can register <a href='/Registration-Form' className='underline hover:text-red-800'>here</a>.</p>
+                    </div>
+                )}
             </Container>
 
             {/* Custom Modal */}
