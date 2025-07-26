@@ -49,9 +49,10 @@ type Props = {
     setOpen?: React.Dispatch<React.SetStateAction<boolean>>
     isEdit?: boolean
     editData?: RegisterForm
+    onSuccess?: () => void
 }
 
-const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
+const Add = ({ setData, setOpen, isEdit, editData, onSuccess }: Props) => {
     const [value, setValue] = React.useState<RegisterForm>(initialValue)
     const [loading, setLoading] = React.useState(false)
     const [msg, setMsg] = React.useState('')
@@ -293,6 +294,7 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
                 })
                 setLoading(false)
                 setOpen?.(false)
+                onSuccess?.()
             })
         } else {
             if (emailValidation.exists) {
@@ -345,6 +347,7 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
                         }]
                     })
                     setOpen?.(false)
+                    onSuccess?.()
                 }
             }
         }
@@ -977,6 +980,11 @@ const Add = ({ setData, setOpen, isEdit, editData }: Props) => {
                             registrationId={registrationId}
                             show={show}
                             onClose={() => setShow(false)}
+                            onPaymentSuccess={() => {
+                                setShow(false)
+                                setOpen?.(false)
+                                onSuccess?.()
+                            }}
                         />
                                     </div>
                                 </div>

@@ -15,9 +15,10 @@ import {
     FaPhone
 } from 'react-icons/fa'
 
-const Update = ({ data, setData }: {
+const Update = ({ data, setData, onSuccess }: {
     data: RegisterForm,
-    setData?: React.Dispatch<React.SetStateAction<RegisterForm[]>>
+    setData?: React.Dispatch<React.SetStateAction<RegisterForm[]>>,
+    onSuccess?: () => void
 }) => {
     const [updatedStatus, setUpdatedStatus] = React.useState<Status>(data.status)
     const [loading, setLoading] = React.useState(false)
@@ -94,6 +95,7 @@ const Update = ({ data, setData }: {
             if (res) {
                 setData?.(prevData => prevData.map(item => item._id === data._id ? { ...item, status: updatedStatus } : item))
                 setSuccess('Registration status updated successfully!')
+                onSuccess?.()
             } else {
                 setError('Error updating registration status - no response received')
             }

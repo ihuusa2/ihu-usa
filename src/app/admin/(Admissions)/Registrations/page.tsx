@@ -64,6 +64,11 @@ const AdminRegistrations = () => {
     } | null>(null)
     const [sortField, setSortField] = useState<'date' | 'name'>('date')
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+    const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+    const refreshData = () => {
+        setRefreshTrigger(prev => prev + 1)
+    }
 
     useEffect(() => {
         (async () => {
@@ -94,7 +99,7 @@ const AdminRegistrations = () => {
                 setLoading(false)
             }
         })()
-    }, [searchParams, activeTab])
+    }, [searchParams, activeTab, refreshTrigger])
 
     // Filter data based on search term and apply sorting
     const filteredData = data
@@ -745,7 +750,7 @@ const AdminRegistrations = () => {
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 sm:p-4">
-                            <Add setData={setData} setOpen={setShowAddModal} />
+                            <Add setData={setData} setOpen={setShowAddModal} onSuccess={refreshData} />
                         </div>
                     </div>
                 </div>
@@ -772,7 +777,7 @@ const AdminRegistrations = () => {
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 sm:p-4">
-                            <Add setData={setData} editData={selectedRegistration} setOpen={setShowEditModal} isEdit={true} />
+                            <Add setData={setData} editData={selectedRegistration} setOpen={setShowEditModal} isEdit={true} onSuccess={refreshData} />
                         </div>
                     </div>
                 </div>
@@ -799,7 +804,7 @@ const AdminRegistrations = () => {
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 sm:p-4 lg:p-6">
-                            <Update data={selectedRegistration} setData={setData} />
+                            <Update data={selectedRegistration} setData={setData} onSuccess={refreshData} />
                         </div>
                     </div>
                 </div>
