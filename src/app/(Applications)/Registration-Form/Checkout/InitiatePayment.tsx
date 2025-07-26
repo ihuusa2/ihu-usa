@@ -23,11 +23,11 @@ const InitiatePayment = ({ registration, registrationId, price, show, onClose, o
     const getCurrencyInfo = () => {
         if (registration.resident === 'Indian Resident') {
             return {
-                displayCode: 'USD',
-                displaySymbol: '$',
-                displayAmount: price || '20',
+                displayCode: 'INR',
+                displaySymbol: '₹',
+                displayAmount: price || '850',
                 paypalCode: 'USD',
-                paypalAmount: price || '20'
+                paypalAmount: '10' // Convert 850 INR to approximately $10 USD for PayPal
             }
         }
         return {
@@ -164,8 +164,7 @@ const InitiatePayment = ({ registration, registrationId, price, show, onClose, o
                                         <div className="flex-1 min-w-0">
                                             <h4 className="font-semibold text-amber-900 text-sm sm:text-base">Currency Conversion Notice</h4>
                                             <p className="text-xs sm:text-sm text-amber-700 mt-1">
-                                                Your payment of ₹{currencyInfo.displayAmount} will be processed in USD (${currencyInfo.paypalAmount}) 
-                                                due to PayPal currency requirements. The equivalent amount will be charged.
+                                                Your payment of ₹850 will be processed in USD ($10) due to PayPal currency requirements. The equivalent amount will be charged.
                                             </p>
                                         </div>
                                     </div>

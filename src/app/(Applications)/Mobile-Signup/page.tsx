@@ -367,7 +367,7 @@ const MobileSignup = () => {
 
     const getApplicationFee = () => {
         if (value.resident === 'Indian Resident') {
-            return { amount: 20, currency: 'USD' }
+            return { amount: 850, currency: 'INR' }
         }
         return { amount: 20, currency: 'USD' }
     }

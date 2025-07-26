@@ -436,7 +436,7 @@ const RegistrationForm = () => {
                                     </li>
                                     <li className="flex items-center">
                                         <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
-                                        <strong>INR 850</strong> for applicants residing within India
+                                        <strong>₹850 INR</strong> for applicants residing within India
                                     </li>
                                 </ul>
                             </div>
@@ -715,7 +715,7 @@ const RegistrationForm = () => {
             <InitiatePayment
                 registration={value as RegisterForm}
                 registrationId={registrationId}
-                price={"20"}
+                price={value.resident === 'Indian Resident' ? '850' : '20'}
                 show={show}
                 onClose={() => setShow(false)}
             />
