@@ -1,11 +1,11 @@
 // This approach is taken from https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
 import { MongoClient, ServerApiVersion } from "mongodb"
 
-if (!process.env.MONGODBURL) {
-    throw new Error('Invalid/Missing environment variable: "MONGODBURL"')
+if (!process.env.MONGODB_URL) {
+    throw new Error('Invalid/Missing environment variable: "MONGODB_URL"')
 }
 
-const uri = process.env.MONGODBURL
+const uri = process.env.MONGODB_URL
 console.log('MongoDB URI (masked):', uri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'))
 
 const options = {

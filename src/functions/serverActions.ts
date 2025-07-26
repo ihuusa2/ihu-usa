@@ -12,7 +12,7 @@ export function parseQuery(searchParams: { [key: string]: string | string[] | un
                 let parsedValue: string | ObjectId | RegExp | number | Date;
                 if (key === 'sortBy' || key === 'sortOrder' || key === 'page' || key === 'pageSize' || key === 'sort') {
                     parsedValue = value as string;
-                } else if (key === 'search' || key === 'type' || key === 'filterBy') {
+                } else if (key === 'search' || key === 'type' || key === 'filterBy' || key === 'status') {
                     // Keep these as strings for manual handling
                     parsedValue = value as string;
                 } else if (ObjectId.isValid(value as string)) {

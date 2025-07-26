@@ -45,6 +45,7 @@ const AdminRegistrations = () => {
         return 'all'
     })
     const [searchTerm, setSearchTerm] = useState('')
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
     const [showAddModal, setShowAddModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [showStatusModal, setShowStatusModal] = useState(false)
@@ -66,8 +67,25 @@ const AdminRegistrations = () => {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
     const [refreshTrigger, setRefreshTrigger] = useState(0)
 
+    // Debounce search term
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm)
+        }, 500) // 500ms delay
+
+        return () => clearTimeout(timer)
+    }, [searchTerm])
+
     const refreshData = () => {
         setRefreshTrigger(prev => prev + 1)
+    }
+
+    // Helper function to highlight search terms
+    const highlightSearchTerm = (text: string, searchTerm: string) => {
+        if (!searchTerm || !text) return text;
+        
+        const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>');
     }
 
     useEffect(() => {
@@ -78,6 +96,11 @@ const AdminRegistrations = () => {
                 const currentSearchParams = Object.fromEntries(searchParams.entries())
                 if (activeTab !== 'all') {
                     currentSearchParams.status = activeTab.toUpperCase()
+                }
+                
+                // Add search term to backend query if it exists
+                if (debouncedSearchTerm.trim()) {
+                    currentSearchParams.search = debouncedSearchTerm.trim()
                 }
                 
                 const [registrations, statsData] = await Promise.all([
@@ -99,27 +122,20 @@ const AdminRegistrations = () => {
                 setLoading(false)
             }
         })()
-    }, [searchParams, activeTab, refreshTrigger])
+    }, [searchParams, activeTab, refreshTrigger, debouncedSearchTerm])
 
-    // Filter data based on search term and apply sorting
-    const filteredData = data
-      .filter(item => 
-        item.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.emailAddress?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.registrationNumber?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .sort((a, b) => {
+    // Sort data based on current sort settings
+    const sortedData = data.sort((a, b) => {
         let compare = 0
         if (sortField === 'date') {
-          compare = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            compare = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         } else if (sortField === 'name') {
-          const nameA = `${a.firstName || ''} ${a.lastName || ''}`.toLowerCase()
-          const nameB = `${b.firstName || ''} ${b.lastName || ''}`.toLowerCase()
-          compare = nameA.localeCompare(nameB)
+            const nameA = `${a.firstName || ''} ${a.lastName || ''}`.toLowerCase()
+            const nameB = `${b.firstName || ''} ${b.lastName || ''}`.toLowerCase()
+            compare = nameA.localeCompare(nameB)
         }
         return sortOrder === 'asc' ? compare : -compare
-      })
+    })
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -219,7 +235,7 @@ const AdminRegistrations = () => {
 
     // Get data based on active tab - now handled server-side
     const getTabData = () => {
-        return filteredData
+        return sortedData
     }
 
     return (
@@ -385,6 +401,19 @@ const AdminRegistrations = () => {
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                     />
+                                    {searchTerm !== debouncedSearchTerm && (
+                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                                        </div>
+                                    )}
+                                    {searchTerm && searchTerm === debouncedSearchTerm && (
+                                        <button
+                                            onClick={() => setSearchTerm('')}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                        >
+                                            <FaTimes className="h-4 w-4" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             {/* Controls - Mobile */}
@@ -441,6 +470,19 @@ const AdminRegistrations = () => {
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                     />
+                                    {searchTerm !== debouncedSearchTerm && (
+                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                                        </div>
+                                    )}
+                                    {searchTerm && searchTerm === debouncedSearchTerm && (
+                                        <button
+                                            onClick={() => setSearchTerm('')}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                        >
+                                            <FaTimes className="h-4 w-4" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -532,6 +574,26 @@ const AdminRegistrations = () => {
                     </div>
                     {/* Content */}
                     <div className="w-full">
+                        {/* Search Results Info */}
+                        {debouncedSearchTerm && (
+                            <div className="px-2 sm:px-6 py-3 bg-blue-50 border-b border-blue-200">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <FaSearch className="h-4 w-4 text-blue-600" />
+                                        <span className="text-sm text-blue-800">
+                                            Search results for &quot;{debouncedSearchTerm}&quot;: {count} registration{count !== 1 ? 's' : ''} found
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={() => setSearchTerm('')}
+                                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                                    >
+                                        Clear search
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        
                         {loading ? (
                             <div className="flex justify-center items-center py-20">
                                 <Spinner />
@@ -558,18 +620,31 @@ const AdminRegistrations = () => {
                                                     {/* Name and Email */}
                                                     <div className="mb-3">
                                                         <h3 className="font-semibold text-gray-900 text-sm mb-1 truncate">
-                                                            {`${registration.firstName || ''} ${registration.middleName || ''} ${registration.lastName || ''}`.trim()}
+                                                            <span dangerouslySetInnerHTML={{
+                                                                __html: highlightSearchTerm(
+                                                                    `${registration.firstName || ''} ${registration.middleName || ''} ${registration.lastName || ''}`.trim(),
+                                                                    debouncedSearchTerm
+                                                                )
+                                                            }} />
                                                         </h3>
                                                         <div className="flex items-center gap-1 text-xs text-gray-500">
                                                             <FaEnvelope className="h-3 w-3" />
-                                                            <span className="truncate">{registration.emailAddress}</span>
+                                                            <span className="truncate" dangerouslySetInnerHTML={{
+                                                                __html: highlightSearchTerm(registration.emailAddress, debouncedSearchTerm)
+                                                            }} />
                                                         </div>
                                                     </div>
 
                                                     {/* Registration Number */}
                                                     <div className="mb-3">
                                                         <div className="font-mono text-xs bg-gray-100 px-2 py-1 rounded text-center">
-                                                            {registration.registrationNumber ? registration.registrationNumber : <span className="text-gray-400">Not assigned</span>}
+                                                            {registration.registrationNumber ? (
+                                                                <span dangerouslySetInnerHTML={{
+                                                                    __html: highlightSearchTerm(registration.registrationNumber, debouncedSearchTerm)
+                                                                }} />
+                                                            ) : (
+                                                                <span className="text-gray-400">Not assigned</span>
+                                                            )}
                                                         </div>
                                                     </div>
 
@@ -664,7 +739,12 @@ const AdminRegistrations = () => {
                                                             </td>
                                                             <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                                                 <div className="font-semibold text-gray-900 text-xs sm:text-sm truncate">
-                                                                    {`${registration.firstName || ''} ${registration.middleName || ''} ${registration.lastName || ''}`.trim()}
+                                                                    <span dangerouslySetInnerHTML={{
+                                                                        __html: highlightSearchTerm(
+                                                                            `${registration.firstName || ''} ${registration.middleName || ''} ${registration.lastName || ''}`.trim(),
+                                                                            debouncedSearchTerm
+                                                                        )
+                                                                    }} />
                                                                 </div>
                                                             </td>
                                                             <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -678,10 +758,18 @@ const AdminRegistrations = () => {
                                                                         </span>
                                                                         <div className="flex items-center gap-1 text-xs text-gray-500">
                                                                             <FaEnvelope className="h-3 w-3" />
-                                                                            <span className="truncate max-w-[120px] sm:max-w-[200px]">{registration.emailAddress}</span>
+                                                                            <span className="truncate max-w-[120px] sm:max-w-[200px]" dangerouslySetInnerHTML={{
+                                                                                __html: highlightSearchTerm(registration.emailAddress, debouncedSearchTerm)
+                                                                            }} />
                                                                         </div>
                                                                         <div className="text-xs text-gray-500 font-mono">
-                                                                            {registration.registrationNumber || 'No reg. number'}
+                                                                            {registration.registrationNumber ? (
+                                                                                <span dangerouslySetInnerHTML={{
+                                                                                    __html: highlightSearchTerm(registration.registrationNumber, debouncedSearchTerm)
+                                                                                }} />
+                                                                            ) : (
+                                                                                'No reg. number'
+                                                                            )}
                                                                         </div>
                                                                     </div>
                                                                 </div>

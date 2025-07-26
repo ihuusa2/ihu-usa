@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "import-excel": "tsx scripts/excel-import.ts",
+    "import-excel": "tsx src/scripts/run-excel-import.ts",
     "import-students": "tsx scripts/student-import.ts",
     "test-db": "tsx scripts/test-import.ts"
   },

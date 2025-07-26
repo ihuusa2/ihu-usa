@@ -98,16 +98,50 @@ export const getAllRegistration = async ({ searchParams }: {
     searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<{ list: RegisterForm[]; count: number } | null> => {
 
-    const { page = 0, pageSize = 10, ...query } = parseQuery(searchParams) as { page: string; pageSize: string;[key: string]: unknown };
+    const { page = 0, pageSize = 10, search, ...query } = parseQuery(searchParams) as { page: string; pageSize: string; search?: string; [key: string]: unknown };
     const pageNumber: number = Number(page);
     const pageSizeNumber: number = Number(pageSize);
 
-    const result = await Registration.find(query)
+    // Build the query object
+    let finalQuery = { ...query };
+
+    // Add search functionality if search term is provided
+    if (search && typeof search === 'string' && search.trim()) {
+        try {
+            const searchRegex = new RegExp(search.trim(), 'i');
+            finalQuery = {
+                ...finalQuery,
+                $or: [
+                    { firstName: searchRegex },
+                    { lastName: searchRegex },
+                    { emailAddress: searchRegex },
+                    { registrationNumber: searchRegex },
+                    { phone: searchRegex }
+                ]
+            };
+        } catch (error) {
+            console.error('Invalid search regex:', error);
+            // If regex is invalid, fall back to simple string search
+            const searchTerm = search.trim();
+            finalQuery = {
+                ...finalQuery,
+                $or: [
+                    { firstName: { $regex: searchTerm, $options: 'i' } },
+                    { lastName: { $regex: searchTerm, $options: 'i' } },
+                    { emailAddress: { $regex: searchTerm, $options: 'i' } },
+                    { registrationNumber: { $regex: searchTerm, $options: 'i' } },
+                    { phone: { $regex: searchTerm, $options: 'i' } }
+                ]
+            };
+        }
+    }
+
+    const result = await Registration.find(finalQuery)
         .sort({ createdAt: -1 }) // Sort by createdAt in descending order (newest first)
         .skip(pageNumber * pageSizeNumber)
         .limit(pageSizeNumber)
         .toArray()
-    const count = await Registration.countDocuments(query)
+    const count = await Registration.countDocuments(finalQuery)
 
     return {
         list: JSON.parse(JSON.stringify(result)),
