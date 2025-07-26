@@ -15,6 +15,18 @@ export interface VideoGallery {
     link: string
 }
 
+export interface Flyers {
+    _id?: ObjectId | string
+    title: string
+    description: string
+    image: File | string
+    link: string
+    isActive: boolean
+    displayOrder: number
+    startDate?: Date
+    endDate?: Date
+}
+
 export interface Events {
     _id?: ObjectId | string
     title: string

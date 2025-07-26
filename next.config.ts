@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
         hostname: "img.youtube.com",
       },
     ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
   reactStrictMode: true,

@@ -2,6 +2,7 @@
 
 import About from '@/components/About';
 import Programs from '@/components/Programs';
+import FlyersSection from '@/components/Flyers';
 import { Blog } from '@/Types/Blogs';
 import React from 'react'
 import { CiCircleCheck } from 'react-icons/ci';
@@ -32,6 +33,9 @@ const HomeClientNew = ({ blogs }: Props) => {
       
       {/* About Section */}
       <About />
+      
+      {/* Flyers Section */}
+      <FlyersSection />
       
       {/* Statistics */}
       <Statistics />

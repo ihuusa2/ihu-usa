@@ -173,6 +173,15 @@ const AdminSidebar = () => {
       hoverColor: 'hover:bg-cyan-50'
     },
     {
+      title: 'Flyers',
+      href: '/admin/Flyers',
+      icon: FaImages,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200',
+      hoverColor: 'hover:bg-blue-50'
+    },
+    {
       title: 'Video Gallery',
       href: '/admin/Video-Gallery',
       icon: FaImages,
