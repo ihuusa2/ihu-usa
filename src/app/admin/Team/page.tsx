@@ -4,7 +4,7 @@ import type { Team } from "@/Types/User";
 import { H1 } from '@/components/Headings/index'
 import React, { useEffect, useState } from 'react'
 import Spinner from '@/components/Spinner'
-import { deleteTeam, getAllTeams } from '@/Server/Team'
+import { deleteTeam, getAllTeams, getTeamCategory } from '@/Server/Team'
 import Pagination from '@/components/Pagination'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Image from "next/image";
@@ -37,6 +37,9 @@ const AdminTeam = () => {
     const [count, setCount] = useState(0)
     const [open, setOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
+    const [totalCategories, setTotalCategories] = useState(0)
+    const [withDescriptionsCount, setWithDescriptionsCount] = useState(0)
+    const [withImagesCount, setWithImagesCount] = useState(0)
 
     // Handle search input changes
     const handleSearchChange = (value: string) => {
@@ -63,14 +66,25 @@ const AdminTeam = () => {
             setLoading(true)
             const params = Object.fromEntries(searchParams.entries())
             console.log('Client sending params:', params)
-            await getAllTeams({ searchParams: params }).then((members) => {
-                if (members) {
-                    setData(members.list)
-                    setCount(members.count)
-                }
-            }).finally(() => {
-                setLoading(false)
-            })
+            
+            // Fetch team members and total categories in parallel
+            const [members, categories] = await Promise.all([
+                getAllTeams({ searchParams: params }),
+                getTeamCategory()
+            ])
+            
+            if (members) {
+                setData(members.list)
+                setCount(members.count)
+                setWithDescriptionsCount(members.withDescriptionsCount)
+                setWithImagesCount(members.withImagesCount)
+            }
+            
+            if (categories) {
+                setTotalCategories(categories.length)
+            }
+            
+            setLoading(false)
         })()
     }, [searchParams])
 
@@ -113,9 +127,9 @@ const AdminTeam = () => {
     // Statistics
     const stats = {
         total: count, // Use total count from server
-        categories: [...new Set(data.map(item => item.category))].length,
-        withImages: data.filter(item => item.image).length,
-        withDescriptions: data.filter(item => item.description).length
+        categories: totalCategories, // Use total available categories
+        withImages: withImagesCount, // Use total from server
+        withDescriptions: withDescriptionsCount // Use total from server
     }
 
     return (
@@ -170,7 +184,7 @@ const AdminTeam = () => {
                                     <div>
                                         <p className="text-purple-600 font-semibold text-sm">Departments</p>
                                         <p className="text-2xl font-bold text-purple-800">{stats.categories}</p>
-                                        <p className="text-xs text-purple-600 mt-1">Different categories</p>
+                                        <p className="text-xs text-purple-600 mt-1">Total categories available</p>
                                     </div>
                                     <div className="p-3 bg-purple-500 rounded-xl">
                                         <FaBuilding className="h-6 w-6 text-white" />

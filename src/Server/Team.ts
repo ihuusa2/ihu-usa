@@ -16,7 +16,7 @@ export const createTeam = async ({ _id, ...rest }: Team): Promise<InsertOneResul
 export const getAllTeams = async ({ params, searchParams }: {
     params?: { [key: string]: unknown },
     searchParams?: { [key: string]: string | string[] | undefined }
-}): Promise<{ list: Team[]; count: number } | null> => {
+}): Promise<{ list: Team[]; count: number; withDescriptionsCount: number; withImagesCount: number } | null> => {
 
     console.log('Raw searchParams:', searchParams);
     
@@ -59,11 +59,17 @@ export const getAllTeams = async ({ params, searchParams }: {
 
     const count = await Teams.countDocuments(mongoQuery);
 
+    // Count all team members with a non-empty description (not paginated, not filtered by search)
+    const withDescriptionsCount = await Teams.countDocuments({ description: { $exists: true, $ne: "" } });
+
+    // Count all team members with an image (not paginated, not filtered by search)
+    const withImagesCount = await Teams.countDocuments({ image: { $exists: true, $ne: "" } });
+
     console.log('Found', list.length, 'results out of', count, 'total');
 
     if (!list) return null;
 
-    return JSON.parse(JSON.stringify({ list, count }));
+    return JSON.parse(JSON.stringify({ list, count, withDescriptionsCount, withImagesCount }));
 }
 
 export const getTeamById = async (id: string): Promise<Team | null> => {

@@ -10,7 +10,7 @@ export function parseQuery(searchParams: { [key: string]: string | string[] | un
             .filter(([_, value]) => value !== '') // Filter out empty string values
             .map(([key, value]) => {
                 let parsedValue: string | ObjectId | RegExp | number | Date;
-                if (key === 'sortBy' || key === 'sortOrder' || key === 'page' || key === 'pageSize') {
+                if (key === 'sortBy' || key === 'sortOrder' || key === 'page' || key === 'pageSize' || key === 'sort') {
                     parsedValue = value as string;
                 } else if (key === 'search' || key === 'type' || key === 'filterBy') {
                     // Keep these as strings for manual handling

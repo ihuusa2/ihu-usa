@@ -25,7 +25,7 @@ const AdminCourse = () => {
     const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
     const [selectedImageModal, setSelectedImageModal] = useState<{ images: string[], title: string } | null>(null)
     const [selectedDescriptionModal, setSelectedDescriptionModal] = useState<{ description: string, title: string } | null>(null)
-    const [sort, setSort] = useState<'newest' | 'oldest' | 'title-asc' | 'title-desc'>(searchParams.get('sort') as 'newest' | 'oldest' | 'title-asc' | 'title-desc' || 'newest')
+    const [sort, setSort] = useState<'newest' | 'oldest' | 'title-asc' | 'title-desc'>((searchParams.get('sort') as 'newest' | 'oldest' | 'title-asc' | 'title-desc') || 'newest')
     const [category, setCategory] = useState<string>(searchParams.get('type') || '')
     const [courseTypes, setCourseTypes] = useState<CourseType[]>([])
 
@@ -34,8 +34,8 @@ const AdminCourse = () => {
         const params = new URLSearchParams(Array.from(searchParams.entries()))
         if (searchTerm) params.set('search', searchTerm)
         else params.delete('search')
-        if (sort) params.set('sort', sort)
-        else params.delete('sort')
+        // Always set sort parameter to ensure proper sorting
+        params.set('sort', sort)
         if (category) params.set('type', category)
         else params.delete('type')
         router.replace(`${pathname}?${params.toString()}`)

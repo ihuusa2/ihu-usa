@@ -8,7 +8,12 @@ import { InsertOneResult, ObjectId } from "mongodb";
 const Courses = db.collection('Courses');
 
 export const createCourse = async ({ _id, ...rest }: Course): Promise<InsertOneResult> => {
-    const result = await Courses.insertOne({ ...rest });
+    const courseData = {
+        ...rest,
+        createdAt: new Date(),
+        updatedAt: new Date()
+    };
+    const result = await Courses.insertOne(courseData);
     return JSON.parse(JSON.stringify(result));
 }
 
@@ -22,10 +27,10 @@ export const getAllCourses = async ({ params, searchParams }: {
     const pageSizeNumber: number = Number(pageSize);
 
     // Determine sort object for MongoDB
-    let sortObj: Record<string, 1 | -1> = { createdAt: -1 }; // Default: newest first
+    let sortObj: Record<string, 1 | -1> = { createdAt: -1, _id: -1 }; // Default: newest first, with _id fallback
     if (typeof sort === 'string') {
-        if (sort === 'newest') sortObj = { createdAt: -1 };
-        else if (sort === 'oldest') sortObj = { createdAt: 1 };
+        if (sort === 'newest') sortObj = { createdAt: -1, _id: -1 };
+        else if (sort === 'oldest') sortObj = { createdAt: 1, _id: 1 };
         else if (sort === 'title-asc') sortObj = { title: 1 };
         else if (sort === 'title-desc') sortObj = { title: -1 };
     }
@@ -67,7 +72,11 @@ export const getCourseById = async (id: string): Promise<Course | null> => {
 }
 
 export const updateCourse = async ({ _id, ...rest }: Course): Promise<Course | null> => {
-    const result = await Courses.findOneAndUpdate({ _id: new ObjectId(_id as string) }, { $set: { ...rest } }, { returnDocument: 'after' });
+    const updateData = {
+        ...rest,
+        updatedAt: new Date()
+    };
+    const result = await Courses.findOneAndUpdate({ _id: new ObjectId(_id as string) }, { $set: updateData }, { returnDocument: 'after' });
     if (!result) return null;
     return JSON.parse(JSON.stringify(result));
 }

@@ -21,6 +21,8 @@ export interface Course {
     testimonialVideos?: TestimonialVideo[]
     faqs?: CourseFAQ[]
     galleryImages?: File[] | string[]
+    createdAt?: string | Date
+    updatedAt?: string | Date
 }
 
 export interface TestimonialVideo {
