@@ -317,6 +317,9 @@ const Add = ({ setData, setOpen, isEdit, editData, onSuccess }: Props) => {
                     const result = await response.json();
                     if (response.ok && result.success) {
                         setRegistrationId(result.insertedId);
+                        // Call onSuccess immediately after successful registration creation
+                        onSuccess?.();
+                        setMsg('Registration created successfully! Proceeding to payment...');
                         setShow(true);
                     } else {
                         setError(result.error || 'Failed to save registration. Please try again.');
@@ -346,6 +349,7 @@ const Add = ({ setData, setOpen, isEdit, editData, onSuccess }: Props) => {
                             createdAt: new Date() 
                         }]
                     })
+                    setMsg('Registration created successfully!');
                     setOpen?.(false)
                     onSuccess?.()
                 }
@@ -932,7 +936,11 @@ const Add = ({ setData, setOpen, isEdit, editData, onSuccess }: Props) => {
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-lg font-semibold">Confirm Registration & Payment</h3>
                             <button
-                                onClick={() => setShow(false)}
+                                onClick={() => {
+                                    setShow(false)
+                                    // Ensure data is refreshed when payment modal is closed
+                                    onSuccess?.()
+                                }}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 <X className="h-6 w-6" />
@@ -979,11 +987,15 @@ const Add = ({ setData, setOpen, isEdit, editData, onSuccess }: Props) => {
                             registration={value}
                             registrationId={registrationId}
                             show={show}
-                            onClose={() => setShow(false)}
+                            onClose={() => {
+                                setShow(false)
+                                // Ensure data is refreshed when payment modal is closed
+                                onSuccess?.()
+                            }}
                             onPaymentSuccess={() => {
                                 setShow(false)
                                 setOpen?.(false)
-                                onSuccess?.()
+                                // onSuccess already called when registration was created
                             }}
                         />
                                     </div>

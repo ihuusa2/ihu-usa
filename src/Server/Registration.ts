@@ -98,7 +98,7 @@ export const getAllRegistration = async ({ searchParams }: {
     searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<{ list: RegisterForm[]; count: number } | null> => {
 
-    const { page = 0, pageSize = 10, search, ...query } = parseQuery(searchParams) as { page: string; pageSize: string; search?: string; [key: string]: unknown };
+    const { page = 0, pageSize = 20, search, ...query } = parseQuery(searchParams) as { page: string; pageSize: string; search?: string; [key: string]: unknown };
     const pageNumber: number = Number(page);
     const pageSizeNumber: number = Number(pageSize);
 

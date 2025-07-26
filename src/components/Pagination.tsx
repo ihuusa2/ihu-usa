@@ -13,7 +13,7 @@ const Pagination = ({ count }: Props) => {
 
     const filter = {
         page: searchParams.get('page') ? Number(searchParams.get('page')) : 0,
-        pageSize: searchParams.get('pageSize') ? Number(searchParams.get('pageSize')) : 10,
+        pageSize: searchParams.get('pageSize') ? Number(searchParams.get('pageSize')) : 20,
     }
 
     const isPreviousDisabled = filter.page === 0
@@ -41,6 +41,9 @@ const Pagination = ({ count }: Props) => {
             <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">
                     Page {filter.page + 1} of {Math.ceil(count / filter.pageSize)}
+                </span>
+                <span className="text-sm text-gray-500">
+                    ({Math.min((filter.page * filter.pageSize) + 1, count)} - {Math.min((filter.page + 1) * filter.pageSize, count)} of {count})
                 </span>
             </div>
 

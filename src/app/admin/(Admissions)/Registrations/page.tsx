@@ -66,6 +66,8 @@ const AdminRegistrations = () => {
     const [sortField, setSortField] = useState<'date' | 'name'>('date')
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
     const [refreshTrigger, setRefreshTrigger] = useState(0)
+    const [showNotification, setShowNotification] = useState(false)
+    const [notificationMessage, setNotificationMessage] = useState('')
 
     // Debounce search term
     useEffect(() => {
@@ -78,6 +80,10 @@ const AdminRegistrations = () => {
 
     const refreshData = () => {
         setRefreshTrigger(prev => prev + 1)
+        setNotificationMessage('Registration data refreshed successfully!')
+        setShowNotification(true)
+        // Auto-hide notification after 3 seconds
+        setTimeout(() => setShowNotification(false), 3000)
     }
 
     // Helper function to highlight search terms
@@ -240,6 +246,19 @@ const AdminRegistrations = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 px-2 sm:px-4 md:px-8">
+            {/* Success Notification */}
+            {showNotification && (
+                <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
+                    <FaCheckCircle className="h-5 w-5" />
+                    <span>{notificationMessage}</span>
+                    <button
+                        onClick={() => setShowNotification(false)}
+                        className="ml-2 text-white hover:text-gray-200"
+                    >
+                        <FaTimes className="h-4 w-4" />
+                    </button>
+                </div>
+            )}
             <div className="py-4 sm:py-6 lg:py-8 max-w-7xl mx-auto">
                 {/* Header Section */}
                 <div className="mb-6 sm:mb-8">
@@ -392,6 +411,26 @@ const AdminRegistrations = () => {
                                     {sortOrder === 'asc' ? '↑' : '↓'}
                                   </button>
                                 </div>
+                                {/* Page Size Selector */}
+                                <div className="flex items-center gap-2">
+                                  <label className="text-sm text-gray-600">Show:</label>
+                                  <select
+                                    value={searchParams.get('pageSize') || '20'}
+                                    onChange={(e) => {
+                                      const url = new URL(window.location.href)
+                                      url.searchParams.set('pageSize', e.target.value)
+                                      url.searchParams.delete('page') // Reset to first page
+                                      window.history.replaceState({}, '', url.toString())
+                                      window.location.reload()
+                                    }}
+                                    className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
+                                  >
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                  </select>
+                                </div>
                                 <div className="relative flex-1 max-w-md">
                                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <input
@@ -460,6 +499,26 @@ const AdminRegistrations = () => {
                                   >
                                     {sortOrder === 'asc' ? '↑' : '↓'}
                                   </button>
+                                </div>
+                                {/* Page Size Selector */}
+                                <div className="flex items-center gap-2">
+                                  <label className="text-sm text-gray-600">Show:</label>
+                                  <select
+                                    value={searchParams.get('pageSize') || '20'}
+                                    onChange={(e) => {
+                                      const url = new URL(window.location.href)
+                                      url.searchParams.set('pageSize', e.target.value)
+                                      url.searchParams.delete('page') // Reset to first page
+                                      window.history.replaceState({}, '', url.toString())
+                                      window.location.reload()
+                                    }}
+                                    className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
+                                  >
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                  </select>
                                 </div>
                                 <div className="relative">
                                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -808,6 +867,19 @@ const AdminRegistrations = () => {
                                 
                                 {getTabData().length > 0 && (
                                     <div className="px-2 sm:px-6 py-4 border-t border-gray-200 bg-gray-50">
+                                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                                            <div className="text-sm text-gray-600">
+                                                Showing {getTabData().length} of {count} registrations
+                                                {searchParams.get('pageSize') && (
+                                                    <span className="ml-2 text-gray-500">
+                                                        (Page size: {searchParams.get('pageSize')})
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="text-sm text-gray-600">
+                                                View mode: <span className="font-medium capitalize">{viewMode}</span>
+                                            </div>
+                                        </div>
                                         <Pagination count={count} />
                                     </div>
                                 )}
