@@ -218,8 +218,8 @@ const AdminRegistrations = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-            <div className="py-4 px-4 sm:py-6 sm:px-6 lg:py-8 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 px-2 sm:px-4 md:px-8">
+            <div className="py-4 sm:py-6 lg:py-8 max-w-7xl mx-auto">
                 {/* Header Section */}
                 <div className="mb-6 sm:mb-8">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
@@ -234,11 +234,10 @@ const AdminRegistrations = () => {
                                 <p className="text-gray-600 text-sm sm:text-base">Manage student registrations and applications</p>
                             </div>
                         </div>
-                        
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                             <button 
                                 onClick={() => setShowAddModal(true)}
-                                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
                             >
                                 <FaPlus className="h-4 w-4" />
                                 <span className="hidden sm:inline">Add Registration</span>
@@ -246,9 +245,8 @@ const AdminRegistrations = () => {
                             </button>
                         </div>
                     </div>
-
                     {/* Statistics Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
                         <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-200">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -304,11 +302,10 @@ const AdminRegistrations = () => {
                         </div>
                     </div>
                 </div>
-
                 {/* Registration Management Section */}
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                     {/* Section Header */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-200">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-2 sm:px-6 py-4 sm:py-6 border-b border-gray-200">
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -316,22 +313,21 @@ const AdminRegistrations = () => {
                                         <FaClipboardCheck className="text-white text-sm sm:text-lg" />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Registration Management</h2>
-                                        <p className="text-gray-600 text-sm">Comprehensive management system for student registrations</p>
+                                        <h2 className="text-lg sm:text-2xl font-bold text-gray-800">Registration Management</h2>
+                                        <p className="text-gray-600 text-xs sm:text-sm">Comprehensive management system for student registrations</p>
                                     </div>
                                 </div>
-                                
                                 {/* Mobile Menu Button */}
                                 <button
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                     className="lg:hidden inline-flex items-center p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                                    aria-label="Toggle menu"
                                 >
                                     <FaBars className="h-5 w-5" />
                                 </button>
                             </div>
-                            
                             {/* Controls - Desktop */}
-                            <div className="hidden lg:flex gap-3 items-center">
+                            <div className="hidden lg:flex gap-3 items-center w-full">
                                 {/* View Mode Toggle */}
                                 <div className="flex items-center bg-white border border-gray-300 rounded-lg p-1 shadow-sm">
                                     <button
@@ -386,7 +382,6 @@ const AdminRegistrations = () => {
                                     />
                                 </div>
                             </div>
-
                             {/* Controls - Mobile */}
                             <div className={`lg:hidden space-y-3 ${isMobileMenuOpen ? 'block' : 'hidden'}`}> 
                                 {/* View Mode Toggle */}
@@ -445,10 +440,9 @@ const AdminRegistrations = () => {
                             </div>
                         </div>
                     </div>
-
                     {/* Tabs */}
-                    <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-b border-gray-200">
-                        <div className="flex flex-wrap gap-2">
+                    <div className="px-2 sm:px-6 py-2 sm:py-4 bg-gray-50 border-b border-gray-200 overflow-x-auto">
+                        <div className="flex flex-nowrap gap-2">
                             <button
                                 onClick={() => {
                                     setActiveTab('all')
@@ -531,7 +525,6 @@ const AdminRegistrations = () => {
                             </button>
                         </div>
                     </div>
-
                     {/* Content */}
                     <div className="w-full">
                         {loading ? (
@@ -542,7 +535,7 @@ const AdminRegistrations = () => {
                             <>
                                 {getTabData().length > 0 ? (
                                     viewMode === 'grid' ? (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4 sm:p-6">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 p-2 sm:p-6">
                                             {getTabData().map((registration, index) => (
                                                 <div 
                                                     key={index} 
@@ -622,7 +615,7 @@ const AdminRegistrations = () => {
                                         </div>
                                     ) : (
                                         <div className="overflow-x-auto">
-                                            <table className="w-full min-w-[800px]">
+                                            <table className="w-full min-w-[700px] text-xs sm:text-sm">
                                                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                                                     <tr>
                                                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
@@ -721,7 +714,7 @@ const AdminRegistrations = () => {
                                 )}
                                 
                                 {getTabData().length > 0 && (
-                                    <div className="px-4 sm:px-6 py-4 border-t border-gray-200 bg-gray-50">
+                                    <div className="px-2 sm:px-6 py-4 border-t border-gray-200 bg-gray-50">
                                         <Pagination count={count} />
                                     </div>
                                 )}
@@ -730,65 +723,64 @@ const AdminRegistrations = () => {
                     </div>
                 </div>
             </div>
-
             {/* Add Modal */}
             {showAddModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
-                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl md:max-w-3xl h-[90vh] flex flex-col">
+                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 rounded-t-2xl">
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                                        <FaPlus className="text-white text-sm" />
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                        <FaPlus className="text-white text-xs sm:text-sm" />
                                     </div>
-                                    <h2 className="text-lg sm:text-xl font-bold text-gray-800">Add New Registration</h2>
+                                    <h2 className="text-base sm:text-lg font-bold text-gray-800">Add New Registration</h2>
                                 </div>
                                 <button
                                     onClick={() => setShowAddModal(false)}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1"
+                                    aria-label="Close add modal"
                                 >
-                                    <FaTimes className="w-6 h-6" />
+                                    <FaTimes className="w-5 h-5 sm:w-6 sm:h-6" />
                                 </button>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-hidden">
+                        <div className="flex-1 overflow-y-auto p-2 sm:p-4">
                             <Add setData={setData} setOpen={setShowAddModal} />
                         </div>
                     </div>
                 </div>
             )}
-
             {/* Edit Modal */}
             {showEditModal && selectedRegistration && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
-                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl md:max-w-3xl h-[90vh] flex flex-col">
+                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 rounded-t-2xl">
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                                        <FaEdit className="text-white text-sm" />
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                        <FaEdit className="text-white text-xs sm:text-sm" />
                                     </div>
-                                    <h2 className="text-lg sm:text-xl font-bold text-gray-800">Update Registration</h2>
+                                    <h2 className="text-base sm:text-lg font-bold text-gray-800">Update Registration</h2>
                                 </div>
                                 <button
                                     onClick={() => setShowEditModal(false)}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1"
+                                    aria-label="Close edit modal"
                                 >
-                                    <FaTimes className="w-6 h-6" />
+                                    <FaTimes className="w-5 h-5 sm:w-6 sm:h-6" />
                                 </button>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-hidden">
+                        <div className="flex-1 overflow-y-auto p-2 sm:p-4">
                             <Add setData={setData} editData={selectedRegistration} setOpen={setShowEditModal} isEdit={true} />
                         </div>
                     </div>
                 </div>
             )}
-
             {/* Status Update Modal */}
             {showStatusModal && selectedRegistration && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[95vh] flex flex-col">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl md:max-w-3xl h-[95vh] flex flex-col">
                         <div className="flex-shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 rounded-t-2xl">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 sm:gap-3">
@@ -800,39 +792,40 @@ const AdminRegistrations = () => {
                                 <button
                                     onClick={() => setShowStatusModal(false)}
                                     className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1"
+                                    aria-label="Close status modal"
                                 >
                                     <FaTimes className="w-5 h-5 sm:w-6 sm:h-6" />
                                 </button>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-hidden p-2 sm:p-4 lg:p-6">
+                        <div className="flex-1 overflow-y-auto p-2 sm:p-4 lg:p-6">
                             <Update data={selectedRegistration} setData={setData} />
                         </div>
                     </div>
                 </div>
             )}
-
             {/* Detail Modal */}
             {showDetailModal && selectedRegistration && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
-                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-2xl">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl md:max-w-3xl h-[90vh] flex flex-col">
+                        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 rounded-t-2xl">
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                                        <FaUser className="text-white text-sm" />
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                        <FaUser className="text-white text-xs sm:text-sm" />
                                     </div>
-                                    <h2 className="text-lg sm:text-xl font-bold text-gray-800">Registration Details</h2>
+                                    <h2 className="text-base sm:text-lg font-bold text-gray-800">Registration Details</h2>
                                 </div>
                                 <button
                                     onClick={() => setShowDetailModal(false)}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1"
+                                    aria-label="Close details modal"
                                 >
-                                    <FaTimes className="w-6 h-6" />
+                                    <FaTimes className="w-5 h-5 sm:w-6 sm:h-6" />
                                 </button>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                        <div className="flex-1 overflow-y-auto p-2 sm:p-6">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 {/* Personal Information */}
                                 <div className="space-y-4">

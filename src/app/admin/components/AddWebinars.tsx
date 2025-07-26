@@ -1,376 +1,291 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import Image from 'next/image'
-import Spinner from '@/components/Spinner'
+import type { Webinars } from "@/Types/Gallery";
+import React, { useState } from 'react'
 import { createWebinar, updateWebinar } from '@/Server/Webinars'
 import cloudinaryImageUploadMethod from '@/functions/cloudinary'
-import { Webinars } from '@/Types/Gallery'
-import { FaCalendar, FaMapMarkerAlt, FaUsers, FaImage, FaLink, FaUpload, FaCheck } from 'react-icons/fa'
+import { FaUpload, FaTimes, FaSave, FaSpinner } from 'react-icons/fa'
 
-type Props = {
+interface AddWebinarProps {
     setData: React.Dispatch<React.SetStateAction<Webinars[]>>
-    setOpen?: React.Dispatch<React.SetStateAction<boolean>>
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>
     isEdit?: boolean
     editData?: Webinars
 }
 
-const AddWebinars = ({ setData, isEdit, editData, setOpen }: Props) => {
-    const [value, setValue] = useState<Webinars>({
-        title: '',
-        description: '',
-        date: new Date(),
-        location: '',
-        attendees: [],
-        image: '',
-        link: ''
+interface WebinarFormData {
+    title: string
+    description: string
+    date: string
+    location: string
+    attendees: string[]
+    image: string
+    link: string
+}
+
+const AddWebinar = ({ setData, setOpen, isEdit = false, editData }: AddWebinarProps) => {
+    const [formData, setFormData] = useState<WebinarFormData>({
+        title: editData?.title || '',
+        description: editData?.description || '',
+        date: editData?.date ? new Date(editData.date).toISOString().split('T')[0] : '',
+        location: editData?.location || '',
+        attendees: editData?.attendees || [],
+        image: typeof editData?.image === 'string' ? editData.image : '',
+        link: editData?.link || ''
     })
     const [loading, setLoading] = useState(false)
-    const [message, setMessage] = useState('')
-    const [success, setSuccess] = useState('')
-    const [blobUrl, setBlobUrl] = useState<string | null>(null)
+    const [imageFile, setImageFile] = useState<File | null>(null)
+    const [attendeeInput, setAttendeeInput] = useState('')
 
-    useEffect(() => {
-        if (isEdit && editData) {
-            try {
-                // Ensure date is properly converted to Date object
-                const editDataWithProperDate = {
-                    ...editData,
-                    date: editData.date instanceof Date ? editData.date : new Date(editData.date)
-                }
-                setValue(editDataWithProperDate)
-            } catch (error) {
-                console.error('Error setting edit data:', error)
-                setMessage('Error loading webinar data for editing')
-            }
-        }
-    }, [isEdit, editData])
-
-    // Handle blob URL creation and cleanup for image preview
-    useEffect(() => {
-        if (value.image instanceof File) {
-            const url = URL.createObjectURL(value.image)
-            setBlobUrl(url)
-            return () => {
-                URL.revokeObjectURL(url)
-            }
-        } else {
-            setBlobUrl(null)
-        }
-    }, [value.image])
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (value.title.trim() === '') {
-            setMessage('Title is required.')
-            return
-        }
-
         setLoading(true)
-        setMessage('')
-        setSuccess('')
-        let newImage = value.image as string
 
-        if (value.image instanceof File) {
-            try {
-                const data = await cloudinaryImageUploadMethod(value.image)
-                newImage = data.secure_url
-            } catch {
-                setMessage('Image upload failed.')
-                setLoading(false)
-                return
+        try {
+            let imageUrl = formData.image as string
+
+            if (imageFile) {
+                const uploadResult = await cloudinaryImageUploadMethod(imageFile)
+                imageUrl = uploadResult.secure_url
             }
-        }
 
-        const formData: Webinars = {
-            ...value,
-            image: newImage as string,
-        };
+            const webinarData = {
+                ...formData,
+                image: imageUrl,
+                date: new Date(formData.date as string)
+            }
 
-        if (isEdit) {
-            await updateWebinar({ ...formData }).then((res) => {
-                if (res) {
-                    setData((prev) =>
-                        prev.map((item) => (item._id === res._id ? res : item))
-                    )
-                    setSuccess('Webinar updated successfully!')
-                    setTimeout(() => {
-                        if (setOpen) {
-                            setOpen(false)
-                        }
-                    }, 1500)
-                } else {
-                    setMessage('Failed to update webinar. Please try again.')
+            if (isEdit && editData?._id) {
+                const updatedWebinar = await updateWebinar({
+                    _id: editData._id,
+                    ...webinarData
+                } as Webinars)
+                
+                if (updatedWebinar) {
+                    setData(prev => prev.map(webinar => 
+                        webinar._id === editData._id ? updatedWebinar : webinar
+                    ))
                 }
-            }).catch((error) => {
-                console.error('Update error:', error)
-                setMessage('Something went wrong while updating the webinar.')
-            })
-                .finally(() => setLoading(false))
-        }
-        else {
-            await createWebinar(formData).then((res) => {
-                if (res?.insertedId) {
-                    setData((prev) => [
-                        ...prev,
-                        { ...formData, _id: String(res.insertedId) },
-                    ])
-                    setSuccess('Webinar created successfully!')
-                    setTimeout(() => {
-                        if (setOpen) {
-                            setOpen(false)
-                        }
-                    }, 1500)
-                }
-            }).catch(() => {
-                setMessage('Something went wrong.')
-            })
-                .finally(() => setLoading(false))
+            } else {
+                await createWebinar(webinarData as Webinars)
+                // Just close the modal; parent will refresh list
+            }
+
+            setOpen(false)
+        } catch (error) {
+            console.error('Error saving webinar:', error)
+        } finally {
+            setLoading(false)
         }
     }
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setImageFile(file)
+        }
+    }
+
+    const addAttendee = () => {
+        if (attendeeInput.trim()) {
+            setFormData(prev => ({
+                ...prev,
+                attendees: [...(prev.attendees || []), attendeeInput.trim()]
+            }))
+            setAttendeeInput('')
+        }
+    }
+
+    const removeAttendee = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            attendees: prev.attendees?.filter((_, i) => i !== index) || []
+        }))
+    }
+
     return (
-        <div className="space-y-6">
-            {/* Messages */}
-            {message && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                    {message}
-                </div>
-            )}
-            {success && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
-                    <FaCheck className="text-green-500" />
-                    {success}
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Basic Information */}
-                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg">
-                            <FaCalendar className="text-white text-lg" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900">Basic Information</h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-2">
-                            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                                Webinar Title *
-                            </label>
-                            <input
-                                disabled={loading}
-                                type="text"
-                                id="title"
-                                name="title"
-                                value={value.title || ''}
-                                onChange={(e) => setValue({ ...value, title: e.target.value })}
-                                required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors disabled:bg-gray-100"
-                                placeholder="Enter webinar title"
-                            />
-                        </div>
-
-                        <div className="md:col-span-2">
-                            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                                Description
-                            </label>
-                            <textarea
-                                disabled={loading}
-                                id="description"
-                                name="description"
-                                value={value.description || ''}
-                                onChange={(e) => setValue({ ...value, description: e.target.value })}
-                                rows={4}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors disabled:bg-gray-100 resize-none"
-                                placeholder="Enter webinar description"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
-                                Date *
-                            </label>
-                            <input
-                                disabled={loading}
-                                type="date"
-                                id="date"
-                                name="date"
-                                value={value.date instanceof Date ? value.date.toISOString().split('T')[0] : new Date(value.date).toISOString().split('T')[0]}
-                                onChange={(e) => setValue({ ...value, date: new Date(e.target.value) })}
-                                required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors disabled:bg-gray-100"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2 items-center gap-2">
-                                <FaMapMarkerAlt className="text-blue-500" />
-                                Location *
-                            </label>
-                            <input
-                                disabled={loading}
-                                type="text"
-                                id="location"
-                                name="location"
-                                value={value.location || ''}
-                                onChange={(e) => setValue({ ...value, location: e.target.value })}
-                                required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors disabled:bg-gray-100"
-                                placeholder="Enter location (e.g., Online, Zoom, Conference Hall)"
-                            />
-                        </div>
-                    </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Title */}
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Webinar Title *
+                    </label>
+                    <input
+                        type="text"
+                        required
+                        value={formData.title}
+                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        placeholder="Enter webinar title"
+                    />
                 </div>
 
-                {/* Attendees and Link */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg">
-                            <FaUsers className="text-white text-lg" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900">Attendees & Access</h3>
-                    </div>
+                {/* Description */}
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Description *
+                    </label>
+                    <textarea
+                        required
+                        rows={4}
+                        value={formData.description}
+                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        placeholder="Enter webinar description"
+                    />
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label htmlFor="attendees" className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                <FaUsers className="text-purple-500" />
-                                Attendees
-                            </label>
-                            <input
-                                disabled={loading}
-                                type="text"
-                                id="attendees"
-                                name="attendees"
-                                value={Array.isArray(value.attendees) ? value.attendees.join(', ') : ''}
-                                onChange={(e) => setValue({ ...value, attendees: e.target.value.split(', ').filter(item => item.trim() !== '') })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:bg-gray-100"
-                                placeholder="Enter attendee names separated by commas"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">Separate multiple attendees with commas</p>
-                        </div>
+                {/* Date */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date *
+                    </label>
+                    <input
+                        type="date"
+                        required
+                        value={formData.date}
+                        onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                    />
+                </div>
 
-                        <div>
-                            <label htmlFor="link" className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                <FaLink className="text-indigo-500" />
-                                Webinar Link
-                            </label>
-                            <input
-                                disabled={loading}
-                                type="url"
-                                id="link"
-                                name="link"
-                                value={value.link || ''}
-                                onChange={(e) => setValue({ ...value, link: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:bg-gray-100"
-                                placeholder="https://example.com/webinar"
-                            />
-                        </div>
-                    </div>
+                {/* Location */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Location
+                    </label>
+                    <input
+                        type="text"
+                        value={formData.location}
+                        onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        placeholder="Enter location"
+                    />
+                </div>
+
+                {/* Link */}
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Webinar Link
+                    </label>
+                    <input
+                        type="url"
+                        value={formData.link}
+                        onChange={(e) => setFormData(prev => ({ ...prev, link: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        placeholder="Enter webinar link (Zoom, Teams, etc.)"
+                    />
                 </div>
 
                 {/* Image Upload */}
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
-                            <FaImage className="text-white text-lg" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900">Webinar Image</h3>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div>
-                            <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-                                Upload Image
-                            </label>
-                            <div className="relative">
-                                <input
-                                    disabled={loading}
-                                    type="file"
-                                    accept="image/*"
-                                    id="image"
-                                    name="image"
-                                    onChange={(e) =>
-                                        e.target.files && setValue({ ...value, image: e.target.files[0] })
-                                    }
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                                />
-                                <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-400 transition-colors bg-white">
-                                    <div className="text-center">
-                                        <FaUpload className="text-3xl text-purple-400 mx-auto mb-2" />
-                                        <p className="text-sm text-gray-600">
-                                            <span className="font-medium text-purple-600">Click to upload</span> or drag and drop
-                                        </p>
-                                        <p className="text-xs text-gray-500">PNG, JPG, JPEG up to 10MB</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Image Preview */}
-                        {value.image && (
-                            <div className="flex items-center gap-4 p-4 bg-white rounded-lg border border-purple-200">
-                                <div className="flex-shrink-0">
-                                    {value.image instanceof File && blobUrl ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img
-                                            src={blobUrl}
-                                            alt="Webinar preview"
-                                            className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200"
-                                        />
-                                    ) : (
-                                        typeof value.image === "string" && value.image !== "" && (
-                                            <Image
-                                                width={80}
-                                                height={80}
-                                                src={value.image}
-                                                alt="Webinar preview"
-                                                className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200"
-                                            />
-                                        )
-                                    )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate">
-                                        {value.image instanceof File ? value.image.name : 'Current image'}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        {value.image instanceof File ? 
-                                            `${(value.image.size / 1024 / 1024).toFixed(2)} MB` : 
-                                            'Uploaded image'
-                                        }
-                                    </p>
-                                </div>
-                            </div>
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Webinar Image
+                    </label>
+                    <div className="flex items-center gap-4">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                            id="webinar-image"
+                        />
+                        <label
+                            htmlFor="webinar-image"
+                            className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100 transition-colors"
+                        >
+                            <FaUpload className="w-4 h-4" />
+                            Upload Image
+                        </label>
+                        {imageFile && (
+                            <span className="text-sm text-gray-600">
+                                {imageFile.name}
+                            </span>
+                        )}
+                        {(formData.image && !imageFile) && (
+                            <span className="text-sm text-gray-600">
+                                Current image uploaded
+                            </span>
                         )}
                     </div>
                 </div>
 
-                {/* Submit Button */}
-                <div className="flex justify-end pt-4">
-                    <button
-                        disabled={loading}
-                        type="submit"
-                        className="px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg hover:from-emerald-600 hover:to-teal-600 focus:ring-4 focus:ring-emerald-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[140px] justify-center"
-                    >
-                        {loading ? (
-                            <>
-                                <Spinner />
-                                Processing...
-                            </>
-                        ) : (
-                            <>
-                                <FaCheck />
-                                {isEdit ? 'Update Webinar' : 'Create Webinar'}
-                            </>
+                {/* Attendees */}
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Attendees
+                    </label>
+                    <div className="space-y-3">
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={attendeeInput}
+                                onChange={(e) => setAttendeeInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAttendee())}
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                                placeholder="Add attendee name"
+                            />
+                            <button
+                                type="button"
+                                onClick={addAttendee}
+                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                            >
+                                Add
+                            </button>
+                        </div>
+                        {formData.attendees && formData.attendees.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {formData.attendees.map((attendee, index) => (
+                                    <span
+                                        key={index}
+                                        className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                                    >
+                                        {attendee}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeAttendee(index)}
+                                            className="text-green-600 hover:text-green-800"
+                                        >
+                                            <FaTimes className="w-3 h-3" />
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
                         )}
-                    </button>
+                    </div>
                 </div>
-            </form>
-        </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+                <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex items-center gap-2 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+                >
+                    {loading ? (
+                        <>
+                            <FaSpinner className="w-4 h-4 animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <FaSave className="w-4 h-4" />
+                            {isEdit ? 'Update Webinar' : 'Create Webinar'}
+                        </>
+                    )}
+                </button>
+            </div>
+        </form>
     )
 }
 
-export default AddWebinars
+export default AddWebinar

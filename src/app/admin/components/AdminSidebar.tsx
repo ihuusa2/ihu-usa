@@ -146,6 +146,15 @@ const AdminSidebar = () => {
       hoverColor: 'hover:bg-pink-50'
     },
     {
+      title: 'Calendar Management',
+      href: '/admin/Calendar-Management',
+      icon: FaCalendarAlt,
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50',
+      borderColor: 'border-indigo-200',
+      hoverColor: 'hover:bg-indigo-50'
+    },
+    {
       title: 'Event Registrations',
       href: '/admin/Event-Registrations',
       icon: FaClipboardList,
