@@ -1,304 +1,164 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import Image from 'next/image'
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-const HeroCarousel = () => {
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const [touchStart, setTouchStart] = useState(0)
-  const [touchEnd, setTouchEnd] = useState(0)
-  const [imageError, setImageError] = useState<{[key: number]: boolean}>({})
-  const [isHydrated, setIsHydrated] = useState(false)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const totalSlides = 3
+interface CarouselImage {
+  src: string;
+  alt: string;
+  title?: string;
+  description?: string;
+}
 
-  // Banner images array
-  const bannerImages = useMemo(() => [
-    '/Images/Banners/banner1.jpeg',
-    '/Images/Banners/banner2.jpeg',
-    '/Images/Banners/banner3.jpeg'
-  ], [])
+interface HeroCarouselProps {
+  images: CarouselImage[];
+  autoPlay?: boolean;
+  interval?: number;
+}
 
-  // Set hydrated state after component mounts
+const HeroCarousel: React.FC<HeroCarouselProps> = ({ 
+  images, 
+  autoPlay = true, 
+  interval = 5000 
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Auto-play functionality
   useEffect(() => {
-    setIsHydrated(true)
-  }, [])
+    if (!autoPlay) return;
 
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, interval);
 
-
-  // Auto-advance slides
-  useEffect(() => {
-    if (isAutoPlaying && isHydrated) {
-      intervalRef.current = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % totalSlides)
-      }, 4000)
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [isAutoPlaying, totalSlides, isHydrated])
-
-  // Touch handlers for mobile swipe
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX)
-    setIsAutoPlaying(false)
-  }, [])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }, [])
-
-  const handleTouchEnd = useCallback(() => {
-    if (!touchStart || !touchEnd) return
-    
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > 50
-    const isRightSwipe = distance < -50
-
-    if (isLeftSwipe) {
-      setCurrentSlide((prev) => (prev + 1) % totalSlides)
-    } else if (isRightSwipe) {
-      setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
-    }
-
-    setTimeout(() => setIsAutoPlaying(true), 3000)
-  }, [touchStart, touchEnd, totalSlides])
+    return () => clearInterval(timer);
+  }, [autoPlay, interval, images.length]);
 
   const goToSlide = useCallback((index: number) => {
-    setCurrentSlide(index)
-    setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 3000)
-  }, [])
+    setCurrentIndex(index);
+  }, []);
 
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides)
-    setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 3000)
-  }, [totalSlides])
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  }, [images.length]);
 
-  const previousSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
-    setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 3000)
-  }, [totalSlides])
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+  }, [images.length]);
 
-  const handleImageError = useCallback((index: number) => {
-    console.error(`Failed to load image in carousel: ${bannerImages[index]}`)
-    setImageError(prev => ({ ...prev, [index]: true }))
-  }, [bannerImages])
+  // Touch handlers for mobile swipe
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  }, []);
 
-  const handleImageLoad = useCallback((index: number) => {
-    console.log(`Successfully loaded image in carousel: ${bannerImages[index]}`)
-  }, [bannerImages])
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  }, []);
 
-  // Show skeleton only during initial load, not during hydration
-  if (!isHydrated) {
-    return (
-      <div 
-        className="relative bg-gray-900 overflow-hidden h-[250px] md:h-[350px] lg:h-[450px] xl:h-[500px] 2xl:h-[600px]"
-        style={{
-          width: '100%',
-          minHeight: '250px'
-        }}
-      >
-        {/* Skeleton background */}
-        <div 
-          className="w-full h-full animate-pulse"
-          style={{
-            background: 'linear-gradient(135deg, #fed7aa, #fbbf24)',
-            width: '100%',
-            height: '100%'
-          }}
-        />
-        
-        {/* Skeleton navigation buttons */}
-        <div
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 rounded-full shadow-lg animate-pulse"
-          style={{
-            width: '36px',
-            height: '36px'
-          }}
-        />
-        
-        <div
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 rounded-full shadow-lg animate-pulse"
-          style={{
-            width: '36px',
-            height: '36px'
-          }}
-        />
+  const onTouchEnd = useCallback(() => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
 
-        {/* Skeleton indicators */}
-        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          {Array.from({ length: 3 }, (_, index) => (
-            <div
-              key={index}
-              className="rounded-full animate-pulse"
-              style={{
-                width: '10px',
-                height: '10px',
-                backgroundColor: 'rgba(255,255,255,0.5)'
-              }}
-            />
-          ))}
-        </div>
+    if (isLeftSwipe) {
+      goToNext();
+    } else if (isRightSwipe) {
+      goToPrevious();
+    }
+  }, [touchStart, touchEnd, goToNext, goToPrevious]);
 
-        {/* Skeleton progress bar */}
-        <div 
-          className="absolute bottom-0 left-0 w-full"
-          style={{ height: '3px', backgroundColor: 'rgba(0,0,0,0.3)' }}
-        >
-          <div 
-            className="h-full animate-pulse"
-            style={{
-              width: '33%',
-              background: 'linear-gradient(to right, #f97316, #f59e0b)'
-            }}
-          />
-        </div>
-      </div>
-    )
+  if (!images || images.length === 0) {
+    return null;
   }
 
   return (
-    <div 
-      className="relative bg-gray-900 overflow-hidden hero-carousel h-[250px] md:h-[350px] lg:h-[450px] xl:h-[500px] 2xl:h-[600px]"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      style={{
-        width: '100%',
-        minHeight: '250px',
-        zIndex: 1,
-        position: 'relative'
-      }}
+    <section 
+      className="relative w-full h-[250px] sm:h-[350px] md:h-[500px] lg:h-[650px] xl:h-[750px] 2xl:h-[850px] 3xl:h-[900px] overflow-hidden"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
-
-
-      {/* Image slides with fade transition */}
-      {Array.from({ length: totalSlides }, (_, index) => (
-        <div
-          key={index}
-          className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-          style={{
-            opacity: index === currentSlide ? 1 : 0,
-            zIndex: index === currentSlide ? 2 : 1
-          }}
-        >
-          <div 
-            className="relative w-full h-full"
-            style={{ width: '100%', height: '100%' }}
+      {/* Carousel Container */}
+      <div className="relative w-full h-full">
+        {images.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentIndex ? 'opacity-100' : 'opacity-0'
+            }`}
           >
-            {!imageError[index] ? (
+            {/* Image */}
+            <div className="relative w-full h-full">
               <Image
-                src={bannerImages[index]}
-                alt={`Hero Banner ${index + 1}`}
+                src={image.src}
+                alt={image.alt}
                 fill
                 className="object-cover object-center"
-                onError={() => handleImageError(index)}
-                onLoad={() => handleImageLoad(index)}
                 priority={index === 0}
-                sizes="100vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, (max-width: 1280px) 100vw, (max-width: 1536px) 100vw, (max-width: 1920px) 100vw, 100vw"
               />
-            ) : (
-              <div 
-                className="w-full h-full flex items-center justify-center"
-                style={{
-                  background: 'linear-gradient(135deg, #f97316, #f59e0b, #f97316)',
-                  width: '100%',
-                  height: '100%'
-                }}
-              >
-                <div className="text-white text-center">
-                  <div className="text-2xl font-bold mb-2">Banner {index + 1}</div>
-                  <div className="text-sm">Image not available</div>
-                  <div className="text-xs mt-1">{bannerImages[index]}</div>
-                </div>
-              </div>
-            )}
-            
-            {/* Light overlay for better contrast */}
-            <div 
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(to top, rgba(0,0,0,0.2), rgba(0,0,0,0.05), rgba(0,0,0,0.1))'
-              }}
-            />
+              
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/20"></div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
-      {/* Navigation buttons */}
+      {/* Navigation Arrows */}
       <button
-        onClick={previousSlide}
-        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 text-gray-800 rounded-full shadow-lg z-20 transition-all duration-300 hover:bg-opacity-100 hover:scale-110"
-        style={{
-          width: '36px',
-          height: '36px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
+        onClick={goToPrevious}
+        className="absolute left-2 sm:left-3 md:left-4 lg:left-6 xl:left-8 2xl:left-10 3xl:left-12 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-1.5 sm:p-2 md:p-2.5 lg:p-3 xl:p-4 2xl:p-5 3xl:p-6 rounded-full transition-all duration-300 hover:scale-110 z-10 shadow-lg hover:shadow-xl"
+        aria-label="Previous slide"
       >
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
+        <FaChevronLeft className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 3xl:text-3xl" />
+      </button>
+      
+      <button
+        onClick={goToNext}
+        className="absolute right-2 sm:right-3 md:right-4 lg:right-6 xl:right-8 2xl:right-10 3xl:right-12 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-1.5 sm:p-2 md:p-2.5 lg:p-3 xl:p-4 2xl:p-5 3xl:p-6 rounded-full transition-all duration-300 hover:scale-110 z-10 shadow-lg hover:shadow-xl"
+        aria-label="Next slide"
+      >
+        <FaChevronRight className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 3xl:text-3xl" />
       </button>
 
-      <button
-        onClick={nextSlide}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 text-gray-800 rounded-full shadow-lg z-20 transition-all duration-300 hover:bg-opacity-100 hover:scale-110"
-        style={{
-          width: '36px',
-          height: '36px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-
-      {/* Slide indicators */}
-      <div 
-        className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20"
-      >
-        {Array.from({ length: totalSlides }, (_, index) => (
+      {/* Dots Indicator */}
+      <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 2xl:bottom-12 3xl:bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 2xl:space-x-5 3xl:space-x-6 z-10">
+        {images.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className="rounded-full transition-all duration-300"
-            style={{
-              width: '10px',
-              height: '10px',
-              backgroundColor: index === currentSlide ? 'white' : 'rgba(255,255,255,0.5)',
-              transform: index === currentSlide ? 'scale(1.2)' : 'scale(1)'
-            }}
+            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-4 md:h-4 lg:w-6 lg:h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 3xl:w-12 3xl:h-12 rounded-full transition-all duration-300 ${
+              index === currentIndex 
+                ? 'bg-white scale-125' 
+                : 'bg-white/50 hover:bg-white/75'
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
 
-      {/* Progress bar */}
-      <div 
-        className="absolute bottom-0 left-0 w-full z-20"
-        style={{ height: '3px', backgroundColor: 'rgba(0,0,0,0.3)' }}
-      >
-        <div 
-          className="h-full transition-all duration-300 ease-out"
-          style={{
-            width: `${((currentSlide + 1) / totalSlides) * 100}%`,
-            background: 'linear-gradient(to right, #f97316, #f59e0b)'
-          }}
-        />
-      </div>
-    </div>
-  )
-}
+      {/* Progress Bar */}
+      {autoPlay && (
+        <div className="absolute bottom-0 left-0 w-full h-0.5 sm:h-1 md:h-1.5 lg:h-2 xl:h-2.5 2xl:h-3 3xl:h-4 bg-white/20">
+          <div 
+            className="h-full bg-white transition-all duration-1000 ease-linear"
+            style={{ 
+              width: `${((currentIndex + 1) / images.length) * 100}%` 
+            }}
+          />
+        </div>
+      )}
+    </section>
+  );
+};
 
-export default HeroCarousel
+export default HeroCarousel;

@@ -3,7 +3,9 @@
 import About from '@/components/About';
 import Programs from '@/components/Programs';
 import FlyersSection from '@/components/Flyers';
+import HeroCarousel from '@/components/HeroCarousel';
 import { Blog } from '@/Types/Blogs';
+import { CarouselImage } from '@/Types/Carousel';
 import React from 'react'
 import { CiCircleCheck } from 'react-icons/ci';
 import { FaBook, FaHandsHelping, FaUser, FaGraduationCap, FaUsers, FaLightbulb, FaHeart, FaPlay, FaArrowRight, FaStar, FaAward, FaClock, FaShieldAlt } from "react-icons/fa";
@@ -13,17 +15,31 @@ import { GiLotus } from "react-icons/gi";
 import { IoIosArrowForward } from "react-icons/io";
 import Link from 'next/link'
 import UpcomingCoursePopup from './UpcomingCoursePopup';
-import HeroCarousel from '@/components/HeroCarousel';
 import Image from 'next/image';
 
 type Props = {
   blogs: { list: Blog[], count: number }
+  carouselImages: CarouselImage[]
 }
 
-const HomeClientNew = ({ blogs }: Props) => {
+const HomeClientNew = ({ blogs, carouselImages }: Props) => {
+  // Transform carousel data to match HeroCarousel interface
+  const transformedCarouselImages = carouselImages.map(image => ({
+    src: image.src,
+    alt: image.alt,
+    title: image.title,
+    description: image.description
+  }));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50/30 to-amber-50/30">
       <UpcomingCoursePopup />
+      
+      {/* Hero Carousel */}
+      <HeroCarousel images={transformedCarouselImages} />
+      
+      {/* Flyers Section */}
+      <FlyersSection />
       
       {/* Hero Section */}
       <HeroSection />
@@ -33,9 +49,6 @@ const HomeClientNew = ({ blogs }: Props) => {
       
       {/* About Section */}
       <About />
-      
-      {/* Flyers Section */}
-      <FlyersSection />
       
       {/* Statistics */}
       <Statistics />
@@ -64,11 +77,6 @@ const HomeClientNew = ({ blogs }: Props) => {
 const HeroSection = () => {
   return (
     <section className="relative w-full">
-      {/* Hero Carousel - Full Width */}
-      <div className="w-full">
-        <HeroCarousel />
-      </div>
-      
       {/* Hero Content - Separate Section */}
       <div className="bg-gradient-to-br from-white via-orange-50/40 to-amber-50/40 py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 relative overflow-hidden">
         {/* Background decorative elements */}

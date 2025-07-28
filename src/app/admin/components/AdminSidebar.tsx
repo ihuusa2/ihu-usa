@@ -182,6 +182,15 @@ const AdminSidebar = () => {
       hoverColor: 'hover:bg-blue-50'
     },
     {
+      title: 'Carousel',
+      href: '/admin/Carousel',
+      icon: FaImages,
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50',
+      borderColor: 'border-indigo-200',
+      hoverColor: 'hover:bg-indigo-50'
+    },
+    {
       title: 'Video Gallery',
       href: '/admin/Video-Gallery',
       icon: FaImages,

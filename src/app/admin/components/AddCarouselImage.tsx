@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Spinner from '@/components/Spinner'
-import { createFlyer, updateFlyer } from '@/Server/Flyers'
-import { Flyers } from '@/Types/Gallery'
+import { createCarouselImage, updateCarouselImage } from '@/Server/Carousel'
+import { CarouselImage } from '@/Types/Carousel'
 import cloudinaryImageUploadMethod from '@/functions/cloudinary'
 
 // ImagePreview component for File objects
@@ -44,44 +44,40 @@ const ImagePreview = ({ file }: { file: File }) => {
 }
 
 type Props = {
-    setData: React.Dispatch<React.SetStateAction<Flyers[]>>
+    setData: React.Dispatch<React.SetStateAction<CarouselImage[]>>
     setOpen?: React.Dispatch<React.SetStateAction<boolean>>
     isEdit?: boolean
-    editData?: Flyers
+    editData?: CarouselImage
 }
 
-const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
-    const [value, setValue] = useState<Flyers>(isEdit ? editData as Flyers : {
+const AddCarouselImage = ({ setData, isEdit, editData, setOpen }: Props) => {
+    const [value, setValue] = useState<Omit<CarouselImage, 'src'> & { src: string | File }>(isEdit ? editData as CarouselImage : {
+        src: '',
+        alt: '',
         title: '',
         description: '',
-        image: '',
-        link: '',
         isActive: true,
         displayOrder: 1,
-        startDate: undefined,
-        endDate: undefined,
     })
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
 
     useEffect(() => {
         if (isEdit) {
-            setValue(editData as Flyers)
+            setValue(editData as CarouselImage)
         }
     }, [isEdit, editData])
 
-
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (value.title.trim() === '') return
+        if (value.alt.trim() === '') return
 
         setLoading(true)
-        let newImage = value.image as string
+        let newImage = value.src as string
 
-        if (value.image instanceof File) {
+        if (value.src instanceof File) {
             try {
-                const data = await cloudinaryImageUploadMethod(value.image)
+                const data = await cloudinaryImageUploadMethod(value.src)
                 newImage = data.secure_url
             } catch {
                 setMessage('Image upload failed.')
@@ -90,13 +86,13 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
             }
         }
 
-        const formData: Flyers = {
+        const formData: CarouselImage = {
             ...value,
-            image: newImage as string,
+            src: newImage as string,
         }
 
         if (isEdit) {
-            await updateFlyer({ ...formData }).then((res) => {
+            await updateCarouselImage({ ...formData }).then((res) => {
                 if (res) {
                     setData((prev) =>
                         prev.map((item) => (item._id === res._id ? res : item))
@@ -111,7 +107,7 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                 .finally(() => setLoading(false))
         }
         else {
-            await createFlyer(formData).then((res) => {
+            await createCarouselImage(formData).then((res) => {
                 if (res?.insertedId) {
                     setData((prev) => [
                         ...prev,
@@ -128,13 +124,8 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
         }
     }
 
-    const formatDateForInput = (date: Date | undefined) => {
-        if (!date) return ''
-        return new Date(date).toISOString().split('T')[0]
-    }
-
     const clearImage = () => {
-        setValue({ ...value, image: '' })
+        setValue({ ...value, src: '' })
         setMessage('')
     }
 
@@ -156,13 +147,31 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900">Flyer Information</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">Carousel Image Information</h3>
                     </div>
 
                     <div className="space-y-6">
                         <div>
+                            <label htmlFor="alt" className="block text-sm font-medium text-gray-700 mb-2">
+                                Alt Text <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                disabled={loading}
+                                type="text"
+                                id="alt"
+                                name="alt"
+                                value={value.alt}
+                                onChange={(e) => setValue({ ...value, alt: e.target.value })}
+                                required
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
+                                placeholder="Enter alt text for accessibility"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">This text is used for screen readers and SEO</p>
+                        </div>
+
+                        <div>
                             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                                Flyer Title <span className="text-red-500">*</span>
+                                Title (Optional)
                             </label>
                             <input
                                 disabled={loading}
@@ -171,15 +180,14 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 name="title"
                                 value={value.title}
                                 onChange={(e) => setValue({ ...value, title: e.target.value })}
-                                required
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
-                                placeholder="Enter flyer title"
+                                placeholder="Enter image title"
                             />
                         </div>
 
                         <div>
                             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                                Description
+                                Description (Optional)
                             </label>
                             <textarea
                                 disabled={loading}
@@ -189,23 +197,7 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 value={value.description}
                                 onChange={(e) => setValue({ ...value, description: e.target.value })}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none disabled:bg-gray-50 disabled:text-gray-500"
-                                placeholder="Enter flyer description (optional)"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="link" className="block text-sm font-medium text-gray-700 mb-2">
-                                Link URL
-                            </label>
-                            <input
-                                disabled={loading}
-                                type="url"
-                                id="link"
-                                name="link"
-                                value={value.link}
-                                onChange={(e) => setValue({ ...value, link: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
-                                placeholder="https://example.com"
+                                placeholder="Enter image description"
                             />
                         </div>
                     </div>
@@ -229,7 +221,7 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Active Status
                                 </label>
-                                <p className="text-xs text-gray-500">Show this flyer on the home screen</p>
+                                <p className="text-xs text-gray-500">Show this image in the carousel</p>
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer">
                                 <input
@@ -258,45 +250,7 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
                                 placeholder="1"
                             />
-                            <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Start Date (Optional)
-                                </label>
-                                <input
-                                    disabled={loading}
-                                    type="date"
-                                    id="startDate"
-                                    name="startDate"
-                                    value={formatDateForInput(value.startDate)}
-                                    onChange={(e) => setValue({ 
-                                        ...value, 
-                                        startDate: e.target.value ? new Date(e.target.value) : undefined 
-                                    })}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
-                                    End Date (Optional)
-                                </label>
-                                <input
-                                    disabled={loading}
-                                    type="date"
-                                    id="endDate"
-                                    name="endDate"
-                                    value={formatDateForInput(value.endDate)}
-                                    onChange={(e) => setValue({ 
-                                        ...value, 
-                                        endDate: e.target.value ? new Date(e.target.value) : undefined 
-                                    })}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
-                                />
-                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Lower numbers appear first in the carousel</p>
                         </div>
                     </div>
                 </div>
@@ -309,7 +263,7 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900">Upload Flyer Image</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">Upload Carousel Image</h3>
                     </div>
 
                     <div className="space-y-4">
@@ -340,7 +294,7 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                             }
                                             
                                             console.log('File selected:', file.name, file.type, file.size)
-                                            setValue({ ...value, image: file })
+                                            setValue({ ...value, src: file })
                                             setMessage('') // Clear any previous error messages
                                         }
                                     }}
@@ -349,7 +303,7 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 />
                                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                                     <div className="text-center">
-                                        {!value.image && (
+                                        {!value.src && (
                                             <>
                                                 <svg className="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -360,10 +314,11 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                     </div>
                                 </div>
                             </div>
+                            <p className="text-xs text-gray-500 mt-2">Recommended size: 1920x1080 pixels or similar aspect ratio</p>
                         </div>
 
                         {/* Image Preview */}
-                        {value.image && (
+                        {value.src && (
                             <div className="mt-6">
                                 <div className="flex items-center justify-between mb-3">
                                     <p className="text-sm font-medium text-gray-700">Image Preview:</p>
@@ -376,17 +331,17 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                     </button>
                                 </div>
                                 <div className="relative inline-block">
-                                    {value.image instanceof File ? (
+                                    {value.src instanceof File ? (
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-2">File selected: {value.image.name}</p>
-                                            <ImagePreview file={value.image} />
+                                            <p className="text-xs text-gray-500 mb-2">File selected: {value.src.name}</p>
+                                            <ImagePreview file={value.src} />
                                         </div>
-                                    ) : typeof value.image === 'string' && value.image && value.image.trim() !== '' ? (
+                                    ) : typeof value.src === 'string' && value.src && value.src.trim() !== '' ? (
                                         <div>
                                             <p className="text-xs text-gray-500 mb-2">URL preview</p>
                                             <Image
-                                                src={value.image}
-                                                alt="flyer preview"
+                                                src={value.src}
+                                                alt="carousel image preview"
                                                 width={192}
                                                 height={192}
                                                 className="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-lg"
@@ -424,7 +379,7 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
-                                <span>{isEdit ? 'Update Flyer' : 'Add Flyer'}</span>
+                                <span>{isEdit ? 'Update Carousel Image' : 'Add Carousel Image'}</span>
                             </>
                         )}
                     </button>
@@ -434,4 +389,4 @@ const AddFlyer = ({ setData, isEdit, editData, setOpen }: Props) => {
     )
 }
 
-export default AddFlyer 
+export default AddCarouselImage 
