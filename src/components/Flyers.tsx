@@ -198,33 +198,6 @@ const FlyersSection = () => {
                         priority={index === 0}
                       />
                     </div>
-                    
-                    {/* Content Overlay - Positioned at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                      <div className="max-w-2xl">
-                        <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 text-white leading-tight">
-                          {flyer.title}
-                        </h3>
-                        {flyer.description && (
-                          <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-200 mb-4 sm:mb-6 md:mb-8 line-clamp-2 sm:line-clamp-3 leading-relaxed">
-                            {flyer.description}
-                          </p>
-                        )}
-                        
-                        {/* Action Button */}
-                        {flyer.link && (
-                          <Link 
-                            href={flyer.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 sm:gap-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 border border-white/30 font-semibold text-xs sm:text-sm md:text-base group/btn touch-manipulation"
-                          >
-                            <span>Learn More</span>
-                            <FaExternalLinkAlt className="w-3 h-3 sm:w-4 sm:h-4 group-hover/btn:translate-x-1 transition-transform duration-300" />
-                          </Link>
-                        )}
-                      </div>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -267,44 +240,80 @@ const FlyersSection = () => {
             )}
           </div>
 
-          {/* Dots Indicator */}
-          {flyers.length > 1 && (
-            <div className="flex justify-center mt-6 sm:mt-8 md:mt-10 space-x-2 sm:space-x-3 md:space-x-4">
-              {flyers.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  className={`w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 rounded-full transition-all duration-300 touch-manipulation ${
-                    index === currentIndex
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 scale-125 shadow-lg'
-                      : 'bg-gray-300 hover:bg-gray-400 hover:scale-110'
-                  }`}
-                  aria-label={`Go to flyer ${index + 1}`}
-                />
-              ))}
+          {/* Content Below Image */}
+          <div className="mt-6 sm:mt-8 md:mt-10 text-center px-4 sm:px-6">
+            <div className="max-w-2xl mx-auto bg-white/90 backdrop-blur-sm rounded-xl p-6 sm:p-8 shadow-lg border border-blue-200/60">
+              <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-3 sm:mb-4 text-gray-800 leading-tight">
+                {flyers[currentIndex]?.title}
+              </h3>
+              {flyers[currentIndex]?.description && (
+                <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4 sm:mb-6 leading-relaxed">
+                  {flyers[currentIndex]?.description}
+                </p>
+              )}
+              
+              {/* Action Button */}
+              {flyers[currentIndex]?.link && (
+                <Link 
+                  href={flyers[currentIndex]?.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base group/btn touch-manipulation"
+                >
+                  <span>Joining Link</span>
+                  <FaExternalLinkAlt className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" />
+                </Link>
+              )}
+              
+              {/* Webinars Link Button */}
+              <Link 
+                href="/Webinars"
+                className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base group/btn touch-manipulation ml-3 sm:ml-4"
+              >
+                <span>View Webinars</span>
+                <FaExternalLinkAlt className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" />
+              </Link>
             </div>
-          )}
-
-          {/* Flyer Counter */}
-          {flyers.length > 1 && (
-            <div className="text-center mt-4 sm:mt-6 md:mt-8">
-              <span className="text-xs sm:text-sm md:text-base text-gray-600 font-medium bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-1 sm:py-2 rounded-full border border-gray-200">
-                {currentIndex + 1} of {flyers.length}
-              </span>
-            </div>
-          )}
-
-          {/* Mobile Swipe Indicator */}
-          {isMobile && flyers.length > 1 && (
-            <div className="text-center mt-4">
-              <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-gray-600 border border-gray-200">
-                <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
-                <span>Swipe to navigate</span>
-                <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
+
+        {/* Dots Indicator */}
+        {flyers.length > 1 && (
+          <div className="flex justify-center mt-6 sm:mt-8 md:mt-10 space-x-2 sm:space-x-3 md:space-x-4">
+            {flyers.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 rounded-full transition-all duration-300 touch-manipulation ${
+                  index === currentIndex
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 scale-125 shadow-lg'
+                    : 'bg-gray-300 hover:bg-gray-400 hover:scale-110'
+                }`}
+                aria-label={`Go to flyer ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Flyer Counter */}
+        {flyers.length > 1 && (
+          <div className="text-center mt-4 sm:mt-6 md:mt-8">
+            <span className="text-xs sm:text-sm md:text-base text-gray-600 font-medium bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-1 sm:py-2 rounded-full border border-gray-200">
+              {currentIndex + 1} of {flyers.length}
+            </span>
+          </div>
+        )}
+
+        {/* Mobile Swipe Indicator */}
+        {isMobile && flyers.length > 1 && (
+          <div className="text-center mt-4">
+            <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-gray-600 border border-gray-200">
+              <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
+              <span>Swipe to navigate</span>
+              <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )
