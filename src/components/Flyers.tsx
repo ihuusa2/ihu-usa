@@ -252,27 +252,30 @@ const FlyersSection = () => {
                 </p>
               )}
               
-              {/* Action Button */}
-              {flyers[currentIndex]?.link && (
+              {/* Action Buttons Container */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+                {/* Action Button */}
+                {flyers[currentIndex]?.link && (
+                  <Link 
+                    href={flyers[currentIndex]?.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base group/btn touch-manipulation"
+                  >
+                    <span>Joining Link</span>
+                    <FaExternalLinkAlt className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                )}
+                
+                {/* Webinars Link Button */}
                 <Link 
-                  href={flyers[currentIndex]?.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base group/btn touch-manipulation"
+                  href="/Webinars"
+                  className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base group/btn touch-manipulation"
                 >
-                  <span>Joining Link</span>
+                  <span>View Webinars</span>
                   <FaExternalLinkAlt className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" />
                 </Link>
-              )}
-              
-              {/* Webinars Link Button */}
-              <Link 
-                href="/Webinars"
-                className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base group/btn touch-manipulation ml-3 sm:ml-4"
-              >
-                <span>View Webinars</span>
-                <FaExternalLinkAlt className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" />
-              </Link>
+              </div>
             </div>
           </div>
         </div>
