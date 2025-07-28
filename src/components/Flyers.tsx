@@ -177,7 +177,8 @@ const FlyersSection = () => {
           
           {/* Main Flyer Display */}
           <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-blue-200/60 overflow-hidden group">
-            <div className="relative h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[32rem] 2xl:h-[36rem]">
+            {/* Responsive container for full image display */}
+            <div className="relative w-full h-auto min-h-[300px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] xl:min-h-[700px] 2xl:min-h-[800px]">
               {flyers.map((flyer, index) => (
                 <div
                   key={flyer._id}
@@ -185,22 +186,21 @@ const FlyersSection = () => {
                     index === currentIndex ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
                   }`}
                 >
-                  <div className="relative w-full h-full">
-                    {/* Flyer Image */}
-                    <Image
-                      src={flyer.image as string}
-                      alt={flyer.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px"
-                      priority={index === 0}
-                    />
+                  <div className="relative w-full h-full flex items-center justify-center bg-gray-100">
+                    {/* Flyer Image - Full display with contain */}
+                    <div className="relative w-full h-full flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12">
+                      <Image
+                        src={flyer.image as string}
+                        alt={flyer.title}
+                        fill
+                        className="object-contain transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px"
+                        priority={index === 0}
+                      />
+                    </div>
                     
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                    
-                    {/* Content Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12">
+                    {/* Content Overlay - Positioned at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                       <div className="max-w-2xl">
                         <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 text-white leading-tight">
                           {flyer.title}
@@ -235,7 +235,7 @@ const FlyersSection = () => {
               <>
                 <button
                   onClick={prevSlide}
-                  className={`absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/30 touch-manipulation ${
+                  className={`absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/30 touch-manipulation z-10 ${
                     isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   }`}
                   aria-label="Previous flyer"
@@ -245,7 +245,7 @@ const FlyersSection = () => {
                 
                 <button
                   onClick={nextSlide}
-                  className={`absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/30 touch-manipulation ${
+                  className={`absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/30 touch-manipulation z-10 ${
                     isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   }`}
                   aria-label="Next flyer"
@@ -259,7 +259,7 @@ const FlyersSection = () => {
             {flyers.length > 1 && (
               <button
                 onClick={toggleAutoPlay}
-                className="absolute top-2 sm:top-4 right-2 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/30 touch-manipulation"
+                className="absolute top-2 sm:top-4 right-2 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/30 touch-manipulation z-10"
                 aria-label={isAutoPlaying ? 'Pause auto-play' : 'Start auto-play'}
               >
                 {isAutoPlaying ? <FaPause className="w-3 h-3 sm:w-4 sm:h-4" /> : <FaPlay className="w-3 h-3 sm:w-4 sm:h-4" />}
