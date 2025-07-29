@@ -35,27 +35,21 @@ export const getAllFlyers = async ({ searchParams }: {
 
 export const getActiveFlyers = async (): Promise<Flyers[]> => {
     const currentDate = new Date();
-    const list = await FlyersCollection.find({
-        isActive: true,
-        $and: [
-            {
-                $or: [
-                    { startDate: { $lte: currentDate } },
-                    { startDate: { $exists: false } }
-                ]
-            },
-            {
-                $or: [
-                    { endDate: { $gte: currentDate } },
-                    { endDate: { $exists: false } }
-                ]
-            }
-        ]
-    })
-    .sort({ displayOrder: 1, createdAt: -1 })
-    .toArray()
+    
+    // Get all active flyers and filter them by date in JavaScript
+    // since dates are stored as strings in the database
+    const activeFlyers = await FlyersCollection.find({ isActive: true })
+        .sort({ displayOrder: 1, createdAt: -1 })
+        .toArray();
+    
+    // Filter by date in JavaScript since dates are stored as strings
+    const filteredFlyers = activeFlyers.filter(flyer => {
+        const hasValidStartDate = !flyer.startDate || new Date(flyer.startDate) <= currentDate;
+        const hasValidEndDate = !flyer.endDate || new Date(flyer.endDate) >= currentDate;
+        return hasValidStartDate && hasValidEndDate;
+    });
 
-    return JSON.parse(JSON.stringify(list))
+    return JSON.parse(JSON.stringify(filteredFlyers))
 }
 
 export const getFlyerById = async (id: string): Promise<Flyers | null> => {
