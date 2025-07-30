@@ -12,8 +12,37 @@ const Users = db.collection('Users');
 
 export const createUser = async ({ _id, password, ...rest }: User): Promise<InsertOneResult> => {
     if (!password) throw new Error('Password is required');
+    
+    // Generate registration number if not provided
+    let registrationNumber = rest.registrationNumber;
+    if (!registrationNumber) {
+        const currentYear = new Date().getFullYear();
+        
+        // Get existing registration numbers from both Users and Registration collections
+        const [existingUsers, existingRegistrations] = await Promise.all([
+            Users.find({ registrationNumber: { $exists: true, $ne: "" } }).toArray(),
+            db.collection("Registration").find({ 
+                registrationNumber: { $exists: true, $ne: "" } 
+            }).toArray()
+        ]);
+        
+        const existingNumbers = [
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...existingUsers.map((user) => (user as any).registrationNumber),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...existingRegistrations.map((reg) => (reg as any).registrationNumber)
+        ].filter((num): num is string => num !== undefined && num.startsWith('IHU'));
+        
+        const { getNextRegistrationNumber } = await import('@/functions');
+        registrationNumber = getNextRegistrationNumber(currentYear, existingNumbers);
+    }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await Users.insertOne({ ...rest, password: hashedPassword });
+    const result = await Users.insertOne({ 
+        ...rest, 
+        registrationNumber,
+        password: hashedPassword 
+    });
     return JSON.parse(JSON.stringify(result));
 }
 

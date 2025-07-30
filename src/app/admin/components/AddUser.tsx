@@ -249,6 +249,23 @@ const AddUser = ({ setData, setOpen, isEdit, editData }: Props) => {
                             </select>
                         </div>
 
+                        {/* Registration Number Field */}
+                        <div>
+                            <label htmlFor="registrationNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                                Registration Number {!isEdit && '(Auto-generated if left blank)'}
+                            </label>
+                            <input
+                                disabled={loading}
+                                type="text"
+                                id="registrationNumber"
+                                name="registrationNumber"
+                                value={value.registrationNumber || ''}
+                                onChange={(e) => setValue({ ...value, registrationNumber: e.target.value })}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400"
+                                placeholder={isEdit ? "Enter registration number" : "Leave blank for auto-generation"}
+                            />
+                        </div>
+
                         {/* Password Field */}
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">

@@ -66,49 +66,37 @@ export const generateUniqueSlug = (baseSlug: string, existingSlugs: string[]): s
 }
 
 /**
- * Generate a registration number in format IHUYYMMDDX
- * @param date - The date for the registration (defaults to current date)
- * @param sequenceNumber - The sequence number for the day (1-9, defaults to 1)
- * @returns A registration number in format IHU2501136
+ * Generate a registration number in format IHUYYXXXXX
+ * @param year - The year for the registration (defaults to current year)
+ * @param sequenceNumber - The sequence number starting from 1176 (defaults to 1176)
+ * @returns A registration number in format IHU2501176
  */
-export const generateRegistrationNumber = (date: Date = new Date(), sequenceNumber: number = 1): string => {
-  const year = String(date.getFullYear()).slice(-2) // Get last 2 digits of year
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+export const generateRegistrationNumber = (year: number = new Date().getFullYear(), sequenceNumber: number = 1176): string => {
+  const yearSuffix = String(year).slice(-2) // Get last 2 digits of year
+  const sequence = String(sequenceNumber).padStart(5, '0') // Ensure 5-digit format
   
-  // Ensure sequence number is between 1-9 to maintain single digit format
-  const sequence = Math.min(Math.max(sequenceNumber, 1), 9).toString()
-  
-  return `IHU${year}${month}${day}${sequence}`
+  return `IHU${yearSuffix}${sequence}`
 }
 
 /**
- * Get the next available registration number for a given date
- * @param date - The date for the registration (defaults to current date)
+ * Get the next available registration number for a given year
+ * @param year - The year for the registration (defaults to current year)
  * @param existingNumbers - Array of existing registration numbers to check against
  * @returns The next available registration number
  */
-export const getNextRegistrationNumber = (date: Date = new Date(), existingNumbers: string[] = []): string => {
-  const baseNumber = generateRegistrationNumber(date, 1)
-  const datePrefix = baseNumber.slice(0, 9) // IHU250113
+export const getNextRegistrationNumber = (year: number = new Date().getFullYear(), existingNumbers: string[] = []): string => {
+  // Find the highest sequence number across ALL years (not just current year)
+  let maxSequence = 1175 // Start from 1175 so next will be 1176
   
-  // Find the highest sequence number for this date
-  let maxSequence = 0
   existingNumbers.forEach(number => {
-    if (number.startsWith(datePrefix)) {
-      const sequence = parseInt(number.slice(9), 10)
-      if (sequence > maxSequence && sequence <= 9) {
+    if (number.startsWith('IHU')) {
+      const sequence = parseInt(number.slice(5), 10) // Extract the 5-digit sequence
+      if (sequence > maxSequence) {
         maxSequence = sequence
       }
     }
   })
   
-  // If we've reached 9 registrations for the day, we need to handle this case
-  if (maxSequence >= 9) {
-    console.warn(`Maximum registrations (9) reached for date ${date.toISOString().split('T')[0]}. Consider using a different date or format.`)
-    // For now, we'll cycle back to 1, but you might want to handle this differently
-    return generateRegistrationNumber(date, 1)
-  }
-  
-  return generateRegistrationNumber(date, maxSequence + 1)
+  const nextSequence = maxSequence + 1
+  return generateRegistrationNumber(year, nextSequence)
 }

@@ -28,19 +28,16 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
     }
 
     // Generate registration number
-    const today = new Date()
+    const currentYear = new Date().getFullYear()
     const existingRegistrations = await Registration.find({ 
-        createdAt: { 
-            $gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-            $lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
-        } 
+        registrationNumber: { $exists: true, $ne: "" }
     }).toArray()
     
     const existingNumbers = existingRegistrations
         .map(reg => reg.registrationNumber)
         .filter((num): num is string => num !== undefined && num.startsWith('IHU'))
     
-    const registrationNumber = getNextRegistrationNumber(today, existingNumbers)
+    const registrationNumber = getNextRegistrationNumber(currentYear, existingNumbers)
 
     const result = await Registration.insertOne({ 
         ...rest, 
@@ -388,20 +385,16 @@ export const assignRegistrationNumbersToExisting = async (): Promise<{ success: 
 
         for (const registration of registrationsWithoutNumber) {
             try {
-                const registrationDate = registration.createdAt || new Date()
+                const registrationYear = (registration.createdAt || new Date()).getFullYear()
                 const existingRegistrations = await Registration.find({ 
-                    createdAt: { 
-                        $gte: new Date(registrationDate.getFullYear(), registrationDate.getMonth(), registrationDate.getDate()),
-                        $lt: new Date(registrationDate.getFullYear(), registrationDate.getMonth(), registrationDate.getDate() + 1)
-                    },
-                    registrationNumber: { $exists: true, $nin: [""] }
+                    registrationNumber: { $exists: true, $ne: "" }
                 }).toArray()
                 
                 const existingNumbers = existingRegistrations
                     .map(reg => reg.registrationNumber)
                     .filter((num): num is string => num !== undefined && num.startsWith('IHU'))
                 
-                const registrationNumber = getNextRegistrationNumber(registrationDate, existingNumbers)
+                const registrationNumber = getNextRegistrationNumber(registrationYear, existingNumbers)
 
                 await Registration.updateOne(
                     { _id: registration._id },
