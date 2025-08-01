@@ -32,21 +32,28 @@ const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isMedium, setIsMedium] = useState(false)
   const hasMounted = useHasMounted()
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 1024
+      const mobile = window.innerWidth < 768
+      const medium = window.innerWidth >= 768 && window.innerWidth < 1024
       setIsMobile(mobile)
+      setIsMedium(medium)
       if (!mobile) {
         setIsMobileOpen(false)
+      }
+      // Auto-collapse on medium devices for better space utilization
+      if (medium && !isCollapsed) {
+        setIsCollapsed(true)
       }
     }
 
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [isCollapsed])
 
   // Don't render mobile-specific elements until mounted to prevent hydration mismatch
   if (!hasMounted) {
@@ -305,37 +312,53 @@ const AdminSidebar = () => {
         </button>
       )}
 
+      {/* Medium Device Toggle Button */}
+      {isMedium && (
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="fixed top-4 left-4 z-50 p-2.5 bg-white shadow-lg rounded-xl border border-gray-200 hover:shadow-xl transition-all duration-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-105 md:p-3"
+          aria-label="Toggle sidebar"
+        >
+          {isCollapsed ? (
+            <FaExpand className="w-4 h-4 text-gray-700 md:w-5 md:h-5" />
+          ) : (
+            <FaChevronLeft className="w-4 h-4 text-gray-700 md:w-5 md:h-5" />
+          )}
+        </button>
+      )}
+
       {/* Sidebar */}
       <div className={`
         ${isMobile ? 'fixed' : 'relative'} inset-y-0 left-0 z-50
-        ${isCollapsed && !isMobile ? 'w-20' : 'w-64'} 
+        ${isCollapsed && !isMobile ? 'w-20' : isMobile ? 'w-80' : 'w-64'} 
         ${isMobile ? (isMobileOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}
         bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 shadow-2xl
         transition-all duration-300 ease-in-out
         flex flex-col h-screen max-h-screen
-        ${isMobile ? 'w-80' : ''}
+        ${isMedium ? 'md:w-20 md:shadow-lg' : ''}
+        md:border-r-2
       `}>
         {/* Header */}
-        <div className="relative flex items-center p-4 sm:p-6 border-b border-gray-200 min-h-[80px] sm:min-h-[90px] bg-white">
-          {isCollapsed && !isMobile ? (
+        <div className="relative flex items-center p-3 md:p-4 lg:p-6 border-b border-gray-200 min-h-[70px] md:min-h-[80px] lg:min-h-[90px] bg-white">
+          {(isCollapsed && !isMobile) || (isMedium && isCollapsed) ? (
             // Collapsed header - centered icon only
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mx-auto flex-shrink-0">
-              <FaCog className="text-white text-xl flex-shrink-0" />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mx-auto flex-shrink-0">
+              <FaCog className="text-white text-lg md:text-xl flex-shrink-0" />
             </div>
           ) : (
             // Expanded header - full content
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                  <FaCog className="text-white text-lg sm:text-xl" />
+              <div className="flex items-center gap-2 md:gap-3 lg:gap-4 flex-1">
+                <div className="w-9 h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <FaCog className="text-white text-base md:text-lg lg:text-xl" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h1 className="font-bold text-gray-800 text-lg sm:text-xl truncate">Admin Panel</h1>
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">IHU USA</p>
+                  <h1 className="font-bold text-gray-800 text-base md:text-lg lg:text-xl truncate">Admin Panel</h1>
+                  <p className="text-xs md:text-sm text-gray-500 truncate">IHU USA</p>
                 </div>
               </div>
               
-              {!isMobile && (
+              {!isMobile && !isMedium && (
                 <button
                   onClick={() => setIsCollapsed(!isCollapsed)}
                   className="p-2 hover:bg-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-105 flex-shrink-0 ml-2"
@@ -348,7 +371,7 @@ const AdminSidebar = () => {
           )}
           
           {/* Expand button for collapsed state */}
-          {isCollapsed && !isMobile && (
+          {isCollapsed && (!isMobile && !isMedium) && (
             <button
               onClick={() => setIsCollapsed(false)}
               className="absolute -right-3 top-1/2 transform -translate-y-1/2 bg-white border border-gray-200 rounded-full w-6 h-6 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:scale-110"
@@ -360,7 +383,7 @@ const AdminSidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-3 lg:p-4 space-y-1 md:space-y-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {navigationItems.map((item) => {
             const active = isActive(item.href, item.exact)
             const Icon = item.icon
@@ -370,17 +393,17 @@ const AdminSidebar = () => {
                 <Link
                   href={item.href}
                   className={`
-                    relative flex items-center gap-3 rounded-2xl
+                    relative flex items-center gap-2 md:gap-3 rounded-xl md:rounded-2xl
                     transition-all duration-300 ease-in-out group
-                    ${isCollapsed && !isMobile 
-                      ? 'justify-center px-2 py-3' 
-                      : 'justify-start px-3 py-3'
+                    ${(isCollapsed && !isMobile) || (isMedium && isCollapsed)
+                      ? 'justify-center px-2 py-2 md:py-3' 
+                      : 'justify-start px-2 md:px-3 py-2 md:py-3'
                     }
                     ${active 
                       ? `${item.bgColor} ${item.color} shadow-md border ${item.borderColor} transform scale-[1.02]` 
                       : `text-gray-600 hover:text-gray-800 ${item.hoverColor} hover:shadow-md hover:transform hover:scale-[1.02]`
                     }
-                    ${isMobile ? 'min-h-[56px]' : 'min-h-[52px]'}
+                    ${isMobile ? 'min-h-[56px]' : isMedium ? 'min-h-[48px]' : 'min-h-[52px]'}
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                     transform transition-all duration-300
                   `}
@@ -388,33 +411,33 @@ const AdminSidebar = () => {
                 >
                   {/* Icon container */}
                   <div className={`
-                    flex items-center justify-center rounded-xl transition-all duration-300 flex-shrink-0
-                    ${isCollapsed && !isMobile ? 'w-10 h-10' : 'w-9 h-9'}
+                    flex items-center justify-center rounded-lg md:rounded-xl transition-all duration-300 flex-shrink-0
+                    ${(isCollapsed && !isMobile) || (isMedium && isCollapsed) ? 'w-8 h-8 md:w-10 md:h-10' : 'w-8 h-8 md:w-9 md:h-9'}
                     ${active 
                       ? `${item.bgColor} shadow-md` 
                       : 'bg-transparent group-hover:bg-white/60 group-hover:scale-110'
                     }
                   `}>
                     <Icon className={`
-                      ${isCollapsed && !isMobile ? 'w-5 h-5' : 'w-4 h-4'} 
+                      ${(isCollapsed && !isMobile) || (isMedium && isCollapsed) ? 'w-4 h-4 md:w-5 md:h-5' : 'w-3.5 h-3.5 md:w-4 md:h-4'} 
                       ${active ? item.color : 'text-gray-500 group-hover:text-gray-700'}
                       transition-all duration-300
                     `} />
                   </div>
                   
                   {/* Text and arrow - hidden when collapsed */}
-                  {(!isCollapsed || isMobile) && (
+                  {((!isCollapsed || isMobile) && !(isMedium && isCollapsed)) && (
                     <>
-                      <span className="font-medium flex-1 text-sm">{item.title}</span>
-                      {active && <FaChevronRight className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse" />}
+                      <span className="font-medium flex-1 text-xs md:text-sm truncate">{item.title}</span>
+                      {active && <FaChevronRight className="w-3 h-3 md:w-4 md:h-4 animate-pulse flex-shrink-0" />}
                     </>
                   )}
                 </Link>
                 
                 {/* Tooltip for collapsed state */}
-                {isCollapsed && !isMobile && (
-                  <div className="absolute left-full ml-3 top-1/2  -translate-y-1/2 
-                                bg-gray-900 text-white text-sm rounded-xl px-3 py-2
+                {((isCollapsed && !isMobile) || (isMedium && isCollapsed)) && (
+                  <div className="absolute left-full ml-2 md:ml-3 top-1/2 -translate-y-1/2 
+                                bg-gray-900 text-white text-xs md:text-sm rounded-lg md:rounded-xl px-2 md:px-3 py-1.5 md:py-2
                                 opacity-0 group-hover:opacity-100 transition-all duration-300
                                 pointer-events-none whitespace-nowrap z-50 shadow-2xl
                                 before:absolute before:right-full before:top-1/2 before:transform before:-translate-y-1/2
@@ -429,36 +452,36 @@ const AdminSidebar = () => {
         </nav>
 
         {/* Footer */}
-        <div className="p-3 sm:p-4 border-t border-gray-200 bg-white">
+        <div className="p-2 md:p-3 lg:p-4 border-t border-gray-200 bg-white">
           <div className="relative group">
             <button
               onClick={() => signOut({ callbackUrl: '/' })}
               className={`
-                w-full flex items-center gap-3 px-3 py-3 rounded-2xl
+                w-full flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-3 rounded-xl md:rounded-2xl
                 text-red-600 hover:bg-red-50 hover:text-red-700 active:bg-red-100
                 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-                ${isCollapsed && !isMobile ? 'justify-center' : 'justify-start'}
-                ${isMobile ? 'min-h-[52px]' : ''}
+                ${(isCollapsed && !isMobile) || (isMedium && isCollapsed) ? 'justify-center' : 'justify-start'}
+                ${isMobile ? 'min-h-[52px]' : isMedium ? 'min-h-[48px]' : ''}
                 transform hover:scale-[1.02] hover:shadow-md
               `}
             >
               <div className={`
-                flex items-center justify-center rounded-xl transition-all duration-300 flex-shrink-0
-                ${isCollapsed && !isMobile ? 'w-10 h-10' : 'w-9 h-9'}
+                flex items-center justify-center rounded-lg md:rounded-xl transition-all duration-300 flex-shrink-0
+                ${(isCollapsed && !isMobile) || (isMedium && isCollapsed) ? 'w-8 h-8 md:w-10 md:h-10' : 'w-8 h-8 md:w-9 md:h-9'}
                 bg-transparent group-hover:bg-red-100 group-hover:scale-110
               `}>
                 <FaSignOutAlt className={`
-                  ${isCollapsed && !isMobile ? 'w-5 h-5' : 'w-4 h-4'}
+                  ${(isCollapsed && !isMobile) || (isMedium && isCollapsed) ? 'w-4 h-4 md:w-5 md:h-5' : 'w-3.5 h-3.5 md:w-4 md:h-4'}
                   transition-all duration-300
                 `} />
               </div>
-              {(!isCollapsed || isMobile) && <span className="font-medium text-sm">Sign Out</span>}
+              {((!isCollapsed || isMobile) && !(isMedium && isCollapsed)) && <span className="font-medium text-xs md:text-sm">Sign Out</span>}
             </button>
             
             {/* Tooltip for collapsed sign out */}
-            {isCollapsed && !isMobile && (
-              <div className="absolute left-full ml-3 top-1/2  -translate-y-1/2 
-                            bg-gray-900 text-white text-sm rounded-xl px-3 py-2
+            {((isCollapsed && !isMobile) || (isMedium && isCollapsed)) && (
+              <div className="absolute left-full ml-2 md:ml-3 top-1/2 -translate-y-1/2 
+                            bg-gray-900 text-white text-xs md:text-sm rounded-lg md:rounded-xl px-2 md:px-3 py-1.5 md:py-2
                             opacity-0 group-hover:opacity-100 transition-all duration-300
                             pointer-events-none whitespace-nowrap z-50 shadow-2xl
                             before:absolute before:right-full before:top-1/2 before:transform before:-translate-y-1/2

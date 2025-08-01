@@ -97,22 +97,22 @@ const AdminLayout = async ({ children }: {
                 {/* Main Content Area */}
                 <main className="flex-1 overflow-hidden flex flex-col">
                     {/* Top Header Bar */}
-                    <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/60 px-6 py-4 shadow-sm">
+                    <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/60 px-4 md:px-6 py-3 md:py-4 shadow-sm">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 md:gap-3">
                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span className="text-sm text-gray-600 font-medium">Admin Panel</span>
+                                <span className="text-xs md:text-sm text-gray-600 font-medium">Admin Panel</span>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <div className="text-sm text-gray-500">
-                                    Welcome back, <span className="font-semibold text-gray-700">{user.name || 'Admin'}</span>
+                            <div className="flex items-center gap-2 md:gap-4">
+                                <div className="text-xs md:text-sm text-gray-500">
+                                    Welcome back, <span className="font-semibold text-gray-700 truncate max-w-[120px] md:max-w-none">{user.name || 'Admin'}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Content Area */}
-                    <div className="flex-1 overflow-auto p-6">
+                    <div className="flex-1 overflow-auto p-3 md:p-4 lg:p-6">
                         <Suspense fallback={
                             <div className="flex items-center justify-center h-full">
                                 <div className="text-center">
@@ -124,7 +124,7 @@ const AdminLayout = async ({ children }: {
                                 </div>
                             </div>
                         }>
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 min-h-full">
+                            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200/60 min-h-full">
                                 {children}
                             </div>
                         </Suspense>

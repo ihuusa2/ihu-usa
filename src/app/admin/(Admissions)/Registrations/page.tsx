@@ -360,14 +360,14 @@ const AdminRegistrations = () => {
                                 {/* Mobile Menu Button */}
                                 <button
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                    className="lg:hidden inline-flex items-center p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                                    className="md:hidden inline-flex items-center p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
                                     aria-label="Toggle menu"
                                 >
                                     <FaBars className="h-5 w-5" />
                                 </button>
                             </div>
-                            {/* Controls - Desktop */}
-                            <div className="hidden lg:flex gap-3 items-center w-full">
+                            {/* Controls - Desktop and Medium */}
+                            <div className="hidden md:flex gap-3 items-center w-full">
                                 {/* View Mode Toggle */}
                                 <div className="flex items-center bg-white border border-gray-300 rounded-lg p-1 shadow-sm">
                                     <button
@@ -431,7 +431,7 @@ const AdminRegistrations = () => {
                                     <option value="100">100</option>
                                   </select>
                                 </div>
-                                <div className="relative flex-1 max-w-md">
+                                <div className="relative flex-1 max-w-sm md:max-w-md lg:max-w-lg">
                                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <input
                                         type="text"
@@ -456,7 +456,7 @@ const AdminRegistrations = () => {
                                 </div>
                             </div>
                             {/* Controls - Mobile */}
-                            <div className={`lg:hidden space-y-3 ${isMobileMenuOpen ? 'block' : 'hidden'}`}> 
+                            <div className={`md:hidden space-y-3 ${isMobileMenuOpen ? 'block' : 'hidden'}`}> 
                                 {/* View Mode Toggle */}
                                 <div className="flex items-center bg-white border border-gray-300 rounded-lg p-1 shadow-sm">
                                     <button
@@ -564,7 +564,7 @@ const AdminRegistrations = () => {
                                 }`}
                             >
                                 <FaUsers className="h-4 w-4" />
-                                <span className="hidden sm:inline">All</span>
+                                <span className="hidden md:inline">All</span>
                                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
                                     {displayStats.total}
                                 </span>
@@ -584,7 +584,7 @@ const AdminRegistrations = () => {
                                 }`}
                             >
                                 <FaUserCheck className="h-4 w-4" />
-                                <span className="hidden sm:inline">Approved</span>
+                                <span className="hidden md:inline">Approved</span>
                                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
                                     {displayStats.approved}
                                 </span>
@@ -604,7 +604,7 @@ const AdminRegistrations = () => {
                                 }`}
                             >
                                 <FaClock className="h-4 w-4" />
-                                <span className="hidden sm:inline">Pending</span>
+                                <span className="hidden md:inline">Pending</span>
                                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
                                     {displayStats.pending}
                                 </span>
@@ -624,7 +624,7 @@ const AdminRegistrations = () => {
                                 }`}
                             >
                                 <FaUserTimes className="h-4 w-4" />
-                                <span className="hidden sm:inline">Rejected</span>
+                                <span className="hidden md:inline">Rejected</span>
                                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
                                     {displayStats.rejected}
                                 </span>
@@ -661,7 +661,7 @@ const AdminRegistrations = () => {
                             <>
                                 {getTabData().length > 0 ? (
                                     viewMode === 'grid' ? (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 p-2 sm:p-6">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 p-2 sm:p-6">
                                             {getTabData().map((registration, index) => (
                                                 <div 
                                                     key={index} 
