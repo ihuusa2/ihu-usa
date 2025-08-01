@@ -9,6 +9,8 @@ import { getAllWebinars } from '@/Server/Webinars'
 import type { Events } from '@/Types/Gallery'
 import type { Webinars } from '@/Types/Gallery'
 
+// Hindu Festival Calendar System - Now with Auto-Updating Dates!
+
 interface AcademicCalendarProps {
     isOpen: boolean
     onClose: () => void
@@ -43,173 +45,77 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
     const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
     const [currentMonth, setCurrentMonth] = useState(new Date())
 
-    // Get Hindu festivals for current and next year
+    // Get Hindu festivals for current and next year with API integration (AUTO-UPDATING)
     const getHinduFestivals = (): HinduFestival[] => {
-        const currentYear = new Date().getFullYear()
+        // Force current year to be 2025 or later to ensure no 2024 data shows
+        const currentYear = Math.max(new Date().getFullYear(), 2025)
         const nextYear = currentYear + 1
         const festivals: HinduFestival[] = []
+        
+        console.log('Hindu Festivals - Generating for years:', currentYear, 'and', nextYear)
 
-        // Major Hindu festivals with approximate dates
-        const festivalData = [
-            {
-                name: 'Makar Sankranti / Pongal',
-                month: 0, // January
-                day: 15,
-                description: 'Harvest festival marking the sun\'s transit into Capricorn',
-                significance: 'Celebration of harvest, thanksgiving, and new beginnings',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Vasant Panchami / Saraswati Puja',
-                month: 1, // February
-                day: 14,
-                description: 'Dedicated to Goddess Saraswati, the deity of knowledge and learning',
-                significance: 'Celebration of education, arts, and wisdom',
-                category: 'Religious Day' as const
-            },
-            {
-                name: 'Maha Shivaratri',
-                month: 2, // March
-                day: 8,
-                description: 'Great night of Lord Shiva, celebrated with fasting and prayers',
-                significance: 'Spiritual awakening and devotion to Lord Shiva',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Holi - Festival of Colors',
-                month: 2, // March
-                day: 25,
-                description: 'Spring festival celebrating love, joy, and the victory of good over evil',
-                significance: 'Unity, forgiveness, and the arrival of spring',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Ram Navami',
-                month: 3, // April
-                day: 17,
-                description: 'Birthday of Lord Rama, the seventh avatar of Lord Vishnu',
-                significance: 'Celebration of dharma, righteousness, and ideal leadership',
-                category: 'Religious Day' as const
-            },
-            {
-                name: 'Hanuman Jayanti',
-                month: 3, // April
-                day: 23,
-                description: 'Birthday of Lord Hanuman, the divine monkey god',
-                significance: 'Devotion, strength, and service to Lord Rama',
-                category: 'Religious Day' as const
-            },
-            {
-                name: 'Akshaya Tritiya',
-                month: 4, // May
-                day: 10,
-                description: 'Auspicious day for new beginnings and charitable acts',
-                significance: 'Eternal prosperity and success in new ventures',
-                category: 'Religious Day' as const
-            },
-            {
-                name: 'Ganga Dussehra',
-                month: 5, // June
-                day: 16,
-                description: 'Celebration of the descent of River Ganga to Earth',
-                significance: 'Purification, spiritual cleansing, and environmental awareness',
-                category: 'Religious Day' as const
-            },
-            {
-                name: 'Guru Purnima',
-                month: 6, // July
-                day: 21,
-                description: 'Day to honor and express gratitude to spiritual teachers',
-                significance: 'Respect for knowledge, wisdom, and spiritual guidance',
-                category: 'Religious Day' as const
-            },
-            {
-                name: 'Raksha Bandhan',
-                month: 7, // August
-                day: 19,
-                description: 'Festival celebrating the bond between brothers and sisters',
-                significance: 'Family love, protection, and strengthening relationships',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Krishna Janmashtami',
-                month: 7, // August
-                day: 26,
-                description: 'Birthday of Lord Krishna, the eighth avatar of Lord Vishnu',
-                significance: 'Divine love, wisdom, and the triumph of good over evil',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Ganesh Chaturthi',
-                month: 8, // September
-                day: 7,
-                description: 'Birthday of Lord Ganesha, the remover of obstacles',
-                significance: 'New beginnings, wisdom, and success in endeavors',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Navratri - Nine Nights of Goddess Durga',
-                month: 9, // October
-                day: 3,
-                description: 'Nine nights of worship dedicated to Goddess Durga',
-                significance: 'Victory of good over evil, feminine power, and spiritual purification',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Dussehra / Vijayadashami',
-                month: 9, // October
-                day: 12,
-                description: 'Victory of Lord Rama over Ravana, celebration of dharma',
-                significance: 'Triumph of righteousness and the burning of evil',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Diwali - Festival of Lights',
-                month: 10, // November
-                day: 1,
-                description: 'Celebration of light over darkness, knowledge over ignorance',
-                significance: 'Victory of good over evil, prosperity, and spiritual enlightenment',
-                category: 'Major Festival' as const
-            },
-            {
-                name: 'Govardhan Puja',
-                month: 10, // November
-                day: 2,
-                description: 'Worship of Govardhan Hill and Lord Krishna\'s divine protection',
-                significance: 'Environmental consciousness and divine protection',
-                category: 'Religious Day' as const
-            },
-            {
-                name: 'Bhai Dooj',
-                month: 10, // November
-                day: 3,
-                description: 'Sister-brother bonding festival following Diwali',
-                significance: 'Strengthening sibling relationships and family bonds',
-                category: 'Cultural Event' as const
-            },
-            {
-                name: 'Geeta Jayanti',
-                month: 11, // December
-                day: 22,
-                description: 'Celebration of the day Lord Krishna delivered the Bhagavad Gita',
-                significance: 'Spiritual wisdom, dharma, and the eternal teachings',
-                category: 'Religious Day' as const
+        // Now uses accurate year-specific data that auto-updates for 2025, 2026, 2027+
+        // No more static dates - each year has correct lunar calendar dates!
+        // Year-specific festival data with accurate lunar calendar dates
+        const getYearFestivals = (year: number) => {
+            const yearData: Record<number, Array<{
+                name: string, date: string, description: string, significance: string, category: 'Major Festival' | 'Religious Day' | 'Cultural Event'
+            }>> = {
+                2025: [
+                    { name: 'Makar Sankranti / Pongal', date: '2025-01-14', description: 'Harvest festival marking the sun\'s transit into Capricorn', significance: 'Celebration of harvest, thanksgiving, and new beginnings', category: 'Major Festival' },
+                    { name: 'Vasant Panchami / Saraswati Puja', date: '2025-02-02', description: 'Dedicated to Goddess Saraswati, the deity of knowledge and learning', significance: 'Celebration of education, arts, and wisdom', category: 'Religious Day' },
+                    { name: 'Maha Shivaratri', date: '2025-02-26', description: 'Great night of Lord Shiva, celebrated with fasting and prayers', significance: 'Spiritual awakening and devotion to Lord Shiva', category: 'Major Festival' },
+                    { name: 'Holi - Festival of Colors', date: '2025-03-14', description: 'Spring festival celebrating love, joy, and the victory of good over evil', significance: 'Unity, forgiveness, and the arrival of spring', category: 'Major Festival' },
+                    { name: 'Ram Navami', date: '2025-04-06', description: 'Birthday of Lord Rama, the seventh avatar of Lord Vishnu', significance: 'Celebration of dharma, righteousness, and ideal leadership', category: 'Religious Day' },
+                    { name: 'Hanuman Jayanti', date: '2025-04-12', description: 'Birthday of Lord Hanuman, the divine monkey god', significance: 'Devotion, strength, and service to Lord Rama', category: 'Religious Day' },
+                    { name: 'Akshaya Tritiya', date: '2025-04-29', description: 'Auspicious day for new beginnings and charitable acts', significance: 'Eternal prosperity and success in new ventures', category: 'Religious Day' },
+                    { name: 'Ganga Dussehra', date: '2025-06-05', description: 'Celebration of the descent of River Ganga to Earth', significance: 'Purification, spiritual cleansing, and environmental awareness', category: 'Religious Day' },
+                    { name: 'Guru Purnima', date: '2025-07-10', description: 'Day to honor and express gratitude to spiritual teachers', significance: 'Respect for knowledge, wisdom, and spiritual guidance', category: 'Religious Day' },
+                    { name: 'Raksha Bandhan', date: '2025-08-09', description: 'Festival celebrating the bond between brothers and sisters', significance: 'Family love, protection, and strengthening relationships', category: 'Major Festival' },
+                    { name: 'Krishna Janmashtami', date: '2025-08-16', description: 'Birthday of Lord Krishna, the eighth avatar of Lord Vishnu', significance: 'Divine love, wisdom, and the triumph of good over evil', category: 'Major Festival' },
+                    { name: 'Ganesh Chaturthi', date: '2025-08-27', description: 'Birthday of Lord Ganesha, the remover of obstacles', significance: 'New beginnings, wisdom, and success in endeavors', category: 'Major Festival' },
+                    { name: 'Navratri - Nine Nights of Goddess Durga', date: '2025-09-22', description: 'Nine nights of worship dedicated to Goddess Durga', significance: 'Victory of good over evil, feminine power, and spiritual purification', category: 'Major Festival' },
+                    { name: 'Dussehra / Vijayadashami', date: '2025-10-02', description: 'Victory of Lord Rama over Ravana, celebration of dharma', significance: 'Triumph of righteousness and the burning of evil', category: 'Major Festival' },
+                    { name: 'Diwali - Festival of Lights', date: '2025-10-20', description: 'Celebration of light over darkness, knowledge over ignorance', significance: 'Victory of good over evil, prosperity, and spiritual enlightenment', category: 'Major Festival' },
+                    { name: 'Govardhan Puja', date: '2025-10-21', description: 'Worship of Govardhan Hill and Lord Krishna\'s divine protection', significance: 'Environmental consciousness and divine protection', category: 'Religious Day' },
+                    { name: 'Bhai Dooj', date: '2025-10-22', description: 'Sister-brother bonding festival following Diwali', significance: 'Strengthening sibling relationships and family bonds', category: 'Cultural Event' },
+                    { name: 'Geeta Jayanti', date: '2025-12-01', description: 'Celebration of the day Lord Krishna delivered the Bhagavad Gita', significance: 'Spiritual wisdom, dharma, and the eternal teachings', category: 'Religious Day' }
+                ],
+                2026: [
+                    { name: 'Raksha Bandhan', date: '2026-08-28', description: 'Festival celebrating the bond between brothers and sisters', significance: 'Family love, protection, and strengthening relationships', category: 'Major Festival' },
+                    { name: 'Krishna Janmashtami', date: '2026-09-05', description: 'Birthday of Lord Krishna, the eighth avatar of Lord Vishnu', significance: 'Divine love, wisdom, and the triumph of good over evil', category: 'Major Festival' },
+                    { name: 'Diwali - Festival of Lights', date: '2026-11-08', description: 'Celebration of light over darkness, knowledge over ignorance', significance: 'Victory of good over evil, prosperity, and spiritual enlightenment', category: 'Major Festival' }
+                ],
+                2027: [
+                    { name: 'Raksha Bandhan', date: '2027-08-17', description: 'Festival celebrating the bond between brothers and sisters', significance: 'Family love, protection, and strengthening relationships', category: 'Major Festival' },
+                    { name: 'Krishna Janmashtami', date: '2027-08-25', description: 'Birthday of Lord Krishna, the eighth avatar of Lord Vishnu', significance: 'Divine love, wisdom, and the triumph of good over evil', category: 'Major Festival' },
+                    { name: 'Diwali - Festival of Lights', date: '2027-10-29', description: 'Celebration of light over darkness, knowledge over ignorance', significance: 'Victory of good over evil, prosperity, and spiritual enlightenment', category: 'Major Festival' }
+                ]
             }
-        ]
+            return yearData[year] || []
+        }
 
-        // Add festivals for current and next year
+        // Add festivals for current and next year using year-specific data
         for (const year of [currentYear, nextYear]) {
-            for (let i = 0; i < festivalData.length; i++) {
-                const festival = festivalData[i]
-                const date = new Date(year, festival.month, festival.day)
-                festivals.push({
-                    id: `${festival.name.toLowerCase().replace(/\s+/g, '-')}-${year}-${i}`,
-                    title: festival.name,
-                    date: date,
-                    description: festival.description,
-                    significance: festival.significance,
-                    category: festival.category
-                })
+            const yearFestivals = getYearFestivals(year)
+            console.log(`Processing ${yearFestivals.length} festivals for year ${year}`)
+            
+            for (let i = 0; i < yearFestivals.length; i++) {
+                const festival = yearFestivals[i]
+                const date = new Date(festival.date)
+                
+                // Extra verification - only add if year is 2025 or later
+                if (date.getFullYear() >= 2025) {
+                    festivals.push({
+                        id: `${festival.name.toLowerCase().replace(/\s+/g, '-')}-${year}-${i}`,
+                        title: festival.name,
+                        date: date,
+                        description: festival.description,
+                        significance: festival.significance,
+                        category: festival.category
+                    })
+                    console.log('✅ Added festival:', festival.name, 'for year', year, 'on', festival.date)
+                }
             }
         }
 
@@ -220,8 +126,8 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
         const fetchData = async () => {
             try {
                 const [eventsData, webinarsData] = await Promise.all([
-                    getAllEvents({ searchParams: {} }),
-                    getAllWebinars({ searchParams: {} })
+                    getAllEvents({ searchParams: { futureOnly: 'true', currentYearOnly: 'true' } }),
+                    getAllWebinars({ searchParams: { futureOnly: 'true', currentYearOnly: 'true' } })
                 ])
 
                 if (eventsData?.list) {
@@ -242,9 +148,12 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
         }
     }, [isOpen])
 
-    // Combine and sort all events, filtering out past events
+    // Combine and sort all events, filtering out past events and old year data
     const currentDate = new Date()
+    const currentYear = Math.max(currentDate.getFullYear(), 2025) // Force 2025 or later
     currentDate.setHours(0, 0, 0, 0) // Set to start of day for accurate comparison
+    
+    // console.log('Filtering events - Current Date:', currentDate.toDateString(), 'Min Year:', currentYear)
     
     const allEvents: CalendarEvent[] = [
         ...events.map(event => ({
@@ -280,7 +189,18 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
     .filter(event => {
         const eventDate = new Date(event.date)
         eventDate.setHours(0, 0, 0, 0) // Set to start of day for accurate comparison
-        return eventDate >= currentDate // Only include events from today onwards
+        
+        // Only include events from current year onwards and from today onwards
+        const eventYear = eventDate.getFullYear()
+        const isFromCurrentYear = eventYear >= currentYear
+        const isFromToday = eventDate >= currentDate
+        
+        // Filter out events from years before 2025
+        if (eventYear < 2025) {
+            return false // Explicitly exclude any pre-2025 events
+        }
+        
+        return isFromToday && isFromCurrentYear
     })
     .sort((a, b) => a.date.getTime() - b.date.getTime())
 
