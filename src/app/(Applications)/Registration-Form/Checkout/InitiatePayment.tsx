@@ -19,15 +19,24 @@ const InitiatePayment = ({ registration, registrationId, price, show, onClose, o
     const route = useRouter()
     const [isProcessing, setIsProcessing] = useState(false)
 
+    // Helper function to convert INR to USD using accurate rate
+    const convertINRtoUSD = (inrAmount: number): number => {
+        // Using more accurate exchange rate of 1 USD = 83.5 INR
+        // This can be updated with real-time rates if needed
+        return Math.round((inrAmount / 83.5) * 100) / 100
+    }
+
     // Determine currency based on resident status
     const getCurrencyInfo = () => {
         if (registration.resident === 'Indian Resident') {
+            const inrAmount = parseFloat(price || '850')
+            const usdAmount = convertINRtoUSD(inrAmount)
             return {
                 displayCode: 'INR',
                 displaySymbol: '₹',
                 displayAmount: price || '850',
                 paypalCode: 'USD',
-                paypalAmount: '10' // Convert 850 INR to approximately $10 USD for PayPal
+                paypalAmount: usdAmount.toFixed(2)
             }
         }
         return {
@@ -164,7 +173,7 @@ const InitiatePayment = ({ registration, registrationId, price, show, onClose, o
                                         <div className="flex-1 min-w-0">
                                             <h4 className="font-semibold text-amber-900 text-sm sm:text-base">Currency Conversion Notice</h4>
                                             <p className="text-xs sm:text-sm text-amber-700 mt-1">
-                                                Your payment of ₹850 will be processed in USD ($10) due to PayPal currency requirements. The equivalent amount will be charged.
+                                                Your payment of ₹{currencyInfo.displayAmount} will be processed in USD (${currencyInfo.paypalAmount}) due to PayPal currency requirements. The equivalent amount will be charged.
                                             </p>
                                         </div>
                                     </div>

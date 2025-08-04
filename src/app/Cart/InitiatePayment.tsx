@@ -6,11 +6,71 @@ import { Cart } from '@/Types/Cart'
 import { PaymentStatus } from '@/Types/Form'
 import { useRouter } from 'next/navigation'
 import React from 'react'
+import { fetchExchangeRate, convertINRtoUSD, formatExchangeRate, DEFAULT_EXCHANGE_RATE, isValidExchangeRate } from '@/utils/exchangeRate'
 
 const InitiatePayment = ({ cart }: { cart: Cart[] }) => {
     const [show, setShow] = React.useState(false)
     const [isProcessing, setIsProcessing] = React.useState(false)
+    const [exchangeRate, setExchangeRate] = React.useState<number>(DEFAULT_EXCHANGE_RATE)
+    const [rateLoading, setRateLoading] = React.useState(false)
     const route = useRouter()
+
+    // Fetch real-time exchange rate
+    React.useEffect(() => {
+        const getExchangeRate = async () => {
+            setRateLoading(true)
+            try {
+                const data = await fetchExchangeRate()
+                if (data.success && isValidExchangeRate(data.rate)) {
+                    setExchangeRate(data.rate)
+                    console.log('Real-time exchange rate fetched:', data.rate)
+                } else {
+                    console.log('Using fallback exchange rate:', data.rate)
+                }
+            } catch (error) {
+                console.error('Error fetching exchange rate:', error)
+                // Keep the default fallback rate
+            } finally {
+                setRateLoading(false)
+            }
+        }
+
+        getExchangeRate()
+    }, [])
+
+    // Helper function to convert INR to USD using real-time rate
+    const convertINRtoUSDLocal = (inrAmount: number): number => {
+        return convertINRtoUSD(inrAmount, exchangeRate)
+    }
+
+    // Helper function to determine if any cart item has INR pricing
+    const hasINRPricing = (): boolean => {
+        return cart.some(item => item.price.type === 'INR')
+    }
+
+    // Helper function to get payment currency info
+    const getPaymentCurrencyInfo = () => {
+        if (hasINRPricing()) {
+            const totalINR = cart.reduce((acc, item) => acc + item.price.amount, 0)
+            const totalUSD = convertINRtoUSDLocal(totalINR)
+            return {
+                displayCurrency: 'INR',
+                displaySymbol: '₹',
+                displayAmount: totalINR.toFixed(2),
+                paypalCurrency: 'USD',
+                paypalAmount: totalUSD.toFixed(2)
+            }
+        }
+        return {
+            displayCurrency: 'USD',
+            displaySymbol: '$',
+            displayAmount: cart.reduce((acc, item) => acc + item.price.amount, 0).toFixed(2),
+            paypalCurrency: 'USD',
+            paypalAmount: cart.reduce((acc, item) => acc + item.price.amount, 0).toFixed(2)
+        }
+    }
+
+    const currencyInfo = getPaymentCurrencyInfo()
 
     const handleCart = async (orderId: string) => {
         try {
@@ -63,7 +123,7 @@ const InitiatePayment = ({ cart }: { cart: Cart[] }) => {
         }
     }
 
-    const totalAmount = cart?.reduce((acc, item) => acc + item.price.amount, 0).toFixed(2)
+
 
     return (
         <div>
@@ -130,7 +190,7 @@ const InitiatePayment = ({ cart }: { cart: Cart[] }) => {
                                             </div>
                                             <div className="text-right flex-shrink-0">
                                                 <p className="font-semibold text-green-600 text-sm sm:text-base">
-                                                    ${item.price.amount.toFixed(2)}
+                                                    {item.price.type === 'INR' ? '₹' : '$'}{item.price.amount.toFixed(2)}
                                                 </p>
                                             </div>
                                         </div>
@@ -142,9 +202,39 @@ const InitiatePayment = ({ cart }: { cart: Cart[] }) => {
                             <div className="border-t border-gray-200 pt-3 sm:pt-4 mb-4 sm:mb-6">
                                 <div className="flex items-center justify-between">
                                     <span className="text-base sm:text-lg font-semibold text-gray-800">Total Amount:</span>
-                                    <span className="text-xl sm:text-2xl font-bold text-green-600">${totalAmount}</span>
+                                    <span className="text-xl sm:text-2xl font-bold text-green-600">
+                                        {currencyInfo.displaySymbol}{currencyInfo.displayAmount}
+                                    </span>
                                 </div>
                             </div>
+
+                            {/* Currency Conversion Notice for INR */}
+                            {hasINRPricing() && (
+                                <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                                    <div className="flex items-start gap-3">
+                                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-semibold text-amber-900 text-sm sm:text-base">Currency Conversion Notice</h4>
+                                            <p className="text-xs sm:text-sm text-amber-700 mt-1">
+                                                Your payment of ₹{currencyInfo.displayAmount} will be processed in USD (${currencyInfo.paypalAmount}) due to PayPal currency requirements. The equivalent amount will be charged.
+                                            </p>
+                                            <div className="mt-2 flex items-center gap-2">
+                                                <span className="text-xs text-amber-600 font-medium">Exchange Rate:</span>
+                                                {rateLoading ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-amber-600"></div>
+                                                        <span className="text-xs text-amber-600">Fetching...</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-amber-600">{formatExchangeRate(exchangeRate)}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Payment Instructions */}
                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
@@ -154,6 +244,9 @@ const InitiatePayment = ({ cart }: { cart: Cart[] }) => {
                                     </svg>
                                     <p className="text-xs sm:text-sm text-blue-800">
                                         Click the PayPal button below to securely complete your payment. 
+                                        {hasINRPricing() && (
+                                            <span className="font-medium"> You will be charged ${currencyInfo.paypalAmount} USD.</span>
+                                        )}
                                         You&apos;ll be redirected to PayPal to finalize the transaction.
                                     </p>
                                 </div>
@@ -171,8 +264,8 @@ const InitiatePayment = ({ cart }: { cart: Cart[] }) => {
                                         </div>
                                     ) : (
                                         <InitiatePaypal
-                                            order_price={totalAmount}
-                                            currency_code={"USD"}
+                                            order_price={currencyInfo.paypalAmount}
+                                            currency_code={currencyInfo.paypalCurrency}
                                             setResponse={() => {
                                                 route.push('/Success')
                                             }}

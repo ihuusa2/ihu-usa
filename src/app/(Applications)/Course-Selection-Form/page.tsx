@@ -46,7 +46,8 @@ const CourseSelectionForm = () => {
     const [registrationValidation, setRegistrationValidation] = React.useState({
         checking: false,
         exists: false,
-        message: ''
+        message: '',
+        countryOrRegion: null as string | null
     })
     const [validationTimeout, setValidationTimeout] = React.useState<NodeJS.Timeout | null>(null)
 
@@ -100,12 +101,13 @@ const CourseSelectionForm = () => {
             setRegistrationValidation({
                 checking: false,
                 exists: false,
-                message: ''
+                message: '',
+                countryOrRegion: null
             })
             return
         }
 
-        setRegistrationValidation(prev => ({ ...prev, checking: true, message: '' }))
+        setRegistrationValidation(prev => ({ ...prev, checking: true, message: '', countryOrRegion: null }))
 
         try {
             const response = await fetch(`/api/check-registration-number?registrationNumber=${encodeURIComponent(regNumber)}`)
@@ -119,16 +121,35 @@ const CourseSelectionForm = () => {
             setRegistrationValidation({
                 checking: false,
                 exists: data.exists,
-                message: data.message
+                message: data.message,
+                countryOrRegion: data.countryOrRegion
             })
         } catch (error) {
             console.error('Error validating registration number:', error)
             setRegistrationValidation({
                 checking: false,
                 exists: false,
-                message: 'Error checking registration number availability'
+                message: 'Error checking registration number availability',
+                countryOrRegion: null
             })
         }
+    }
+
+    // Helper function to check if user is from India
+    const isUserFromIndia = () => {
+        return registrationValidation.countryOrRegion?.toLowerCase().includes('india') || 
+               registrationValidation.countryOrRegion?.toLowerCase().includes('indian')
+    }
+
+    // Helper function to get price type based on user's country
+    const getPriceType = () => {
+        return isUserFromIndia() ? 'INR' : 'USD'
+    }
+
+    // Helper function to format price display
+    const formatPrice = (amount: number, type: string) => {
+        const symbol = type === 'INR' ? '₹' : '$'
+        return `${symbol} ${amount} ${type}`
     }
 
     const isDisabled = loading || !validateFields() || registrationNumber === '' || selectedValue?.length === 0 || !registrationValidation.exists
@@ -224,7 +245,8 @@ const CourseSelectionForm = () => {
                                             setRegistrationValidation({
                                                 checking: false,
                                                 exists: false,
-                                                message: ''
+                                                message: '',
+                                                countryOrRegion: null
                                             })
                                         }
                                         
@@ -335,7 +357,7 @@ const CourseSelectionForm = () => {
                                         onChange={async (e) => {
                                             setValue({ ...value, program: e.target.value, subjects: [] })
                                             if (e.target.value) {
-                                                await getSubjectByCourseTitle(e.target.value).then((res) => {
+                                                await getSubjectByCourseTitle(e.target.value, registrationValidation.countryOrRegion || undefined).then((res) => {
                                                     if (res) {
                                                         setSubjectType(res)
                                                     }
@@ -372,18 +394,17 @@ const CourseSelectionForm = () => {
                                     value={value.subjects.map(subject => ({ value: subject, label: subject }))}
                                     onChange={(selectedOptions) => {
                                         const selectedValues = selectedOptions.map(option => option.value)
+                                        const priceType = getPriceType()
                                         const selectedPrice = subjectType.reduce((total, subject) => {
                                             const matchedSubject = selectedValues.find(item => item === subject.title)
                                             return matchedSubject
-                                                ? total + (subject.price.type === 'USD'
-                                                    ? subject.price.amount || 0
-                                                    : subject.price.amount || 0)
+                                                ? total + (subject.price.amount || 0)
                                                 : total
                                         }, 0)
 
                                         setValue({
                                             ...value, subjects: selectedValues,
-                                            price: { amount: selectedPrice, type: 'USD' }
+                                            price: { amount: selectedPrice, type: priceType }
                                         })
                                     }}
                                     styles={customSelectStyles}
@@ -462,7 +483,9 @@ const CourseSelectionForm = () => {
                                                 <tr key={index} className='border-b border-gray-100 hover:bg-gray-50'>
                                                     <td className='py-3 px-4 text-gray-900'>{item.course}</td>
                                                     <td className='py-3 px-4 text-gray-900'>{item.program}</td>
-                                                    <td className='py-3 px-4 text-gray-900'>{item.price.amount} {item.price.type}</td>
+                                                    <td className='py-3 px-4 text-gray-900'>
+                                                        {formatPrice(item.price.amount, item.price.type)}
+                                                    </td>
                                                     <td className='py-3 px-4'>
                                                         <div className='flex flex-wrap gap-1'>
                                                             {item.subjects.map((subject, idx) => (
@@ -500,7 +523,7 @@ const CourseSelectionForm = () => {
                     <div className="flex items-center justify-between mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                         <span className="text-lg font-semibold text-gray-700">Total Amount:</span>
                         <div className="text-2xl font-bold text-blue-600">
-                            $ {selectedValue && selectedValue.length > 0 ? selectedValue.reduce((total, item) => total + item.price.amount, 0) : 0}
+                            {isUserFromIndia() ? '₹' : '$'} {selectedValue && selectedValue.length > 0 ? selectedValue.reduce((total, item) => total + item.price.amount, 0) : 0}
                         </div>
                     </div>
                 </div>
@@ -556,7 +579,9 @@ const CourseSelectionForm = () => {
                                                 <tr key={index} className='border-b border-gray-100 hover:bg-gray-50'>
                                                     <td className='py-3 px-4 text-gray-900'>{item.course}</td>
                                                     <td className='py-3 px-4 text-gray-900'>{item.program}</td>
-                                                    <td className='py-3 px-4 text-gray-900'>{item.price.amount} {item.price.type}</td>
+                                                    <td className='py-3 px-4 text-gray-900'>
+                                                        {formatPrice(item.price.amount, item.price.type)}
+                                                    </td>
                                                     <td className='py-3 px-4'>
                                                         <div className='flex flex-wrap gap-1'>
                                                             {item.subjects.map((subject, idx) => (

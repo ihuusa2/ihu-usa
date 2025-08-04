@@ -148,13 +148,11 @@ export const getAllSubjectsDebug = async (courseSlug: string): Promise<Subject[]
     return JSON.parse(JSON.stringify(subjects));
 }
 
-export const getSubjectByCourseTitle = async (title: string): Promise<SelectSubject[] | null> => {
-    const response = await axios.get(`https://api.ipify.org/?format=json`);
-    const userIP = response.data.ip;
-    const countryResponse = await axios.get(`https://ipapi.co/${userIP}/country/`);
-
-    const currency = 'USD'
-    // countryResponse.data === 'IN' ? 'INR' : 'USD';
+export const getSubjectByCourseTitle = async (title: string, countryOrRegion?: string): Promise<SelectSubject[] | null> => {
+    // Determine currency based on country/region
+    const isIndia = countryOrRegion?.toLowerCase().includes('india') || 
+                   countryOrRegion?.toLowerCase().includes('indian');
+    const currency = isIndia ? 'INR' : 'USD';
 
     const course = await Courses.findOne({ title: title });
     const result = await Subjects.aggregate([

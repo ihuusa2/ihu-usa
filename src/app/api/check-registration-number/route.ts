@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ 
             exists: !!registration,
             registrationNumber: registrationNumber,
-            message: registration ? 'Registration number is valid' : 'Invalid registration number. Please register first.'
+            message: registration ? 'Registration number is valid' : 'Invalid registration number. Please register first.',
+            countryOrRegion: registration?.countryOrRegion || null
         })
     } catch (error) {
         console.error('Error checking registration number:', error)
