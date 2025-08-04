@@ -131,12 +131,12 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
       </button>
 
       {/* Dots Indicator */}
-      <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 2xl:bottom-12 3xl:bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 2xl:space-x-5 3xl:space-x-6 z-10">
+      <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 2xl:bottom-12 3xl:bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-1.5 md:space-x-2 lg:space-x-2.5 xl:space-x-3 2xl:space-x-3.5 3xl:space-x-4 z-10">
         {images.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-4 md:h-4 lg:w-6 lg:h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 3xl:w-12 3xl:h-12 rounded-full transition-all duration-300 ${
+            className={`w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 3xl:w-4 3xl:h-4 rounded-full transition-all duration-300 ${
               index === currentIndex 
                 ? 'bg-white scale-125' 
                 : 'bg-white/50 hover:bg-white/75'

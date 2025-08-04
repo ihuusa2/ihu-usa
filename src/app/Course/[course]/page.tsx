@@ -6,12 +6,60 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
+import Script from 'next/script'
 import CourseGallery from './CourseGallery'
 import CourseVideoPlayer from './CourseVideoPlayer'
 
-export const metadata: Metadata = {
-    title: 'Courses - International Hindu University',
-    description: 'Explore the diverse degree programs offered at IHU, including Vedic Studies, Yoga, Ayurveda, and more. Join today for quality Hindu spiritual education. Visit now'
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const paramsList = await params
+    const data = await getCourseBySlug(paramsList?.course)
+    
+    if (!data) {
+        return {
+            title: 'Course Not Found - International Hindu University',
+            description: 'The requested course could not be found.'
+        }
+    }
+
+    return {
+        title: `${data.title} - International Hindu University`,
+        description: data.description || `Learn ${data.title} at International Hindu University. Comprehensive online course with expert instruction.`,
+        keywords: [
+            data.title,
+            'Vedic Studies',
+            'Yoga',
+            'Ayurveda',
+            'Online Course',
+            'Hindu University',
+            'Spiritual Education'
+        ],
+        openGraph: {
+            title: data.title,
+            description: data.description || `Learn ${data.title} at International Hindu University.`,
+            url: `https://ihu-usa.org/Course/${data.slug}`,
+            siteName: 'International Hindu University',
+            images: data.images && data.images.length > 0 ? [
+                {
+                    url: Array.isArray(data.images) ? data.images[0] as string : data.images[0],
+                    width: 1200,
+                    height: 630,
+                    alt: `${data.title} course image`,
+                }
+            ] : ['/Images/logo.png'],
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: data.title,
+            description: data.description || `Learn ${data.title} at International Hindu University.`,
+            images: data.images && data.images.length > 0 ? 
+                [Array.isArray(data.images) ? data.images[0] as string : data.images[0]] : 
+                ['/Images/logo.png'],
+        },
+        alternates: {
+            canonical: `/Course/${data.slug}`,
+        },
+    }
 }
 
 type Props = {
@@ -87,7 +135,37 @@ const SingleCourse = async ({ params }: Props) => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50">
+        <>
+            <Script
+                id="course-structured-data"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Course",
+                        "name": data.title,
+                        "description": data.description,
+                        "provider": {
+                            "@type": "EducationalOrganization",
+                            "name": "International Hindu University (IHU-USA)",
+                            "url": "https://ihu-usa.org"
+                        },
+                        "courseMode": "online",
+                        "educationalLevel": data.type,
+                        "inLanguage": "en",
+                        "url": `https://ihu-usa.org/Course/${data.slug}`,
+                        "image": data.images && data.images.length > 0 ? 
+                            (Array.isArray(data.images) ? data.images[0] as string : data.images[0]) : 
+                            "https://ihu-usa.org/Images/logo.png",
+                        "offers": {
+                            "@type": "Offer",
+                            "priceCurrency": "USD",
+                            "availability": "https://schema.org/InStock"
+                        }
+                    })
+                }}
+            />
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50">
             {/* Hero Section */}
             <div className="relative bg-gradient-to-br from-[var(--orange-saffron)] to-[var(--amber-gold)] min-h-[400px] flex flex-col justify-center items-center text-center overflow-hidden">
                 {/* Background Pattern */}
@@ -428,6 +506,7 @@ const SingleCourse = async ({ params }: Props) => {
                 </div>
             </Container>
         </div>
+        </>
     )
 }
 

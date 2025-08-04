@@ -9,7 +9,33 @@ import { CiCircleCheck } from 'react-icons/ci'
 
 export const metadata: Metadata = {
     title: 'Our Journey: The History of International Hindu University',
-    description: 'Learn about the rich history of International Hindu University, a leading religious institution dedicated to preserving and teaching Hindu traditions and knowledge.'
+    description: 'Learn about the rich history of International Hindu University, a leading religious institution dedicated to preserving and teaching Hindu traditions and knowledge.',
+    keywords: [
+        'International Hindu University',
+        'IHU History',
+        'Hindu Education',
+        'Vedic Studies',
+        'Religious Institution',
+        'Hindu Traditions',
+        'Spiritual Education'
+    ],
+    openGraph: {
+        title: 'Our Journey: The History of International Hindu University',
+        description: 'Learn about the rich history of International Hindu University, a leading religious institution dedicated to preserving and teaching Hindu traditions and knowledge.',
+        url: 'https://ihu-usa.org/About',
+        siteName: 'International Hindu University',
+        images: ['/Images/about1.png'],
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Our Journey: The History of International Hindu University',
+        description: 'Learn about the rich history of International Hindu University, a leading religious institution dedicated to preserving and teaching Hindu traditions and knowledge.',
+        images: ['/Images/about1.png'],
+    },
+    alternates: {
+        canonical: '/About',
+    },
 }
 
 const About = () => {

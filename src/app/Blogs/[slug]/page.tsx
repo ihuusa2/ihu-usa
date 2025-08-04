@@ -11,6 +11,7 @@ import { ArrowLeft, Calendar, Clock, BookOpen, ChevronRight, User, Eye, AlertCir
 import BlogNavigation from './BlogNavigation'
 import ShareButton from '@/components/ShareButton'
 import FloatingShareButton from '@/components/FloatingShareButton'
+import Script from 'next/script'
 
 type Props = {
     params: Promise<{ slug: string }>
@@ -38,12 +39,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
         title: `${data.title} - International Hindu University`,
         description: data.description || 'Read this article on International Hindu University blog',
+        keywords: [
+            data.title,
+            'Vedic Studies',
+            'Yoga',
+            'Ayurveda',
+            'Hindu Philosophy',
+            'Spiritual Education',
+            'Blog'
+        ],
         openGraph: {
             title: data.title,
             description: data.description || 'Read this article on International Hindu University blog',
+            url: `https://ihu-usa.org/Blogs/${data.slug}`,
+            siteName: 'International Hindu University',
             images: [getValidImageUrl(data.image)],
-            type: 'article'
-        }
+            type: 'article',
+            authors: [data.author || 'International Hindu University'],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: data.title,
+            description: data.description || 'Read this article on International Hindu University blog',
+            images: [getValidImageUrl(data.image)],
+        },
+        alternates: {
+            canonical: `/Blogs/${data.slug}`,
+        },
     }
 }
 
@@ -109,7 +131,40 @@ const Blog = async ({ params }: Props) => {
     const validContent = getValidContent(data.content);
 
     return (
-        <article className='min-h-screen bg-gradient-to-br from-gray-50 to-gray-100'>
+        <>
+            <Script
+                id="blog-structured-data"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BlogPosting",
+                        "headline": data.title,
+                        "description": data.description,
+                        "author": {
+                            "@type": "Organization",
+                            "name": data.author || "International Hindu University"
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "International Hindu University",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "https://ihu-usa.org/Images/logo.png"
+                            }
+                        },
+                        "datePublished": new Date().toISOString(),
+                        "dateModified": new Date().toISOString(),
+                        "image": getValidImageUrl(data.image),
+                        "url": `https://ihu-usa.org/Blogs/${data.slug}`,
+                        "mainEntityOfPage": {
+                            "@type": "WebPage",
+                            "@id": `https://ihu-usa.org/Blogs/${data.slug}`
+                        }
+                    })
+                }}
+            />
+            <article className='min-h-screen bg-gradient-to-br from-gray-50 to-gray-100'>
             {/* Breadcrumbs - Just below navbar */}
             <div className='bg-white pt-2 pb-4 border-b border-gray-100 shadow-sm'>
                 <Container>
@@ -388,6 +443,7 @@ const Blog = async ({ params }: Props) => {
                 description={data?.description || 'Check out this interesting article'}
             />
         </article>
+        </>
     )
 }
 
