@@ -3,6 +3,7 @@
 import { ArrowLeft, BookOpen, Eye, Clock, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { useHasMounted } from '@/hooks/useClientOnly'
+import ShareButton from '@/components/ShareButton'
 
 export default function BlogNavigation() {
     const hasMounted = useHasMounted()
@@ -107,6 +108,20 @@ export default function BlogNavigation() {
                                 <div className='text-xl font-bold text-green-700'>New</div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Share Article */}
+                    <div className='border-t border-gray-100 pt-8 mb-8'>
+                        <h4 className='text-base font-bold text-gray-900 mb-4 uppercase tracking-wide flex items-center gap-2'>
+                            <div className='w-2 h-2 bg-orange-400 rounded-full'></div>
+                            Share Article
+                        </h4>
+                        <ShareButton 
+                            url={typeof window !== 'undefined' ? window.location.href : ''}
+                            title={typeof document !== 'undefined' ? document.title : 'Blog Article'}
+                            description='Check out this interesting article'
+                            className='w-full'
+                        />
                     </div>
 
                     {/* Back to All Articles */}

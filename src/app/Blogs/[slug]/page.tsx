@@ -9,6 +9,8 @@ import React from 'react'
 import { Metadata } from 'next'
 import { ArrowLeft, Calendar, Clock, BookOpen, ChevronRight, User, Eye, AlertCircle } from 'lucide-react'
 import BlogNavigation from './BlogNavigation'
+import ShareButton from '@/components/ShareButton'
+import FloatingShareButton from '@/components/FloatingShareButton'
 
 type Props = {
     params: Promise<{ slug: string }>
@@ -178,6 +180,15 @@ const Blog = async ({ params }: Props) => {
                                 <Eye className='w-5 h-5 text-gray-700' />
                                 <span className='font-bold text-sm'>2.5k views</span>
                             </div>
+                        </div>
+
+                        {/* Share Button */}
+                        <div className='flex justify-center mb-8'>
+                            <ShareButton 
+                                url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://ihu-usa.org'}/Blogs/${paramsList.slug}`}
+                                title={data?.title || 'Blog Article'}
+                                description={data?.description || 'Check out this interesting article'}
+                            />
                         </div>
                     </div>
                 </Container>
@@ -369,6 +380,13 @@ const Blog = async ({ params }: Props) => {
                     </Container>
                 </div>
             )}
+
+            {/* Floating Share Button */}
+            <FloatingShareButton 
+                url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://ihu-usa.org'}/Blogs/${paramsList.slug}`}
+                title={data?.title || 'Blog Article'}
+                description={data?.description || 'Check out this interesting article'}
+            />
         </article>
     )
 }
