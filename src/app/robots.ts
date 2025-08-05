@@ -31,8 +31,6 @@ export default function robots(): MetadataRoute.Robots {
         '/Photo-Gallery',
         '/FAQ',
         '/Testimonials',
-        '/skeleton-demo',
-        '/test-api',
         '/UpcomingCoursePopup',
       ],
     },

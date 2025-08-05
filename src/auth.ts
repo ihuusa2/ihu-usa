@@ -8,6 +8,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         signOut: '/',
         error: '/SignIn',
     },
+    events: {
+        async signOut(message) {
+            console.log('NextAuth signOut event:', message);
+        },
+        async session(message) {
+            console.log('NextAuth session event:', message);
+        },
+    },
     providers: [
         Credentials({
             credentials: { 
@@ -17,10 +25,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 },
             },
             authorize: async (credentials) => {
+                if (!credentials?.id) {
+                    throw new Error('CredentialsSignin')
+                }
+                
                 return {
                     id: credentials.id as string,
                 }
-
             },
         }),
     ],

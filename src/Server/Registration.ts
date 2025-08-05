@@ -29,15 +29,54 @@ export const createRegisterForm = async ({ _id: _, ...rest }: RegisterForm): Pro
 
     // Generate registration number
     const currentYear = new Date().getFullYear()
+    console.log('=== Registration Number Generation Debug ===');
+    console.log('Current year:', currentYear);
+    
+    // Get existing registrations ordered by creation date (most recent first)
     const existingRegistrations = await Registration.find({ 
         registrationNumber: { $exists: true, $ne: "" }
-    }).toArray()
+    }).sort({ createdAt: -1 }).toArray()
     
-    const existingNumbers = existingRegistrations
-        .map(reg => reg.registrationNumber)
-        .filter((num): num is string => num !== undefined && num.startsWith('IHU'))
+    console.log('Total existing registrations found:', existingRegistrations.length);
     
-    const registrationNumber = getNextRegistrationNumber(currentYear, existingNumbers)
+    // Find the most recent registration with new format (IHUYYXXXXX) within valid range
+    // ONLY accept numbers in range 1177-3000 to ignore old legacy high numbers
+    const startSequence = 1177;
+    const maxValidSequence = 3000;
+    let lastValidRegistration = null;
+    
+    for (const reg of existingRegistrations) {
+        const regNum = reg.registrationNumber;
+        if (regNum && regNum.startsWith('IHU')) {
+            const afterIHU = regNum.slice(3);
+            if (afterIHU.length === 7) { // New format check: YY (2 digits) + XXXXX (5 digits)
+                const sequenceNumber = parseInt(afterIHU.slice(2));
+                // ONLY accept numbers in our valid new range (1177-9999) to ignore old legacy high numbers
+                if (!isNaN(sequenceNumber) && sequenceNumber >= startSequence && sequenceNumber <= maxValidSequence) {
+                    lastValidRegistration = reg;
+                    console.log('Most recent valid registration found:', regNum, 'from date:', reg.createdAt, '(sequence:', sequenceNumber + ')');
+                    break; // Found the most recent valid one
+                } else if (!isNaN(sequenceNumber)) {
+                    console.log('Ignoring registration number outside valid range:', regNum, '(sequence:', sequenceNumber + ')');
+                }
+            }
+        }
+    }
+    
+    let lastRegistrationNumber = null;
+    if (lastValidRegistration) {
+        lastRegistrationNumber = lastValidRegistration.registrationNumber;
+        console.log('Last registration number by date:', lastRegistrationNumber);
+    } else {
+        console.log('No valid registration numbers found in range 1177-3000 - will start fresh from IHU2501177');
+    }
+    
+    // Generate next registration number based on the most recent by date
+    console.log('Generating next registration number from last date registration');
+    const registrationNumber = getNextRegistrationNumber(currentYear, lastRegistrationNumber ? [lastRegistrationNumber] : []);
+    
+    console.log('Generated registration number:', registrationNumber);
+    console.log('=== End Registration Number Generation Debug ===');
 
     const result = await Registration.insertOne({ 
         ...rest, 

@@ -65,6 +65,40 @@ const SignIn = () => {
   const [registrationNumber, setRegistrationNumber] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  // Handle NextAuth errors from URL parameters
+  React.useEffect(() => {
+    const error = searchParams.get('error')
+    
+    // Clean up URL if error parameter exists (even if it's undefined/null/empty)
+    if (error !== null) {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('error')
+      window.history.replaceState(null, '', url.toString())
+    }
+    
+    // Only show error message if error is meaningful
+    if (error && error !== 'undefined' && error !== 'null' && error.trim() !== '') {
+      let errorMessage = ''
+      switch (error) {
+        case 'CredentialsSignin':
+          errorMessage = 'Invalid credentials. Please check your login details and try again.'
+          break
+        case 'AccessDenied':
+          errorMessage = 'Access denied. You do not have permission to sign in.'
+          break
+        case 'Verification':
+          errorMessage = 'Verification failed. Please try again.'
+          break
+        case 'Default':
+          errorMessage = 'An unexpected error occurred. Please try again.'
+          break
+        default:
+          errorMessage = `Authentication error: ${error}`
+      }
+      setMessage(errorMessage)
+    }
+  }, [searchParams])
+
   // Get redirect URL with fallback for mobile
   const getRedirectUrl = () => {
     const redirectUrl = searchParams.get('redirectUrl')
