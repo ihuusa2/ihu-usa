@@ -98,7 +98,7 @@ const Blogs = ({ data }: Props) => {
                             {/* Enhanced Navigation Buttons */}
                             <button
                                 onClick={prevSlide}
-                                className="absolute -left-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-500 w-14 h-14 bg-white/95 backdrop-blur-md border-2 border-orange-200 text-orange-600 hover:bg-gradient-to-r hover:from-orange-500 hover:to-amber-500 hover:text-white shadow-xl hover:shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 rounded-full flex items-center justify-center transform hover:scale-110"
+                                className="absolute -left-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 duration-500 w-14 h-14 bg-white/95 backdrop-blur-md border-2 border-orange-200 text-orange-600 hover:bg-gradient-to-r hover:from-orange-500 hover:to-amber-500 hover:text-white shadow-xl hover:shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 rounded-full flex items-center justify-center transform hover:scale-110"
                                 aria-label="Previous slide"
                             >
                                 <ChevronLeft className="w-6 h-6" />
@@ -106,10 +106,10 @@ const Blogs = ({ data }: Props) => {
                             
                             <button
                                 onClick={nextSlide}
-                                className="absolute -right-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-500 w-14 h-14 bg-white/95 backdrop-blur-md border-2 border-orange-200 text-orange-600 hover:bg-gradient-to-r hover:from-orange-500 hover:to-amber-500 hover:text-white shadow-xl hover:shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 rounded-full flex items-center justify-center transform hover:scale-110"
+                                className="absolute -right-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 duration-500 w-14 h-14 bg-white/95 backdrop-blur-md border-2 border-orange-200 text-orange-600 hover:bg-gradient-to-r hover:from-orange-500 hover:to-amber-500 hover:text-white shadow-xl hover:shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 rounded-full flex items-center justify-center transform hover:scale-110"
                                 aria-label="Next slide"
                             >
-                                <ChevronRight className="w-6 h-6" />
+                                <ChevronRight className="w-3 h-3" />
                             </button>
 
                             {/* Enhanced Carousel Container */}

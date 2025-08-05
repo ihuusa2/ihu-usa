@@ -60,13 +60,11 @@ The system automatically:
 - **Existing Data**: Previous registration numbers are preserved as historical data
 - **No Conflicts**: The system can handle both old and new format numbers simultaneously
 
-## Testing
+## Registration Number Format
 
-Test endpoints are available to verify the system:
-- `/api/test-registration-system`: Comprehensive test of the new system
-- `/api/test-new-registration-format`: Basic format testing
+The system generates registration numbers in the format: **IHU{YY}{MM}{XXX}**
 
-### Expected Test Results
+### Expected Format Examples
 ```
 First registration: IHU2501177 ✅
 Second registration: IHU2501178 ✅

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useMobileDetection } from '@/hooks/useMobileDetection';
 
 interface CarouselImage {
   src: string;
@@ -25,6 +26,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const { isMobile } = useMobileDetection();
 
   // Auto-play functionality
   useEffect(() => {
@@ -51,7 +53,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
   }, [images.length]);
 
-  // Touch handlers for mobile swipe
+  // Touch handlers for mobile swipe - optimized for mobile
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
@@ -59,21 +61,33 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
 
   const onTouchMove = useCallback((e: React.TouchEvent) => {
     setTouchEnd(e.targetTouches[0].clientX);
-  }, []);
+    
+    // Prevent default scrolling on horizontal swipe for mobile
+    if (isMobile && touchStart !== null) {
+      const distance = Math.abs(touchStart - e.targetTouches[0].clientX);
+      if (distance > 10) {
+        e.preventDefault();
+      }
+    }
+  }, [isMobile, touchStart]);
 
   const onTouchEnd = useCallback(() => {
     if (!touchStart || !touchEnd) return;
     
     const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
+    const swipeThreshold = isMobile ? 30 : 50; // Lower threshold for mobile
+    const isLeftSwipe = distance > swipeThreshold;
+    const isRightSwipe = distance < -swipeThreshold;
 
     if (isLeftSwipe) {
       goToNext();
     } else if (isRightSwipe) {
       goToPrevious();
     }
-  }, [touchStart, touchEnd, goToNext, goToPrevious]);
+
+    setTouchStart(null);
+    setTouchEnd(null);
+  }, [touchStart, touchEnd, goToNext, goToPrevious, isMobile]);
 
   if (!images || images.length === 0) {
     return null;
@@ -81,7 +95,11 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
 
   return (
     <section 
-      className="relative w-full h-[250px] sm:h-[350px] md:h-[500px] lg:h-[650px] xl:h-[750px] 2xl:h-[850px] 3xl:h-[900px] overflow-hidden"
+      className={`relative w-full overflow-hidden ${
+        isMobile 
+          ? 'h-[50vw] min-h-[200px] max-h-[300px]' // Use viewport width for better mobile scaling
+          : 'h-[350px] md:h-[500px] lg:h-[650px] xl:h-[750px] 2xl:h-[850px] 3xl:h-[900px]'
+      }`}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -96,47 +114,88 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
             }`}
           >
             {/* Image */}
-            <div className="relative w-full h-full">
-              <Image
-                src={image.src}
-                alt={image.alt}
-                fill
-                className="object-cover object-center"
-                priority={index === 0}
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, (max-width: 1280px) 100vw, (max-width: 1536px) 100vw, (max-width: 1920px) 100vw, 100vw"
-              />
-              
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/20"></div>
+            <div className={`relative w-full h-full ${isMobile ? 'p-2' : ''}`}>
+              <div className="relative w-full h-full">
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  className={`${
+                    isMobile 
+                      ? 'object-contain object-center' // Use object-contain for mobile to prevent cropping
+                      : 'object-cover object-center'   // Keep object-cover for desktop
+                  } transition-transform duration-300`}
+                  priority={index === 0}
+                  sizes={
+                    isMobile 
+                      ? '100vw' // Simplified for mobile
+                      : '(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw'
+                  }
+                  style={{
+                    // Ensure images are properly centered
+                    objectPosition: 'center center'
+                  }}
+                />
+                {/* Gradient Overlay - lighter on mobile for better visibility */}
+                <div className={`absolute inset-0 ${
+                  isMobile 
+                    ? 'bg-gradient-to-br from-black/10 via-black/5 to-black/10'
+                    : 'bg-gradient-to-br from-black/20 via-black/10 to-black/20'
+                }`}></div>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Navigation Arrows */}
+      {/* Navigation Arrows - Smaller Size */}
       <button
         onClick={goToPrevious}
-        className="absolute left-2 sm:left-3 md:left-4 lg:left-6 xl:left-8 2xl:left-10 3xl:left-12 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-1.5 sm:p-2 md:p-2.5 lg:p-3 xl:p-4 2xl:p-5 3xl:p-6 rounded-full transition-all duration-300 hover:scale-110 z-10 shadow-lg hover:shadow-xl"
+        className={`absolute top-1/2 transform -translate-y-1/2 bg-white/40 hover:bg-white/60 backdrop-blur-sm text-white rounded-full transition-all duration-300 hover:scale-105 z-10 shadow-md hover:shadow-lg ${
+          isMobile 
+            ? 'left-2 w-8 h-8 flex items-center justify-center' // Smaller mobile buttons
+            : 'left-3 md:left-4 lg:left-5 w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 flex items-center justify-center'
+        }`}
         aria-label="Previous slide"
       >
-        <FaChevronLeft className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 3xl:text-3xl" />
+        <FaChevronLeft className={`${
+          isMobile 
+            ? 'text-xs' // Smaller icon for mobile
+            : 'text-xs md:text-sm lg:text-base'
+        }`} />
       </button>
       
       <button
         onClick={goToNext}
-        className="absolute right-2 sm:right-3 md:right-4 lg:right-6 xl:right-8 2xl:right-10 3xl:right-12 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-1.5 sm:p-2 md:p-2.5 lg:p-3 xl:p-4 2xl:p-5 3xl:p-6 rounded-full transition-all duration-300 hover:scale-110 z-10 shadow-lg hover:shadow-xl"
+        className={`absolute top-1/2 transform -translate-y-1/2 bg-white/40 hover:bg-white/60 backdrop-blur-sm text-white rounded-full transition-all duration-300 hover:scale-105 z-10 shadow-md hover:shadow-lg ${
+          isMobile 
+            ? 'right-2 w-8 h-8 flex items-center justify-center' // Smaller mobile buttons
+            : 'right-3 md:right-4 lg:right-5 w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 flex items-center justify-center'
+        }`}
         aria-label="Next slide"
       >
-        <FaChevronRight className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 3xl:text-3xl" />
+        <FaChevronRight className={`${
+          isMobile 
+            ? 'text-xs' // Smaller icon for mobile
+            : 'text-xs md:text-sm lg:text-base'
+        }`} />
       </button>
 
-      {/* Dots Indicator */}
-      <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 2xl:bottom-12 3xl:bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-1.5 md:space-x-2 lg:space-x-2.5 xl:space-x-3 2xl:space-x-3.5 3xl:space-x-4 z-10">
+      {/* Dots Indicator - Mobile Optimized */}
+      <div className={`absolute left-1/2 transform -translate-x-1/2 flex z-10 ${
+        isMobile 
+          ? 'bottom-4 space-x-2' // Better spacing and positioning for mobile
+          : 'bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 2xl:bottom-12 3xl:bottom-16 space-x-1 sm:space-x-1.5 md:space-x-2 lg:space-x-2.5 xl:space-x-3 2xl:space-x-3.5 3xl:space-x-4'
+      }`}>
         {images.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 3xl:w-4 3xl:h-4 rounded-full transition-all duration-300 ${
+            className={`rounded-full transition-all duration-300 ${
+              isMobile 
+                ? 'w-2.5 h-2.5 sm:w-3 sm:h-3' // Larger, more touchable dots for mobile
+                : 'w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 3xl:w-4 3xl:h-4'
+            } ${
               index === currentIndex 
                 ? 'bg-white scale-125' 
                 : 'bg-white/50 hover:bg-white/75'
@@ -146,8 +205,8 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
         ))}
       </div>
 
-      {/* Progress Bar */}
-      {autoPlay && (
+      {/* Progress Bar - Hidden on mobile for cleaner look */}
+      {autoPlay && !isMobile && (
         <div className="absolute bottom-0 left-0 w-full h-0.5 sm:h-1 md:h-1.5 lg:h-2 xl:h-2.5 2xl:h-3 3xl:h-4 bg-white/20">
           <div 
             className="h-full bg-white transition-all duration-1000 ease-linear"
