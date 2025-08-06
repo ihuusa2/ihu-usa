@@ -535,7 +535,7 @@ const VirtualTour = () => {
   )
 }
 
-const LatestBlogs = ({ blogs }: { blogs: { list: Blog[], count: number } }) => {
+ const LatestBlogs = ({ blogs }: { blogs: { list: Blog[], count: number } }) => {
   const latestBlogs = blogs.list.slice(0, 3)
 
   return (
