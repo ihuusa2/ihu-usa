@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaExternalLinkAlt, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { getAllEvents } from '@/Server/Events'
@@ -25,6 +26,9 @@ interface CalendarEvent {
     description?: string
     link?: string
     category: string
+    significance?: string
+    attendees?: string[]
+    image?: string
 }
 
 interface HinduFestival {
@@ -44,15 +48,17 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
     const [selectedCategory, setSelectedCategory] = useState<string>('all')
     const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
     const [currentMonth, setCurrentMonth] = useState(new Date())
+    const [timeFilter, setTimeFilter] = useState<'all' | 'past' | 'upcoming'>('upcoming')
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
+    const [isEventModalOpen, setIsEventModalOpen] = useState(false)
 
     // Get Hindu festivals for current and next year with API integration (AUTO-UPDATING)
     const getHinduFestivals = (): HinduFestival[] => {
-        // Force current year to be 2025 or later to ensure no 2024 data shows
-        const currentYear = Math.max(new Date().getFullYear(), 2025)
-        const nextYear = currentYear + 1
         const festivals: HinduFestival[] = []
         
-        console.log('Hindu Festivals - Generating for years:', currentYear, 'and', nextYear)
+        // Generate festivals for past years (2022-2024) and future years (2025-2027)
+        const yearsToInclude = [2022, 2023, 2024, 2025, 2026, 2027]
+        console.log('Hindu Festivals - Generating for years:', yearsToInclude)
 
         // Now uses accurate year-specific data that auto-updates for 2025, 2026, 2027+
         // No more static dates - each year has correct lunar calendar dates!
@@ -61,6 +67,54 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
             const yearData: Record<number, Array<{
                 name: string, date: string, description: string, significance: string, category: 'Major Festival' | 'Religious Day' | 'Cultural Event'
             }>> = {
+                2022: [
+                    { name: 'Makar Sankranti / Pongal', date: '2022-01-14', description: 'Harvest festival marking the sun\'s transit into Capricorn', significance: 'Celebration of harvest, thanksgiving, and new beginnings', category: 'Major Festival' },
+                    { name: 'Vasant Panchami / Saraswati Puja', date: '2022-02-05', description: 'Dedicated to Goddess Saraswati, the deity of knowledge and learning', significance: 'Celebration of education, arts, and wisdom', category: 'Religious Day' },
+                    { name: 'Maha Shivaratri', date: '2022-03-01', description: 'Great night of Lord Shiva, celebrated with fasting and prayers', significance: 'Spiritual awakening and devotion to Lord Shiva', category: 'Major Festival' },
+                    { name: 'Holi - Festival of Colors', date: '2022-03-18', description: 'Spring festival celebrating love, joy, and the victory of good over evil', significance: 'Unity, forgiveness, and the arrival of spring', category: 'Major Festival' },
+                    { name: 'Ram Navami', date: '2022-04-10', description: 'Birthday of Lord Rama, the seventh avatar of Lord Vishnu', significance: 'Celebration of dharma, righteousness, and ideal leadership', category: 'Religious Day' },
+                    { name: 'Hanuman Jayanti', date: '2022-04-16', description: 'Birthday of Lord Hanuman, the divine monkey god', significance: 'Devotion, strength, and service to Lord Rama', category: 'Religious Day' },
+                    { name: 'Akshaya Tritiya', date: '2022-05-03', description: 'Auspicious day for new beginnings and charitable acts', significance: 'Eternal prosperity and success in new ventures', category: 'Religious Day' },
+                    { name: 'Guru Purnima', date: '2022-07-13', description: 'Day to honor and express gratitude to spiritual teachers', significance: 'Respect for knowledge, wisdom, and spiritual guidance', category: 'Religious Day' },
+                    { name: 'Raksha Bandhan', date: '2022-08-11', description: 'Festival celebrating the bond between brothers and sisters', significance: 'Family love, protection, and strengthening relationships', category: 'Major Festival' },
+                    { name: 'Krishna Janmashtami', date: '2022-08-19', description: 'Birthday of Lord Krishna, the eighth avatar of Lord Vishnu', significance: 'Divine love, wisdom, and the triumph of good over evil', category: 'Major Festival' },
+                    { name: 'Ganesh Chaturthi', date: '2022-08-31', description: 'Birthday of Lord Ganesha, the remover of obstacles', significance: 'New beginnings, wisdom, and success in endeavors', category: 'Major Festival' },
+                    { name: 'Navratri - Nine Nights of Goddess Durga', date: '2022-09-26', description: 'Nine nights of worship dedicated to Goddess Durga', significance: 'Victory of good over evil, feminine power, and spiritual purification', category: 'Major Festival' },
+                    { name: 'Dussehra / Vijayadashami', date: '2022-10-05', description: 'Victory of Lord Rama over Ravana, celebration of dharma', significance: 'Triumph of righteousness and the burning of evil', category: 'Major Festival' },
+                    { name: 'Diwali - Festival of Lights', date: '2022-10-24', description: 'Celebration of light over darkness, knowledge over ignorance', significance: 'Victory of good over evil, prosperity, and spiritual enlightenment', category: 'Major Festival' }
+                ],
+                2023: [
+                    { name: 'Makar Sankranti / Pongal', date: '2023-01-14', description: 'Harvest festival marking the sun\'s transit into Capricorn', significance: 'Celebration of harvest, thanksgiving, and new beginnings', category: 'Major Festival' },
+                    { name: 'Vasant Panchami / Saraswati Puja', date: '2023-01-26', description: 'Dedicated to Goddess Saraswati, the deity of knowledge and learning', significance: 'Celebration of education, arts, and wisdom', category: 'Religious Day' },
+                    { name: 'Maha Shivaratri', date: '2023-02-18', description: 'Great night of Lord Shiva, celebrated with fasting and prayers', significance: 'Spiritual awakening and devotion to Lord Shiva', category: 'Major Festival' },
+                    { name: 'Holi - Festival of Colors', date: '2023-03-08', description: 'Spring festival celebrating love, joy, and the victory of good over evil', significance: 'Unity, forgiveness, and the arrival of spring', category: 'Major Festival' },
+                    { name: 'Ram Navami', date: '2023-03-30', description: 'Birthday of Lord Rama, the seventh avatar of Lord Vishnu', significance: 'Celebration of dharma, righteousness, and ideal leadership', category: 'Religious Day' },
+                    { name: 'Hanuman Jayanti', date: '2023-04-06', description: 'Birthday of Lord Hanuman, the divine monkey god', significance: 'Devotion, strength, and service to Lord Rama', category: 'Religious Day' },
+                    { name: 'Akshaya Tritiya', date: '2023-04-22', description: 'Auspicious day for new beginnings and charitable acts', significance: 'Eternal prosperity and success in new ventures', category: 'Religious Day' },
+                    { name: 'Guru Purnima', date: '2023-07-03', description: 'Day to honor and express gratitude to spiritual teachers', significance: 'Respect for knowledge, wisdom, and spiritual guidance', category: 'Religious Day' },
+                    { name: 'Raksha Bandhan', date: '2023-08-30', description: 'Festival celebrating the bond between brothers and sisters', significance: 'Family love, protection, and strengthening relationships', category: 'Major Festival' },
+                    { name: 'Krishna Janmashtami', date: '2023-09-07', description: 'Birthday of Lord Krishna, the eighth avatar of Lord Vishnu', significance: 'Divine love, wisdom, and the triumph of good over evil', category: 'Major Festival' },
+                    { name: 'Ganesh Chaturthi', date: '2023-09-19', description: 'Birthday of Lord Ganesha, the remover of obstacles', significance: 'New beginnings, wisdom, and success in endeavors', category: 'Major Festival' },
+                    { name: 'Navratri - Nine Nights of Goddess Durga', date: '2023-10-15', description: 'Nine nights of worship dedicated to Goddess Durga', significance: 'Victory of good over evil, feminine power, and spiritual purification', category: 'Major Festival' },
+                    { name: 'Dussehra / Vijayadashami', date: '2023-10-24', description: 'Victory of Lord Rama over Ravana, celebration of dharma', significance: 'Triumph of righteousness and the burning of evil', category: 'Major Festival' },
+                    { name: 'Diwali - Festival of Lights', date: '2023-11-12', description: 'Celebration of light over darkness, knowledge over ignorance', significance: 'Victory of good over evil, prosperity, and spiritual enlightenment', category: 'Major Festival' }
+                ],
+                2024: [
+                    { name: 'Makar Sankranti / Pongal', date: '2024-01-14', description: 'Harvest festival marking the sun\'s transit into Capricorn', significance: 'Celebration of harvest, thanksgiving, and new beginnings', category: 'Major Festival' },
+                    { name: 'Vasant Panchami / Saraswati Puja', date: '2024-02-14', description: 'Dedicated to Goddess Saraswati, the deity of knowledge and learning', significance: 'Celebration of education, arts, and wisdom', category: 'Religious Day' },
+                    { name: 'Maha Shivaratri', date: '2024-03-08', description: 'Great night of Lord Shiva, celebrated with fasting and prayers', significance: 'Spiritual awakening and devotion to Lord Shiva', category: 'Major Festival' },
+                    { name: 'Holi - Festival of Colors', date: '2024-03-25', description: 'Spring festival celebrating love, joy, and the victory of good over evil', significance: 'Unity, forgiveness, and the arrival of spring', category: 'Major Festival' },
+                    { name: 'Ram Navami', date: '2024-04-17', description: 'Birthday of Lord Rama, the seventh avatar of Lord Vishnu', significance: 'Celebration of dharma, righteousness, and ideal leadership', category: 'Religious Day' },
+                    { name: 'Hanuman Jayanti', date: '2024-04-23', description: 'Birthday of Lord Hanuman, the divine monkey god', significance: 'Devotion, strength, and service to Lord Rama', category: 'Religious Day' },
+                    { name: 'Akshaya Tritiya', date: '2024-05-10', description: 'Auspicious day for new beginnings and charitable acts', significance: 'Eternal prosperity and success in new ventures', category: 'Religious Day' },
+                    { name: 'Guru Purnima', date: '2024-07-21', description: 'Day to honor and express gratitude to spiritual teachers', significance: 'Respect for knowledge, wisdom, and spiritual guidance', category: 'Religious Day' },
+                    { name: 'Raksha Bandhan', date: '2024-08-19', description: 'Festival celebrating the bond between brothers and sisters', significance: 'Family love, protection, and strengthening relationships', category: 'Major Festival' },
+                    { name: 'Krishna Janmashtami', date: '2024-08-26', description: 'Birthday of Lord Krishna, the eighth avatar of Lord Vishnu', significance: 'Divine love, wisdom, and the triumph of good over evil', category: 'Major Festival' },
+                    { name: 'Ganesh Chaturthi', date: '2024-09-07', description: 'Birthday of Lord Ganesha, the remover of obstacles', significance: 'New beginnings, wisdom, and success in endeavors', category: 'Major Festival' },
+                    { name: 'Navratri - Nine Nights of Goddess Durga', date: '2024-10-03', description: 'Nine nights of worship dedicated to Goddess Durga', significance: 'Victory of good over evil, feminine power, and spiritual purification', category: 'Major Festival' },
+                    { name: 'Dussehra / Vijayadashami', date: '2024-10-12', description: 'Victory of Lord Rama over Ravana, celebration of dharma', significance: 'Triumph of righteousness and the burning of evil', category: 'Major Festival' },
+                    { name: 'Diwali - Festival of Lights', date: '2024-11-01', description: 'Celebration of light over darkness, knowledge over ignorance', significance: 'Victory of good over evil, prosperity, and spiritual enlightenment', category: 'Major Festival' }
+                ],
                 2025: [
                     { name: 'Makar Sankranti / Pongal', date: '2025-01-14', description: 'Harvest festival marking the sun\'s transit into Capricorn', significance: 'Celebration of harvest, thanksgiving, and new beginnings', category: 'Major Festival' },
                     { name: 'Vasant Panchami / Saraswati Puja', date: '2025-02-02', description: 'Dedicated to Goddess Saraswati, the deity of knowledge and learning', significance: 'Celebration of education, arts, and wisdom', category: 'Religious Day' },
@@ -95,8 +149,8 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
             return yearData[year] || []
         }
 
-        // Add festivals for current and next year using year-specific data
-        for (const year of [currentYear, nextYear]) {
+        // Add festivals for all included years using year-specific data
+        for (const year of yearsToInclude) {
             const yearFestivals = getYearFestivals(year)
             console.log(`Processing ${yearFestivals.length} festivals for year ${year}`)
             
@@ -104,8 +158,8 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
                 const festival = yearFestivals[i]
                 const date = new Date(festival.date)
                 
-                // Extra verification - only add if year is 2025 or later
-                if (date.getFullYear() >= 2025) {
+                // Add all festivals from 2022 onwards
+                if (date.getFullYear() >= 2022) {
                     festivals.push({
                         id: `${festival.name.toLowerCase().replace(/\s+/g, '-')}-${year}-${i}`,
                         title: festival.name,
@@ -125,9 +179,16 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Fetch events based on time filter
+                const searchParams = timeFilter === 'past' 
+                    ? {} // No filters for past events, get all
+                    : timeFilter === 'upcoming'
+                    ? { futureOnly: 'true', currentYearOnly: 'true' }
+                    : { currentYearOnly: 'true' } // All events for current year
+
                 const [eventsData, webinarsData] = await Promise.all([
-                    getAllEvents({ searchParams: { futureOnly: 'true', currentYearOnly: 'true' } }),
-                    getAllWebinars({ searchParams: { futureOnly: 'true', currentYearOnly: 'true' } })
+                    getAllEvents({ searchParams }),
+                    getAllWebinars({ searchParams })
                 ])
 
                 if (eventsData?.list) {
@@ -146,14 +207,11 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
         if (isOpen) {
             fetchData()
         }
-    }, [isOpen])
+    }, [isOpen, timeFilter])
 
-    // Combine and sort all events, filtering out past events and old year data
+    // Combine and sort all events based on time filter
     const currentDate = new Date()
-    const currentYear = Math.max(currentDate.getFullYear(), 2025) // Force 2025 or later
     currentDate.setHours(0, 0, 0, 0) // Set to start of day for accurate comparison
-    
-    // console.log('Filtering events - Current Date:', currentDate.toDateString(), 'Min Year:', currentYear)
     
     const allEvents: CalendarEvent[] = [
         ...events.map(event => ({
@@ -164,7 +222,9 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
             location: event.location,
             description: event.description,
             link: event.link,
-            category: 'University Events'
+            category: 'University Events',
+            attendees: event.attendees,
+            image: event.image as string
         })),
         ...webinars.map(webinar => ({
             id: webinar._id as string,
@@ -174,7 +234,9 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
             location: webinar.location,
             description: webinar.description,
             link: webinar.link,
-            category: 'Webinars & Sessions'
+            category: 'Webinars & Sessions',
+            attendees: webinar.attendees,
+            image: webinar.image as string
         })),
         ...getHinduFestivals().map(festival => ({
             id: festival.id,
@@ -183,26 +245,28 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
             type: 'tradition' as const,
             location: 'Campus & Community',
             description: festival.description,
-            category: festival.category
+            category: festival.category,
+            significance: festival.significance
         }))
     ]
     .filter(event => {
         const eventDate = new Date(event.date)
         eventDate.setHours(0, 0, 0, 0) // Set to start of day for accurate comparison
         
-        // Only include events from current year onwards and from today onwards
-        const eventYear = eventDate.getFullYear()
-        const isFromCurrentYear = eventYear >= currentYear
-        const isFromToday = eventDate >= currentDate
-        
-        // Filter out events from years before 2025
-        if (eventYear < 2025) {
-            return false // Explicitly exclude any pre-2025 events
+        // Apply time filter
+        if (timeFilter === 'past') {
+            return eventDate < currentDate
+        } else if (timeFilter === 'upcoming') {
+            return eventDate >= currentDate
+        } else { // 'all'
+            // For all events, include from 2022 onwards
+            return eventDate.getFullYear() >= 2022
         }
-        
-        return isFromToday && isFromCurrentYear
     })
-    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .sort((a, b) => timeFilter === 'past' ? b.date.getTime() - a.date.getTime() : a.date.getTime() - b.date.getTime())
+
+    console.log(`All events after filtering (${timeFilter}):`, allEvents.length, 'events')
+    console.log('Hindu festivals in all events:', allEvents.filter(e => e.type === 'tradition').length)
 
     // Filter events based on selected category
     const filteredEvents = selectedCategory === 'all' 
@@ -288,6 +352,16 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
         })
     }
 
+    const handleEventClick = (event: CalendarEvent) => {
+        setSelectedEvent(event)
+        setIsEventModalOpen(true)
+    }
+
+    const closeEventModal = () => {
+        setSelectedEvent(null)
+        setIsEventModalOpen(false)
+    }
+
     if (!isOpen) return null
 
     return (
@@ -371,8 +445,32 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
                         </div>
                     </div>
 
-                    {/* Category Filter */}
+                    {/* Filter Controls */}
                     <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
+                        {/* Time Filter */}
+                        <div className="mb-3">
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                                {[
+                                    { key: 'upcoming', label: 'Upcoming Events' },
+                                    { key: 'past', label: 'Past Events' },
+                                    { key: 'all', label: 'All Events' }
+                                ].map(filter => (
+                                    <button
+                                        key={filter.key}
+                                        onClick={() => setTimeFilter(filter.key as 'all' | 'past' | 'upcoming')}
+                                        className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-colors ${
+                                            timeFilter === filter.key
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                                        }`}
+                                    >
+                                        {filter.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {/* Category Filter */}
                         <div className="flex flex-wrap gap-1.5 sm:gap-2">
                             {categories.map(category => (
                                 <button
@@ -414,7 +512,8 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
                                     filteredEvents.map((event) => (
                                         <div
                                             key={event.id}
-                                            className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:shadow-lg transition-shadow"
+                                            className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                                            onClick={() => handleEventClick(event)}
                                         >
                                             <div className="flex items-start gap-2 sm:gap-4">
                                                 <div className="flex-shrink-0 mt-0.5">
@@ -532,7 +631,7 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
                                                         {dayEvents.slice(0, 2).map((event, index) => (
                                                             <div
                                                                 key={`${event.id}-${index}`}
-                                                                className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-medium truncate ${
+                                                                className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-medium truncate cursor-pointer hover:opacity-80 transition-opacity ${
                                                                     event.type === 'tradition' 
                                                                         ? 'bg-orange-100 text-orange-800' 
                                                                         : event.type === 'webinar'
@@ -540,6 +639,10 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
                                                                         : 'bg-blue-100 text-blue-800'
                                                                 }`}
                                                                 title={event.title}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    handleEventClick(event)
+                                                                }}
                                                             >
                                                                 {event.title}
                                                             </div>
@@ -579,7 +682,7 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
                     <div className="p-3 sm:p-4 border-t border-gray-200 bg-gray-50">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                             <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-                                Showing {filteredEvents.length} upcoming events
+                                Showing {filteredEvents.length} {timeFilter === 'past' ? 'past' : timeFilter === 'upcoming' ? 'upcoming' : ''} events
                             </p>
                             <button
                                 onClick={() => {
@@ -594,6 +697,160 @@ const AcademicCalendar = ({ isOpen, onClose }: AcademicCalendarProps) => {
                     </div>
                 </div>
             </div>
+
+            {/* Event Detail Modal */}
+            {isEventModalOpen && selectedEvent && (
+                <div className="fixed inset-0 z-[60] overflow-y-auto">
+                    {/* Backdrop */}
+                    <div 
+                        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+                        onClick={closeEventModal}
+                    />
+                    
+                    {/* Modal */}
+                    <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
+                        <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-lg lg:max-w-2xl max-h-[95vh] overflow-hidden">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                        {getEventIcon(selectedEvent.type)}
+                                    </div>
+                                    <div>
+                                        <h2 className="text-lg sm:text-xl font-bold text-gray-900">Event Details</h2>
+                                        <p className="text-xs sm:text-sm text-gray-600">{selectedEvent.category}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={closeEventModal}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <FaTimes className="w-5 h-5 text-gray-500" />
+                                </button>
+                            </div>
+
+                            {/* Content */}
+                            <div className="p-4 sm:p-6 max-h-[70vh] overflow-y-auto">
+                                {/* Event Image */}
+                                {selectedEvent.image && (
+                                    <div className="mb-6 relative w-full h-48 sm:h-64">
+                                        <Image
+                                            src={selectedEvent.image}
+                                            alt={selectedEvent.title}
+                                            fill
+                                            className="object-cover rounded-lg"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Event Title */}
+                                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                                    {selectedEvent.title}
+                                </h3>
+
+                                {/* Event Details */}
+                                <div className="space-y-4 mb-6">
+                                    <div className="flex items-center gap-3 text-gray-600">
+                                        <FaCalendarAlt className="w-5 h-5 text-blue-500" />
+                                        <span className="font-medium">{formatDate(selectedEvent.date)}</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-3 text-gray-600">
+                                        <FaClock className="w-5 h-5 text-green-500" />
+                                        <span className="font-medium">{formatTime(selectedEvent.date)}</span>
+                                    </div>
+
+                                    {selectedEvent.location && (
+                                        <div className="flex items-center gap-3 text-gray-600">
+                                            <FaMapMarkerAlt className="w-5 h-5 text-red-500" />
+                                            <span className="font-medium">{selectedEvent.location}</span>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-3">
+                                        <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(selectedEvent.category)}`}>
+                                            {selectedEvent.category}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                {selectedEvent.description && (
+                                    <div className="mb-6">
+                                        <h4 className="text-lg font-semibold text-gray-900 mb-3">Description</h4>
+                                        <p className="text-gray-700 leading-relaxed">
+                                            {selectedEvent.description}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Significance (for traditions) */}
+                                {selectedEvent.significance && (
+                                    <div className="mb-6">
+                                        <h4 className="text-lg font-semibold text-gray-900 mb-3">Cultural Significance</h4>
+                                        <p className="text-gray-700 leading-relaxed">
+                                            {selectedEvent.significance}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Attendees */}
+                                {selectedEvent.attendees && selectedEvent.attendees.length > 0 && (
+                                    <div className="mb-6">
+                                        <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                                            Expected Attendees ({selectedEvent.attendees.length})
+                                        </h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedEvent.attendees.slice(0, 10).map((attendee, index) => (
+                                                <span 
+                                                    key={index}
+                                                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                                                >
+                                                    {attendee}
+                                                </span>
+                                            ))}
+                                            {selectedEvent.attendees.length > 10 && (
+                                                <span className="px-2 py-1 bg-gray-200 text-gray-600 rounded-full text-sm">
+                                                    +{selectedEvent.attendees.length - 10} more
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <div className="p-4 sm:p-6 border-t border-gray-200 bg-gray-50">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div className="text-sm text-gray-600">
+                                        {selectedEvent.type === 'tradition' ? 'Hindu Festival' : 
+                                         selectedEvent.type === 'webinar' ? 'Webinar' : 'University Event'}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {selectedEvent.link && (
+                                            <Link
+                                                href={selectedEvent.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                                            >
+                                                <FaExternalLinkAlt className="w-4 h-4" />
+                                                View Details
+                                            </Link>
+                                        )}
+                                        <button
+                                            onClick={closeEventModal}
+                                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

@@ -151,7 +151,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
       {/* Navigation Arrows - Smaller Size */}
       <button
         onClick={goToPrevious}
-        className={`absolute top-1/2 transform -translate-y-1/2 bg-white/40 hover:bg-white/60 backdrop-blur-sm text-white rounded-full transition-all duration-300 hover:scale-105 z-10 shadow-md hover:shadow-lg ${
+        className={`absolute top-1/2 transform -translate-y-1/2 bg-white/40 hover:bg-white/60 backdrop-blur-sm text-white rounded-full transition-all duration-300 hover:scale-105 z-5 shadow-md hover:shadow-lg ${
           isMobile 
             ? 'left-2 w-8 h-8 flex items-center justify-center' // Smaller mobile buttons
             : 'left-3 md:left-4 lg:left-5 w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 flex items-center justify-center'
@@ -167,7 +167,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
       
       <button
         onClick={goToNext}
-        className={`absolute top-1/2 transform -translate-y-1/2 bg-white/40 hover:bg-white/60 backdrop-blur-sm text-white rounded-full transition-all duration-300 hover:scale-105 z-10 shadow-md hover:shadow-lg ${
+        className={`absolute top-1/2 transform -translate-y-1/2 bg-white/40 hover:bg-white/60 backdrop-blur-sm text-white rounded-full transition-all duration-300 hover:scale-105 z-5 shadow-md hover:shadow-lg ${
           isMobile 
             ? 'right-2 w-8 h-8 flex items-center justify-center' // Smaller mobile buttons
             : 'right-3 md:right-4 lg:right-5 w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 flex items-center justify-center'
@@ -182,7 +182,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
       </button>
 
       {/* Dots Indicator - Mobile Optimized */}
-      <div className={`absolute left-1/2 transform -translate-x-1/2 flex z-10 ${
+      <div className={`absolute left-1/2 transform -translate-x-1/2 flex z-5 ${
         isMobile 
           ? 'bottom-4 space-x-2' // Better spacing and positioning for mobile
           : 'bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 2xl:bottom-12 3xl:bottom-16 space-x-1 sm:space-x-1.5 md:space-x-2 lg:space-x-2.5 xl:space-x-3 2xl:space-x-3.5 3xl:space-x-4'
