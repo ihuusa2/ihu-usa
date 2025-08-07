@@ -112,6 +112,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
+        {/* Google Tag Manager (noscript) */}
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WR68XTZN"
+        height="0" width="0" style={{display:"none",visibility:"hidden"}}></iframe></noscript>
+        {/* End Google Tag Manager (noscript) */}
+        
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-JL84W1E20W"
